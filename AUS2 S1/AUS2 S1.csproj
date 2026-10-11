@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="NK Tree\" />
+    <Folder Include="KD Tree\" />
   </ItemGroup>
 
 </Project>
