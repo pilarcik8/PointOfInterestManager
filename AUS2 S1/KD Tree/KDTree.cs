@@ -1,22 +1,28 @@
-﻿// Made by Gemini 3.8 Flash
+// Made by Gemini 3.8 Flash
+using AUS2_S1.KD_Tree;
+
 namespace AUS2_S1
 {
-    public class KDTree<T> where T : IKDComparable<T>
+    public class KDTree<T> where T : IComparable<T>
     {
         public KDNode<T>? Root { get; set; }
         public int K { get; set; }
-
         public KDTree(int k)
         {
             Root = null;
             K = k;
         }
 
-        public void Insert(T data)
+        public void Insert(T data, LinkedList<KDKey<T>> keys)
         {
+            if (keys.Count != K)
+            {
+                throw new ArgumentException($"Pocet klucov ({keys.Count}) sa nezhoduje s dimenziou stromu ({K}).");
+            }
+
             if (Root == null)
             {
-                Root = new KDNode<T>(data);
+                Root = new KDNode<T>(data, keys);
                 return;
             }
 
@@ -26,13 +32,21 @@ namespace AUS2_S1
             while (true)
             {
                 int dimension = depth % K;
-                int cmp = data.CompareTo(current.Data, dimension);
+
+                // Skontroluj ci sa vsetky kluce zhoduju (duplikat)
+                if (AllKeysMatch(keys, current.Keys))
+                {
+                    current.Data.AddLast(data);
+                    return;
+                }
+
+                int cmp = keys.ElementAt(dimension).CompareTo(current.Keys.ElementAt(dimension));
 
                 if (cmp < 0)
                 {
                     if (current.Left == null)
                     {
-                        current.Left = new KDNode<T>(data);
+                        current.Left = new KDNode<T>(data, keys);
                         return;
                     }
                     current = current.Left;
@@ -42,7 +56,7 @@ namespace AUS2_S1
                     // Hodnoty vacsie alebo rovne idu do praveho podstromu
                     if (current.Right == null)
                     {
-                        current.Right = new KDNode<T>(data);
+                        current.Right = new KDNode<T>(data, keys);
                         return;
                     }
                     current = current.Right;
@@ -53,12 +67,12 @@ namespace AUS2_S1
         }
 
         // Vlozenie / vybudovanie stromu z vopred znamej mnoziny zaznamov pomocou medianov
-        public void Insert(List<T> items)
+        public void Insert(List<(T data, LinkedList<KDKey<T>> keys)> items)
         {
             Build(items);
         }
 
-        public void Build(List<T> items)
+        public void Build(List<(T data, LinkedList<KDKey<T>> keys)> items)
         {
             if (items == null || items.Count == 0)
             {
@@ -66,10 +80,10 @@ namespace AUS2_S1
                 return;
             }
 
-            Root = BuildSubtree(new List<T>(items), 0);
+            Root = BuildSubtree(new List<(T data, LinkedList<KDKey<T>> keys)>(items), 0);
         }
 
-        private KDNode<T>? BuildSubtree(List<T> items, int depth)
+        private KDNode<T>? BuildSubtree(List<(T data, LinkedList<KDKey<T>> keys)> items, int depth)
         {
             if (items.Count == 0)
             {
@@ -77,13 +91,13 @@ namespace AUS2_S1
             }
 
             int dimension = depth % K;
-            items.Sort((a, b) => a.CompareTo(b, dimension));
+            items.Sort((a, b) => a.keys.ElementAt(dimension).CompareTo(b.keys.ElementAt(dimension)));
 
             int medianIndex = items.Count / 2;
-            KDNode<T> node = new KDNode<T>(items[medianIndex]);
+            KDNode<T> node = new KDNode<T>(items[medianIndex].data, items[medianIndex].keys);
 
-            List<T> leftItems = items.GetRange(0, medianIndex);
-            List<T> rightItems = items.GetRange(medianIndex + 1, items.Count - (medianIndex + 1));
+            List<(T data, LinkedList<KDKey<T>> keys)> leftItems = items.GetRange(0, medianIndex);
+            List<(T data, LinkedList<KDKey<T>> keys)> rightItems = items.GetRange(medianIndex + 1, items.Count - (medianIndex + 1));
 
             node.Left = BuildSubtree(leftItems, depth + 1);
             node.Right = BuildSubtree(rightItems, depth + 1);
@@ -92,30 +106,25 @@ namespace AUS2_S1
         }
 
         // Bodove vyhladavanie
-        public T? Find(T target)
+        public KDNode<T>? Find(LinkedList<KDKey<T>> targetKeys)
         {
+            if (targetKeys.Count != K)
+            {
+                throw new ArgumentException($"Pocet klucov ({targetKeys.Count}) sa nezhoduje s dimenziou stromu ({K}).");
+            }
+
             KDNode<T>? current = Root;
             int depth = 0;
 
             while (current != null)
             {
-                bool matchesAll = true;
-                for (int d = 0; d < K; d++)
+                if (AllKeysMatch(targetKeys, current.Keys))
                 {
-                    if (target.CompareTo(current.Data, d) != 0)
-                    {
-                        matchesAll = false;
-                        break;
-                    }
-                }
-
-                if (matchesAll)
-                {
-                    return current.Data;
+                    return current;
                 }
 
                 int dimension = depth % K;
-                int cmp = target.CompareTo(current.Data, dimension);
+                int cmp = targetKeys.ElementAt(dimension).CompareTo(current.Keys.ElementAt(dimension));
 
                 if (cmp < 0)
                 {
@@ -129,23 +138,23 @@ namespace AUS2_S1
                 depth++;
             }
 
-            return default;
+            return null;
         }
 
         // Intervalove vyhladavanie
-        public List<T> FindRange(T min, T max)
+        public List<KDNode<T>> FindRange(LinkedList<KDKey<T>> minKeys, LinkedList<KDKey<T>> maxKeys)
         {
-            List<T> result = new List<T>();
-            FindRangeSubtree(Root, min, max, 0, result);
+            List<KDNode<T>> result = new List<KDNode<T>>();
+            FindRangeSubtree(Root, minKeys, maxKeys, 0, result);
             return result;
         }
 
-        public List<T> FindInterval(T min, T max)
+        public List<KDNode<T>> FindInterval(LinkedList<KDKey<T>> minKeys, LinkedList<KDKey<T>> maxKeys)
         {
-            return FindRange(min, max);
+            return FindRange(minKeys, maxKeys);
         }
 
-        private void FindRangeSubtree(KDNode<T>? current, T min, T max, int depth, List<T> result)
+        private void FindRangeSubtree(KDNode<T>? current, LinkedList<KDKey<T>> minKeys, LinkedList<KDKey<T>> maxKeys, int depth, List<KDNode<T>> result)
         {
             if (current == null)
             {
@@ -156,7 +165,8 @@ namespace AUS2_S1
             bool inside = true;
             for (int d = 0; d < K; d++)
             {
-                if (current.Data.CompareTo(min, d) < 0 || current.Data.CompareTo(max, d) > 0)
+                if (current.Keys.ElementAt(d).CompareTo(minKeys.ElementAt(d)) < 0 ||
+                    current.Keys.ElementAt(d).CompareTo(maxKeys.ElementAt(d)) > 0)
                 {
                     inside = false;
                     break;
@@ -165,22 +175,35 @@ namespace AUS2_S1
 
             if (inside)
             {
-                result.Add(current.Data);
+                result.Add(current);
             }
 
             int dimension = depth % K;
 
             // Do laveho podstromu vetvime len vtedy, ak min hodnota v danej dimenzii <= hodnote uzla
-            if (min.CompareTo(current.Data, dimension) <= 0)
+            if (minKeys.ElementAt(dimension).CompareTo(current.Keys.ElementAt(dimension)) <= 0)
             {
-                FindRangeSubtree(current.Left, min, max, depth + 1, result);
+                FindRangeSubtree(current.Left, minKeys, maxKeys, depth + 1, result);
             }
 
             // Do praveho podstromu vetvime len vtedy, ak max hodnota v danej dimenzii >= hodnote uzla
-            if (max.CompareTo(current.Data, dimension) >= 0)
+            if (maxKeys.ElementAt(dimension).CompareTo(current.Keys.ElementAt(dimension)) >= 0)
             {
-                FindRangeSubtree(current.Right, min, max, depth + 1, result);
+                FindRangeSubtree(current.Right, minKeys, maxKeys, depth + 1, result);
             }
+        }
+
+        // Pomocna metoda: vsetky kluce sa zhoduju
+        private bool AllKeysMatch(LinkedList<KDKey<T>> keysA, LinkedList<KDKey<T>> keysB)
+        {
+            for (int d = 0; d < K; d++)
+            {
+                if (keysA.ElementAt(d).CompareTo(keysB.ElementAt(d)) != 0)
+                {
+                    return false;
+                }
+            }
+            return true;
         }
     }
 }

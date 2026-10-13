@@ -8,7 +8,7 @@ namespace AUS2_S1
         public QNode<T> Root;
         public int MaxDepth;
 
-        public QTree(Polygon boundary, int maxDepth = int.MaxValue)
+        public QTree(Polygon boundary, int maxDepth = int.MaxValue) //rozsah klucov a hlbka stromu
         {
             if (maxDepth < 0)
             {
@@ -83,7 +83,7 @@ namespace AUS2_S1
             InsertPoint(point);
         }
 
-        public void InsertPoint(Point<T> point)
+        public void InsertPoint(Point<T> point) //ak mimo rozsah tak uloz niekde inde
         {
             QNode<T> current = Root;
             int depth = 0;
