@@ -8,7 +8,7 @@ namespace AUS2_S1
         public LinkedList<T> OutOfBoundsData;
         private Func<T, (double x, double y)> GetPosition;
 
-        public QTree(double topLeftX, double topLeftY, double bottomRightX, double bottomRightY, Func<T, (double x, double y)> getPosition, int maxDepth = int.MaxValue) //rozsah klucov a hlbka stromu
+        public QTree(double topLeftX, double topLeftY, double bottomRightX, double bottomRightY, Func<T, (double x, double y)> getPosition, int maxDepth) //rozsah klucov a hlbka stromu
         {
             if (maxDepth < 0)
             {
@@ -26,8 +26,8 @@ namespace AUS2_S1
         {
             var (x, y) = GetPosition(item);
 
-            // Ak je mimo rozsahu Root, uloz do OutOfBoundsData
-            if (!Contains(Root, x, y))
+            // mimo rozsahu Root
+            if (!Root.IsInside(x, y))
             {
                 OutOfBoundsData.AddLast(item);
                 return;
@@ -38,26 +38,19 @@ namespace AUS2_S1
 
             while (true)
             {
+                // dosiahnuta max hlbka -> dame do listu
                 if (depth >= MaxDepth)
                 {
                     current.Data.AddLast(item);
                     return;
                 }
 
-                bool hasChildren = false;
-                for (int i = 0; i < current.Children.Length; i++)
+                // Splitnu sa ak ma uzol deti
+                if (current.HasChildren)
                 {
-                    if (current.Children[i] != null)
-                    {
-                        hasChildren = true;
-                        break;
-                    }
-                }
+                    int targetIndex = current.GetQuadrantIndex(x, y);
 
-                if (hasChildren)
-                {
-                    int targetIndex = GetQuadrantIndex(current, x, y);
-
+                    // neexistuje potrebny syn tak ho vytvorime
                     if (current.Children[targetIndex] == null)
                     {
                         QNode<T>[] quadrants = current.Split();
@@ -93,7 +86,7 @@ namespace AUS2_S1
                 foreach (var existing in existingData)
                 {
                     var (eX, eY) = GetPosition(existing);
-                    int eIndex = GetQuadrantIndex(current, eX, eY);
+                    int eIndex = current.GetQuadrantIndex(eX, eY);
                     if (current.Children[eIndex] == null)
                     {
                         current.Children[eIndex] = splitQuadrants[eIndex];
@@ -101,7 +94,7 @@ namespace AUS2_S1
                     current.Children[eIndex].Data.AddLast(existing);
                 }
 
-                int newIndex = GetQuadrantIndex(current, x, y);
+                int newIndex = current.GetQuadrantIndex(x, y);
                 if (current.Children[newIndex] == null)
                 {
                     current.Children[newIndex] = splitQuadrants[newIndex];
@@ -113,23 +106,24 @@ namespace AUS2_S1
         }
 
         // Vyhladavanie v obdlznikovom intervale
-        public List<T> Find(double minX, double minY, double maxX, double maxY)
+        public LinkedList<T> Find(double minX, double minY, double maxX, double maxY)
         {
-            var result = new List<T>();
+            var result = new LinkedList<T>();
 
             if (Root == null)
             {
                 return result;
             }
 
-            var nodesToVisit = new List<QNode<T>>();
-            nodesToVisit.Add(Root);
+            var nodesToVisit = new LinkedList<QNode<T>>();
+            nodesToVisit.AddLast(Root);
 
-            for (int i = 0; i < nodesToVisit.Count; i++)
+            while (nodesToVisit.Count > 0)
             {
-                QNode<T> current = nodesToVisit[i];
+                QNode<T> current = nodesToVisit.First!.Value;
+                nodesToVisit.RemoveFirst();
 
-                if (!Intersects(current, minX, minY, maxX, maxY))
+                if (!current.Intersects(minX, minY, maxX, maxY))
                 {
                     continue;
                 }
@@ -139,7 +133,7 @@ namespace AUS2_S1
                     var (x, y) = GetPosition(item);
                     if (x >= minX && x <= maxX && y >= minY && y <= maxY)
                     {
-                        result.Add(item);
+                        result.AddLast(item);
                     }
                 }
 
@@ -147,41 +141,12 @@ namespace AUS2_S1
                 {
                     if (child != null)
                     {
-                        nodesToVisit.Add(child);
+                        nodesToVisit.AddLast(child);
                     }
                 }
             }
 
             return result;
-        }
-
-        private bool Intersects(QNode<T> node, double minX, double minY, double maxX, double maxY)
-        {
-            return node.TopLeftX <= maxX &&
-                   node.BottomRightX >= minX &&
-                   node.TopLeftY <= maxY &&
-                   node.BottomRightY >= minY;
-        }
-
-        private bool Contains(QNode<T> node, double x, double y)
-        {
-            return x >= node.TopLeftX && x <= node.BottomRightX &&
-                   y >= node.TopLeftY && y <= node.BottomRightY;
-        }
-
-        private int GetQuadrantIndex(QNode<T> node, double x, double y)
-        {
-            double midX = (node.TopLeftX + node.BottomRightX) / 2;
-            double midY = (node.TopLeftY + node.BottomRightY) / 2;
-
-            if (x < midX)
-            {
-                return (y < midY) ? 0 : 2;
-            }
-            else
-            {
-                return (y < midY) ? 1 : 3;
-            }
         }
     }
 }

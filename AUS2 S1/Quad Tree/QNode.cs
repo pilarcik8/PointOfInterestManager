@@ -10,7 +10,30 @@ namespace AUS2_S1
         // (TL, TR, BL, BR)
         public QNode<T>[] Children { get; set; } = new QNode<T>[4];
         public LinkedList<T> Data { get; set; } = new LinkedList<T>();
+        public bool HasChildren => Children[0] != null || Children[1] != null || Children[2] != null || Children[3] != null;
+        public bool Intersects(double minX, double minY, double maxX, double maxY)
+        {
+            return TopLeftX <= maxX &&
+                   BottomRightX >= minX &&
+                   TopLeftY <= maxY &&
+                   BottomRightY >= minY;
+        }
 
+        // index kvadrantu podla strtinyq
+        public int GetQuadrantIndex(double x, double y)
+        {
+            double midX = (TopLeftX + bottomRightX) / 2;
+            double midY = (TopLeftY + bottomRightY) / 2;
+
+            if (x < midX)
+            {
+                return (y < midY) ? 0 : 2;
+            }
+            else
+            {
+                return (y < midY) ? 1 : 3;
+            }
+        }
         public QNode<T>[] Split()
         {
             double midX = (TopLeftX + BottomRightX) / 2;
@@ -23,6 +46,12 @@ namespace AUS2_S1
                 new QNode<T>(TopLeftX, midY, midX, BottomRightY),     // BL
                 new QNode<T>(midX, midY, BottomRightX, BottomRightY)  // BR
             };
+        }
+
+        public bool IsInside(double x, double y)
+        {
+            return x >= TopLeftX && x <= bottomRightX &&
+                   y >= TopLeftY && y <= bottomRightY;
         }
     }
 }

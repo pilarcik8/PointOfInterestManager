@@ -15,7 +15,9 @@ var stringPositions = new Dictionary<string, (double x, double y)>
     ["Point5"] = (20, 75),
 };
 
-QTree<string> tree = new QTree<string>(0, 0, 100, 100, item => stringPositions[item]);
+QTree<string> tree = new QTree<string>(
+    0, 0, 100, 100, item => stringPositions[item], 2
+);
 
 // 5 bodov (2 maju rovnake kluce)
 tree.Insert("Point1"); // 1. bod
