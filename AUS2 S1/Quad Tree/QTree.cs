@@ -1,43 +1,38 @@
-﻿// Made by Gemini 3.8 Flash
-using System.Numerics;
-
+// Made by Gemini 3.8 Flash
 namespace AUS2_S1
 {
     public class QTree<T>
     {
         public QNode<T> Root;
         public int MaxDepth;
+        public LinkedList<T> OutOfBoundsData;
+        private Func<T, (double x, double y)> GetPosition;
 
-        public QTree(Polygon boundary, int maxDepth = int.MaxValue) //rozsah klucov a hlbka stromu
+        public QTree(double topLeftX, double topLeftY, double bottomRightX, double bottomRightY, Func<T, (double x, double y)> getPosition, int maxDepth = int.MaxValue) //rozsah klucov a hlbka stromu
         {
             if (maxDepth < 0)
             {
                 throw new ArgumentException("maxDepth is negative");
             }
 
-            Root = new QNode<T>(boundary);
+            OutOfBoundsData = new LinkedList<T>();
+            Root = new QNode<T>(topLeftX, topLeftY, bottomRightX, bottomRightY);
             MaxDepth = maxDepth;
+            GetPosition = getPosition;
         }
 
-        public QTree(QNode<T> root, int maxDepth = int.MaxValue)
+
+        public void Insert(T item)
         {
-            if (maxDepth <= 0)
+            var (x, y) = GetPosition(item);
+
+            // Ak je mimo rozsahu Root, uloz do OutOfBoundsData
+            if (!Contains(Root, x, y))
             {
-                throw new ArgumentException("maxDepth is negative");
+                OutOfBoundsData.AddLast(item);
+                return;
             }
 
-            Root = root;
-            MaxDepth = maxDepth;
-        }
-
-        public void CreateAndInsertPolygon(double minX, double minY, double maxX, double maxY)
-        {
-            Polygon polygon = new Polygon(minX, minY, maxX, maxY);
-            InsertPolygon(polygon);
-        }
-
-        public void InsertPolygon(Polygon polygon)
-        {
             QNode<T> current = Root;
             int depth = 0;
 
@@ -45,54 +40,7 @@ namespace AUS2_S1
             {
                 if (depth >= MaxDepth)
                 {
-                    current.OverflowPolygons.Add(polygon);
-                    return;
-                }
-
-                Polygon[] quadrants = current.Boundary.Split();
-                int targetIndex = -1;
-
-                for (int i = 0; i < quadrants.Length; i++)
-                {
-                    if (quadrants[i].CompareWith(polygon) != -1)
-                    {
-                        targetIndex = i;
-                        break;
-                    }
-                }
-
-                if (targetIndex == -1)
-                {
-                    current.OverflowPolygons.Add(polygon);
-                    return;
-                }
-
-                if (current.Children[targetIndex] == null)
-                {
-                    current.Children[targetIndex] = new QNode<T>(quadrants[targetIndex]);
-                }
-
-                current = current.Children[targetIndex];
-                depth++;
-            }
-        }
-
-        public void CreateAndInsertPoint(T data, Func<T, (double x, double y)> getPosition)
-        {
-            Point<T> point = new Point<T>(data, getPosition);
-            InsertPoint(point);
-        }
-
-        public void InsertPoint(Point<T> point) //ak mimo rozsah tak uloz niekde inde
-        {
-            QNode<T> current = Root;
-            int depth = 0;
-
-            while (true)
-            {
-                if (depth >= MaxDepth)
-                {
-                    current.Points.Add(point);
+                    current.Data.AddLast(item);
                     return;
                 }
 
@@ -108,14 +56,12 @@ namespace AUS2_S1
 
                 if (hasChildren)
                 {
-                    Polygon[] quadrants = current.Boundary.Split();
-                    int targetIndex = GetQuadrantIndex(current.Boundary, point.X, point.Y);
+                    int targetIndex = GetQuadrantIndex(current, x, y);
 
                     if (current.Children[targetIndex] == null)
                     {
-                        current.Children[targetIndex] = new QNode<T>(quadrants[targetIndex]);
-                        current.Children[targetIndex].Points.Add(point);
-                        return;
+                        QNode<T>[] quadrants = current.Split();
+                        current.Children[targetIndex] = quadrants[targetIndex];
                     }
 
                     current = current.Children[targetIndex];
@@ -123,118 +69,110 @@ namespace AUS2_S1
                     continue;
                 }
 
-                if (current.Points.Count == 0)
+                // List je prazdny - vloz priamo
+                if (current.Data.Count == 0)
                 {
-                    current.Points.Add(point);
+                    current.Data.AddLast(item);
                     return;
                 }
 
-                if (current.Points[0].X == point.X && current.Points[0].Y == point.Y)
+                // Skontroluj ci existujuce data maju rovnaku poziciu
+                var (existX, existY) = GetPosition(current.Data.First!.Value);
+                if (existX == x && existY == y)
                 {
-                    current.Points.Add(point);
+                    // Rovnaka pozicia - pridaj do toho isteho uzla (duplikaty)
+                    current.Data.AddLast(item);
                     return;
                 }
 
-                Polygon[] splitQuadrants = current.Boundary.Split();
-                List<Point<T>> existingPoints = new List<Point<T>>(current.Points);
-                current.Points.Clear();
+                // Treba splitnut - presun existujuce data do deti
+                QNode<T>[] splitQuadrants = current.Split();
+                LinkedList<T> existingData = current.Data;
+                current.Data = new LinkedList<T>();
 
-                foreach (var p in existingPoints)
+                foreach (var existing in existingData)
                 {
-                    int pIndex = GetQuadrantIndex(current.Boundary, p.X, p.Y);
-                    if (current.Children[pIndex] == null)
+                    var (eX, eY) = GetPosition(existing);
+                    int eIndex = GetQuadrantIndex(current, eX, eY);
+                    if (current.Children[eIndex] == null)
                     {
-                        current.Children[pIndex] = new QNode<T>(splitQuadrants[pIndex]);
+                        current.Children[eIndex] = splitQuadrants[eIndex];
                     }
-                    current.Children[pIndex].Points.Add(p);
+                    current.Children[eIndex].Data.AddLast(existing);
                 }
 
-                int newPointIndex = GetQuadrantIndex(current.Boundary, point.X, point.Y);
-                if (current.Children[newPointIndex] == null)
+                int newIndex = GetQuadrantIndex(current, x, y);
+                if (current.Children[newIndex] == null)
                 {
-                    current.Children[newPointIndex] = new QNode<T>(splitQuadrants[newPointIndex]);
-                    current.Children[newPointIndex].Points.Add(point);
-                    return;
+                    current.Children[newIndex] = splitQuadrants[newIndex];
                 }
 
-                current = current.Children[newPointIndex];
+                current = current.Children[newIndex];
                 depth++;
             }
         }
 
-        public (List<Polygon> Polygons, List<Point<T>> Points) Find(Polygon s)
+        // Vyhladavanie v obdlznikovom intervale
+        public List<T> Find(double minX, double minY, double maxX, double maxY)
         {
-            var foundPolygons = new List<Polygon>();
-            var foundPoints = new List<Point<T>>();
+            var result = new List<T>();
 
-            if (Root == null || s == null)
+            if (Root == null)
             {
-                return (foundPolygons, foundPoints);
+                return result;
             }
 
-            List<QNode<T>> nodesToVisit = new List<QNode<T>>();
+            var nodesToVisit = new List<QNode<T>>();
             nodesToVisit.Add(Root);
 
             for (int i = 0; i < nodesToVisit.Count; i++)
             {
                 QNode<T> current = nodesToVisit[i];
 
-                if (!Intersects(current.Boundary, s))
+                if (!Intersects(current, minX, minY, maxX, maxY))
                 {
                     continue;
                 }
 
-                foreach (var poly in current.OverflowPolygons)
+                foreach (var item in current.Data)
                 {
-                    if (Intersects(poly, s))
+                    var (x, y) = GetPosition(item);
+                    if (x >= minX && x <= maxX && y >= minY && y <= maxY)
                     {
-                        foundPolygons.Add(poly);
-                    }
-                }
-
-                foreach (var pt in current.Points)
-                {
-                    if (Contains(s, pt.X, pt.Y))
-                    {
-                        foundPoints.Add(pt);
+                        result.Add(item);
                     }
                 }
 
                 foreach (var child in current.Children)
                 {
-                    if (child != null && Intersects(child.Boundary, s))
+                    if (child != null)
                     {
                         nodesToVisit.Add(child);
                     }
                 }
             }
 
-            return (foundPolygons, foundPoints);
+            return result;
         }
 
-        public (List<Polygon> Polygons, List<Point<T>> Points) Find(double minX, double minY, double maxX, double maxY)
+        private bool Intersects(QNode<T> node, double minX, double minY, double maxX, double maxY)
         {
-            return Find(new Polygon(minX, minY, maxX, maxY));
+            return node.TopLeftX <= maxX &&
+                   node.BottomRightX >= minX &&
+                   node.TopLeftY <= maxY &&
+                   node.BottomRightY >= minY;
         }
 
-        private bool Intersects(Polygon a, Polygon b)
+        private bool Contains(QNode<T> node, double x, double y)
         {
-            return a.TopLeftX <= b.BottomRightX &&
-                   a.BottomRightX >= b.TopLeftX &&
-                   a.TopLeftY <= b.BottomRightY &&
-                   a.BottomRightY >= b.TopLeftY;
+            return x >= node.TopLeftX && x <= node.BottomRightX &&
+                   y >= node.TopLeftY && y <= node.BottomRightY;
         }
 
-        private bool Contains(Polygon boundary, double x, double y)
+        private int GetQuadrantIndex(QNode<T> node, double x, double y)
         {
-            return x >= boundary.TopLeftX && x <= boundary.BottomRightX &&
-                   y >= boundary.TopLeftY && y <= boundary.BottomRightY;
-        }
-
-        private int GetQuadrantIndex(Polygon boundary, double x, double y)
-        {
-            double midX = (boundary.TopLeftX + boundary.BottomRightX) / 2;
-            double midY = (boundary.TopLeftY + boundary.BottomRightY) / 2;
+            double midX = (node.TopLeftX + node.BottomRightX) / 2;
+            double midY = (node.TopLeftY + node.BottomRightY) / 2;
 
             if (x < midX)
             {

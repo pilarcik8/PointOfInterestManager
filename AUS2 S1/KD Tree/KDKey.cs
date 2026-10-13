@@ -6,14 +6,11 @@ namespace AUS2_S1.KD_Tree
 {
     public class KDKey<T> where T : IComparable<T>
     {
-        private T Value;
+        public readonly T Value;
 
-        public KDKey(T value)
-        {
-            Value = value;
-        }
+        public KDKey(T value) => Value = value;
 
-        public int CompareTo(KDKey<T> other)
+        public int CompareTo(KDKey<T>? other)
         {
             if (other == null)
             {
