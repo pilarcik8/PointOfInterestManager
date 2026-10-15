@@ -79,17 +79,6 @@ namespace AUS2_S1
             }
         }
 
-        public void Build(List<(T data, LinkedList<KDKey<T>> keys)> items)
-        {
-            if (items == null || items.Count == 0)
-            {
-                Root = null;
-                return;
-            }
-
-            Root = BuildSubtree(new List<(T data, LinkedList<KDKey<T>> keys)>(items), 0);
-        }
-
         private KDNode<T>? BuildSubtree(List<(T data, LinkedList<KDKey<T>> keys)> items, int depth)
         {
             if (items.Count == 0)
@@ -154,11 +143,6 @@ namespace AUS2_S1
             List<KDNode<T>> result = new List<KDNode<T>>();
             FindRangeSubtree(Root, minKeys, maxKeys, 0, result);
             return result;
-        }
-
-        public List<KDNode<T>> FindInterval(LinkedList<KDKey<T>> minKeys, LinkedList<KDKey<T>> maxKeys)
-        {
-            return FindRange(minKeys, maxKeys);
         }
 
         private void FindRangeSubtree(KDNode<T>? current, LinkedList<KDKey<T>> minKeys, LinkedList<KDKey<T>> maxKeys, int depth, List<KDNode<T>> result)
