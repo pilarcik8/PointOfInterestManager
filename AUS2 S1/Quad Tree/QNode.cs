@@ -1,4 +1,4 @@
-﻿// Made by Gemini 3.8 Flash
+// Made by Gemini 3.8 Flash
 namespace AUS2_S1
 {
     public class QNode<T>(double topLeftX, double topLeftY, double bottomRightX, double bottomRightY)
@@ -10,7 +10,7 @@ namespace AUS2_S1
         // (TL, TR, BL, BR)
         public QNode<T>[] Children { get; set; } = new QNode<T>[4];
         public LinkedList<T> Data { get; set; } = new LinkedList<T>();
-        public bool HasChildren => Children[0] != null || Children[1] != null || Children[2] != null || Children[3] != null;
+        public bool HasChildren => Children.Any(c => c != null);
         public bool Intersects(double minX, double minY, double maxX, double maxY)
         {
             return TopLeftX <= maxX &&
@@ -22,8 +22,8 @@ namespace AUS2_S1
         // index kvadrantu podla strtinyq
         public int GetQuadrantIndex(double x, double y)
         {
-            double midX = (TopLeftX + bottomRightX) / 2;
-            double midY = (TopLeftY + bottomRightY) / 2;
+            double midX = (TopLeftX + BottomRightX) / 2;
+            double midY = (TopLeftY + BottomRightY) / 2;
 
             if (x < midX)
             {
@@ -50,8 +50,8 @@ namespace AUS2_S1
 
         public bool IsInside(double x, double y)
         {
-            return x >= TopLeftX && x <= bottomRightX &&
-                   y >= TopLeftY && y <= bottomRightY;
+            return x >= TopLeftX && x <= BottomRightX &&
+                   y >= TopLeftY && y <= BottomRightY;
         }
     }
 }

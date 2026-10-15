@@ -7,10 +7,16 @@ namespace AUS2_S1
     {
         public KDNode<T>? Root { get; set; }
         public int K { get; set; }
-        public KDTree(int k)
+        public int MaxDepth { get; set; }
+        public KDTree(int k, int maxDepth)
         {
+            if (maxDepth < 0)
+            {
+                throw new ArgumentException("Max depth is negative");
+            }
             Root = null;
             K = k;
+            MaxDepth = maxDepth;
         }
 
         public void Insert(T data, LinkedList<KDKey<T>> keys)
@@ -32,6 +38,13 @@ namespace AUS2_S1
             while (true)
             {
                 int dimension = depth % K;
+
+                // dosiahnuta max hlbka -> dame do listu
+                if (depth == MaxDepth)
+                {
+                    current.Data.AddLast(data);
+                    return;
+                }
 
                 // Skontroluj ci sa vsetky kluce zhoduju (duplikat)
                 if (AllKeysMatch(keys, current.Keys))
@@ -64,12 +77,6 @@ namespace AUS2_S1
 
                 depth++;
             }
-        }
-
-        // Vlozenie / vybudovanie stromu z vopred znamej mnoziny zaznamov pomocou medianov
-        public void Insert(List<(T data, LinkedList<KDKey<T>> keys)> items)
-        {
-            Build(items);
         }
 
         public void Build(List<(T data, LinkedList<KDKey<T>> keys)> items)

@@ -105,6 +105,12 @@ namespace AUS2_S1
             }
         }
 
+        // Bodove vyhladavanie na suradniciach [x, y]
+        public LinkedList<T> Find(double x, double y)
+        {
+            return Find(x, y, x, y);
+        }
+
         // Vyhladavanie v obdlznikovom intervale
         public LinkedList<T> Find(double minX, double minY, double maxX, double maxY)
         {
