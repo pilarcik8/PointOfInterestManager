@@ -8,7 +8,7 @@ namespace AUS2_S1
         public KDNode<T>? Root { get; set; }
         public int K { get; set; }
         public int MaxDepth { get; set; }
-        public KDTree(int k, int maxDepth)
+        public KDTree(int k, int maxDepth = int.MaxValue)
         {
             if (maxDepth < 0)
             {
@@ -17,6 +17,21 @@ namespace AUS2_S1
             Root = null;
             K = k;
             MaxDepth = maxDepth;
+        }
+
+        public void Insert(T data, params T[] keys)
+        {
+            if (keys.Length != K)
+            {
+                throw new ArgumentException($"Pocet klucov ({keys.Length}) sa nezhoduje s dimenziou stromu ({K}).");
+            }
+
+            var keyList = new LinkedList<KDKey<T>>();
+            foreach (var k in keys)
+            {
+                keyList.AddLast(new KDKey<T>(k));
+            }
+            Insert(data, keyList);
         }
 
         public void Insert(T data, LinkedList<KDKey<T>> keys)

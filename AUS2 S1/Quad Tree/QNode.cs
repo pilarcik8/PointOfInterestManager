@@ -1,6 +1,7 @@
-// Made by Gemini 3.8 Flash
+// Vygenerovane / upravene pomocou AI (Model: Gemini 3.8 Flash)
 namespace AUS2_S1
 {
+    // Vygenerovane / upravene pomocou AI (Model: Gemini 3.8 Flash)
     public class QNode<T>(double topLeftX, double topLeftY, double bottomRightX, double bottomRightY)
     {
         public double TopLeftX { get; set; } = topLeftX;

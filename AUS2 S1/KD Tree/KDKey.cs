@@ -1,13 +1,16 @@
-﻿using System;
+﻿// Vygenerovane / upravene pomocou AI (Model: Gemini 3.8 Flash)
+using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace AUS2_S1.KD_Tree
 {
+    // Vygenerovane / upravene pomocou AI (Model: Gemini 3.8 Flash)
     public class KDKey<T> where T : IComparable<T>
     {
         public readonly T Value;
 
+        // Konstruktor
         public KDKey(T value) => Value = value;
 
         public int CompareTo(KDKey<T>? other)

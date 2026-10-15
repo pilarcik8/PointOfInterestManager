@@ -1,8 +1,9 @@
-﻿// Made by Gemini 3.8 Flash
+// Vygenerovane / upravene pomocou AI (Model: Gemini 3.8 Flash)
 using AUS2_S1.KD_Tree;
 
 namespace AUS2_S1
 {
+    // Vygenerovane / upravene pomocou AI (Model: Gemini 3.8 Flash)
     public class KDNode<T> where T : IComparable<T>
     {
         public LinkedList<T> Data { get; }
