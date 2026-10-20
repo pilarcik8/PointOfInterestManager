@@ -1,0 +1,9 @@
+# Ignorovanie priecinka Data
+Data/
+data/
+
+# Build a generovane subory
+bin/
+obj/
+.vs/
+.vscode/

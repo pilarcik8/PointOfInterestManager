@@ -1,4 +1,5 @@
 // Made by Gemini 3.8 Flash
+using System.Collections.Generic;
 using AUS2_S1.KD_Tree;
 
 namespace AUS2_S1
@@ -94,28 +95,6 @@ namespace AUS2_S1
             }
         }
 
-        private KDNode<T>? BuildSubtree(List<(T data, LinkedList<KDKey<T>> keys)> items, int depth)
-        {
-            if (items.Count == 0)
-            {
-                return null;
-            }
-
-            int dimension = depth % K;
-            items.Sort((a, b) => a.keys.ElementAt(dimension).CompareTo(b.keys.ElementAt(dimension)));
-
-            int medianIndex = items.Count / 2;
-            KDNode<T> node = new KDNode<T>(items[medianIndex].data, items[medianIndex].keys);
-
-            List<(T data, LinkedList<KDKey<T>> keys)> leftItems = items.GetRange(0, medianIndex);
-            List<(T data, LinkedList<KDKey<T>> keys)> rightItems = items.GetRange(medianIndex + 1, items.Count - (medianIndex + 1));
-
-            node.Left = BuildSubtree(leftItems, depth + 1);
-            node.Right = BuildSubtree(rightItems, depth + 1);
-
-            return node;
-        }
-
         // Bodove vyhladavanie
         public KDNode<T>? Find(LinkedList<KDKey<T>> targetKeys)
         {
@@ -153,49 +132,59 @@ namespace AUS2_S1
         }
 
         // Intervalove vyhladavanie
-        public List<KDNode<T>> FindRange(LinkedList<KDKey<T>> minKeys, LinkedList<KDKey<T>> maxKeys)
+        public LinkedList<KDNode<T>> FindRange(LinkedList<KDKey<T>> minKeys, LinkedList<KDKey<T>> maxKeys)
         {
-            List<KDNode<T>> result = new List<KDNode<T>>();
+            var result = new LinkedList<KDNode<T>>();
             FindRangeSubtree(Root, minKeys, maxKeys, 0, result);
             return result;
         }
 
-        private void FindRangeSubtree(KDNode<T>? current, LinkedList<KDKey<T>> minKeys, LinkedList<KDKey<T>> maxKeys, int depth, List<KDNode<T>> result)
+        // Nerekurzivna verzia intervaloveho vyhladavania pomocou LinkedListu
+        private void FindRangeSubtree(KDNode<T>? rootNode, LinkedList<KDKey<T>> minKeys, LinkedList<KDKey<T>> maxKeys, int startDepth, LinkedList<KDNode<T>> result)
         {
-            if (current == null)
+            if (rootNode == null)
             {
                 return;
             }
 
-            // Skontrolujeme, ci aktualny uzol lezi v intervale vo vsetkych dimenziach
-            bool inside = true;
-            for (int d = 0; d < K; d++)
+            var nodesToVisit = new LinkedList<(KDNode<T> node, int depth)>();
+            nodesToVisit.AddLast((rootNode, startDepth));
+
+            while (nodesToVisit.Count > 0)
             {
-                if (current.Keys.ElementAt(d).CompareTo(minKeys.ElementAt(d)) < 0 ||
-                    current.Keys.ElementAt(d).CompareTo(maxKeys.ElementAt(d)) > 0)
+                var (current, depth) = nodesToVisit.Last!.Value;
+                nodesToVisit.RemoveLast();
+
+                // Skontrolujeme, ci aktualny uzol lezi v intervale vo vsetkych dimenziach
+                bool inside = true;
+                for (int d = 0; d < K; d++)
                 {
-                    inside = false;
-                    break;
+                    if (current.Keys.ElementAt(d).CompareTo(minKeys.ElementAt(d)) < 0 ||
+                        current.Keys.ElementAt(d).CompareTo(maxKeys.ElementAt(d)) > 0)
+                    {
+                        inside = false;
+                        break;
+                    }
                 }
-            }
 
-            if (inside)
-            {
-                result.Add(current);
-            }
+                if (inside)
+                {
+                    result.AddLast(current);
+                }
 
-            int dimension = depth % K;
+                int dimension = depth % K;
 
-            // Do laveho podstromu vetvime len vtedy, ak min hodnota v danej dimenzii <= hodnote uzla
-            if (minKeys.ElementAt(dimension).CompareTo(current.Keys.ElementAt(dimension)) <= 0)
-            {
-                FindRangeSubtree(current.Left, minKeys, maxKeys, depth + 1, result);
-            }
+                // Do praveho podstromu vetvime len vtedy, ak max hodnota v danej dimenzii >= hodnote uzla
+                if (current.Right != null && maxKeys.ElementAt(dimension).CompareTo(current.Keys.ElementAt(dimension)) >= 0)
+                {
+                    nodesToVisit.AddLast((current.Right, depth + 1));
+                }
 
-            // Do praveho podstromu vetvime len vtedy, ak max hodnota v danej dimenzii >= hodnote uzla
-            if (maxKeys.ElementAt(dimension).CompareTo(current.Keys.ElementAt(dimension)) >= 0)
-            {
-                FindRangeSubtree(current.Right, minKeys, maxKeys, depth + 1, result);
+                // Do laveho podstromu vetvime len vtedy, ak min hodnota v danej dimenzii <= hodnote uzla
+                if (current.Left != null && minKeys.ElementAt(dimension).CompareTo(current.Keys.ElementAt(dimension)) <= 0)
+                {
+                    nodesToVisit.AddLast((current.Left, depth + 1));
+                }
             }
         }
 
