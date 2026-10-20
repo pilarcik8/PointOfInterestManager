@@ -6,12 +6,9 @@ using System.Text;
 namespace AUS2_S1.KD_Tree
 {
     // Vygenerovane / upravene pomocou AI (Model: Gemini 3.8 Flash)
-    public class KDKey<T> where T : IComparable<T>
+    public class KDKey<T>(T value) where T : IComparable<T>
     {
-        public readonly T Value;
-
-        // Konstruktor
-        public KDKey(T value) => Value = value;
+        public readonly T Value = value;
 
         public int CompareTo(KDKey<T>? other)
         {

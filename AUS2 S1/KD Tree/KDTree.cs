@@ -135,20 +135,13 @@ namespace AUS2_S1
         public LinkedList<KDNode<T>> FindRange(LinkedList<KDKey<T>> minKeys, LinkedList<KDKey<T>> maxKeys)
         {
             var result = new LinkedList<KDNode<T>>();
-            FindRangeSubtree(Root, minKeys, maxKeys, 0, result);
-            return result;
-        }
-
-        // Nerekurzivna verzia intervaloveho vyhladavania pomocou LinkedListu
-        private void FindRangeSubtree(KDNode<T>? rootNode, LinkedList<KDKey<T>> minKeys, LinkedList<KDKey<T>> maxKeys, int startDepth, LinkedList<KDNode<T>> result)
-        {
-            if (rootNode == null)
+            if (Root == null)
             {
-                return;
+                return result;
             }
 
             var nodesToVisit = new LinkedList<(KDNode<T> node, int depth)>();
-            nodesToVisit.AddLast((rootNode, startDepth));
+            nodesToVisit.AddLast((Root, 0));
 
             while (nodesToVisit.Count > 0)
             {
@@ -186,6 +179,8 @@ namespace AUS2_S1
                     nodesToVisit.AddLast((current.Left, depth + 1));
                 }
             }
+
+            return result;
         }
 
         // Pomocna metoda: vsetky kluce sa zhoduju

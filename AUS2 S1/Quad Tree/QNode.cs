@@ -40,13 +40,13 @@ namespace AUS2_S1
             double midX = (TopLeftX + BottomRightX) / 2;
             double midY = (TopLeftY + BottomRightY) / 2;
 
-            return new QNode<T>[]
-            {
+            return
+            [
                 new QNode<T>(TopLeftX, TopLeftY, midX, midY),         // TL
                 new QNode<T>(midX, TopLeftY, BottomRightX, midY),     // TR
                 new QNode<T>(TopLeftX, midY, midX, BottomRightY),     // BL
                 new QNode<T>(midX, midY, BottomRightX, BottomRightY)  // BR
-            };
+            ];
         }
 
         public bool IsInside(double x, double y)
