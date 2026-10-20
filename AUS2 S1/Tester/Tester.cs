@@ -105,7 +105,7 @@ namespace AUS2_S1
 
         // Konstruktor pre QTree
         public Tester(
-            QTree<int> qTree,
+            QTree<int, double> qTree,
             Dictionary<int, (double x, double y)> positionMap,
             int operationsCount = 50,
             int insertProbability = 60,
@@ -131,7 +131,7 @@ namespace AUS2_S1
                     {
                         throw new ArgumentException("QTree vyzaduje 2 kluce [x, y].");
                     }
-                    return qTree.Find(keys[0], keys[1], keys[0], keys[1]);
+                    return qTree.FindRange(keys[0], keys[1], keys[0], keys[1]);
                 },
                 operationsCount,
                 insertProbability,

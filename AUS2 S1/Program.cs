@@ -2,7 +2,7 @@ using AUS2_S1;
 
 // 1. Test pre QuadTree s fixnym seedom 42 a vypisom kazdych 10 operacii
 var qMap = new Dictionary<int, (double x, double y)>();
-var testQTree = new QTree<int>(
+var testQTree = new QTree<int, double>(
     topLeftX: 0,
     topLeftY: 0,
     bottomRightX: 100,

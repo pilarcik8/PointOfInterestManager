@@ -1,29 +1,32 @@
 // Vygenerovane / upravene pomocou AI (Model: Gemini 3.8 Flash)
+using System;
+using System.Collections.Generic;
+using System.Numerics;
+
 namespace AUS2_S1
 {
     // Vygenerovane / upravene pomocou AI (Model: Gemini 3.8 Flash)
-    public class QTree<T>
+    public class QTree<TData, TPosition> where TPosition : INumber<TPosition>
     {
-        public QNode<T> Root;
+        public QNode<TData, TPosition> Root;
         public int MaxDepth;
-        public LinkedList<T> OutOfBoundsData;
-        private Func<T, (double x, double y)> GetPosition;
+        public LinkedList<TData> OutOfBoundsData;
+        private Func<TData, (TPosition x, TPosition y)> GetPosition;
 
-        public QTree(double topLeftX, double topLeftY, double bottomRightX, double bottomRightY, Func<T, (double x, double y)> getPosition, int maxDepth) //rozsah klucov a hlbka stromu
+        public QTree(TPosition topLeftX, TPosition topLeftY, TPosition bottomRightX, TPosition bottomRightY, Func<TData, (TPosition x, TPosition y)> getPosition, int maxDepth)
         {
             if (maxDepth < 0)
             {
                 throw new ArgumentException("maxDepth is negative");
             }
 
-            OutOfBoundsData = new LinkedList<T>();
-            Root = new QNode<T>(topLeftX, topLeftY, bottomRightX, bottomRightY);
+            OutOfBoundsData = new LinkedList<TData>();
+            Root = new QNode<TData, TPosition>(topLeftX, topLeftY, bottomRightX, bottomRightY);
             MaxDepth = maxDepth;
             GetPosition = getPosition;
         }
 
-
-        public void Insert(T item)
+        public void Insert(TData item)
         {
             var (x, y) = GetPosition(item);
 
@@ -34,7 +37,7 @@ namespace AUS2_S1
                 return;
             }
 
-            QNode<T> current = Root;
+            QNode<TData, TPosition> current = Root;
             int depth = 0;
 
             while (true)
@@ -54,7 +57,7 @@ namespace AUS2_S1
                     // neexistuje potrebny syn tak ho vytvorime
                     if (current.Children[targetIndex] == null)
                     {
-                        QNode<T>[] quadrants = current.Split();
+                        QNode<TData, TPosition>[] quadrants = current.Split();
                         current.Children[targetIndex] = quadrants[targetIndex];
                     }
 
@@ -80,9 +83,9 @@ namespace AUS2_S1
                 }
 
                 // Treba splitnut - presun existujuce data do deti
-                QNode<T>[] splitQuadrants = current.Split();
-                LinkedList<T> existingData = current.Data;
-                current.Data = new LinkedList<T>();
+                QNode<TData, TPosition>[] splitQuadrants = current.Split();
+                LinkedList<TData> existingData = current.Data;
+                current.Data = new LinkedList<TData>();
 
                 foreach (var existing in existingData)
                 {
@@ -107,21 +110,21 @@ namespace AUS2_S1
         }
 
         // Vyhladavanie v obdlznikovom intervale
-        public LinkedList<T> Find(double minX, double minY, double maxX, double maxY)
+        public LinkedList<TData> FindRange(TPosition minX, TPosition minY, TPosition maxX, TPosition maxY)
         {
-            var result = new LinkedList<T>();
+            var result = new LinkedList<TData>();
 
             if (Root == null)
             {
                 return result;
             }
 
-            var nodesToVisit = new LinkedList<QNode<T>>();
+            var nodesToVisit = new LinkedList<QNode<TData, TPosition>>();
             nodesToVisit.AddLast(Root);
 
             while (nodesToVisit.Count > 0)
             {
-                QNode<T> current = nodesToVisit.First!.Value;
+                QNode<TData, TPosition> current = nodesToVisit.First!.Value;
                 nodesToVisit.RemoveFirst();
 
                 if (!current.Intersects(minX, minY, maxX, maxY))
