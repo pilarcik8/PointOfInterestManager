@@ -1,6 +1,8 @@
+// Vygenerovane / upravene pomocou AI (Modely: Gemini 3.8 Flash, Claude Sonnet 4.6) - Prompt 26, 27, 34, 35
 using System.Collections.Generic;
 using AUS2_S1;
 using AUS2_S1.KD_Tree;
+using AUS2_S1.Tester;
 
 // 1. Test QTree s datami zo suborov v Data/
 // TData = long (id uzla), TPosition = double (lat/lon)

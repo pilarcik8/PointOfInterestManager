@@ -1,12 +1,11 @@
-// Vygenerovane / upravene pomocou AI (Model: Gemini 3.8 Flash)
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using AUS2_S1.KD_Tree;
 
-namespace AUS2_S1
+namespace AUS2_S1.Tester
 {
-    // Vygenerovane / upravene pomocou AI (Model: Gemini 3.8 Flash)
+    // Vygenerovane / upravene pomocou AI (Model: Gemini 3.8 Flash) - Prompt 27 (vytvorenie), Prompt 34 (finálna štruktúra s checkInterval)
     public class Tester
     {
         private readonly QTree<int, double>? _qTree;
@@ -18,6 +17,7 @@ namespace AUS2_S1
         private readonly int _checkInterval;
 
         // Konstruktor pre QTree
+        // Vygenerovane / upravene pomocou AI (Model: Gemini 3.8 Flash) - Prompt 27 (vytvorenie konštruktora), Prompt 33 (zmena na QTree<int, double>)
         public Tester(
             QTree<int, double> qTree,
             int operationsCount,
@@ -34,6 +34,7 @@ namespace AUS2_S1
         }
 
         // Konstruktor pre KDTree
+        // Vygenerovane / upravene pomocou AI (Model: Gemini 3.8 Flash) - Prompt 27 (vytvorenie konštruktora)
         public Tester(
             KDTree<int> kdTree,
             int operationsCount,
@@ -49,6 +50,7 @@ namespace AUS2_S1
             RunKDTreeTest();
         }
 
+        // Vygenerovane / upravene pomocou AI (Model: Gemini 3.8 Flash) - Prompt 34 (zjednotenie logiky a úprava generovania maxLength)
         private void RunQTreeTest()
         {
             var random = new Random(_seed);
@@ -107,6 +109,7 @@ namespace AUS2_S1
             Console.WriteLine("--------------------------------------------------");
         }
 
+        // Vygenerovane / upravene pomocou AI (Model: Gemini 3.8 Flash) - Prompt 34 (úprava podľa RunQTreeTest, pridanie kontroly integrity)
         private void RunKDTreeTest()
         {
             var random = new Random(_seed);

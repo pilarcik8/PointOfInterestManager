@@ -1,22 +1,18 @@
-// Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6)
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Numerics;
 using AUS2_S1.KD_Tree;
 
-namespace AUS2_S1
+namespace AUS2_S1.Tester
 {
-    // Tester ktory dostane predparsovane data z CSVParser a otestuje QTree alebo KDTree
-    // TData = typ dat (napr. long, int), TPosition = typ suradnic (napr. double, float)
-    // Oba musia implementovat IParsable (cize parsovatelne z retazca)
+    // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt 35
     public class TesterFromCSVData<TData, TPosition>
         where TData : notnull, IComparable<TData>, IParsable<TData>
         where TPosition : INumber<TPosition>, IParsable<TPosition>
     {
         // Konstruktor pre QTree
-        // points: ColumnData = id, ColumnA = x, ColumnB = y
-        // ranges: ColumnId = id, ColumnMinA = minX, ColumnMinB = minY, ColumnMaxA = maxX, ColumnMaxB = maxY
+        // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt 35
         public TesterFromCSVData(
             QTree<TData, TPosition> qTree,
             Dictionary<TData, (TPosition x, TPosition y)> positionMap,
@@ -102,9 +98,7 @@ namespace AUS2_S1
             Console.WriteLine("----------------------------------------------------------------------\n");
         }
 
-        // Konstruktor pre KDTree
-        // points: ColumnData = data, ColumnA = kluc1, ColumnB = kluc2
-        // ranges: ColumnId = id, ColumnMinA = min1, ColumnMinB = min2, ColumnMaxA = max1, ColumnMaxB = max2
+        // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt 35
         public TesterFromCSVData(
             KDTree<TData> kdTree,
             CSVParser points,
@@ -186,7 +180,8 @@ namespace AUS2_S1
             Console.WriteLine("----------------------------------------------------------------------\n");
         }
 
-        // Porovnanie dvoch LinkedListov bez ohladu na poradie
+        // Konstruktor pre KDTree
+        // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt 35
         private static bool AreListsEqual<T>(LinkedList<T> a, LinkedList<T> b) where T : notnull
         {
             if (a.Count != b.Count)

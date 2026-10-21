@@ -1,11 +1,10 @@
-// Vygenerovane / upravene pomocou AI (Model: Gemini 3.8 Flash)
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 
 namespace AUS2_S1
 {
-    // Vygenerovane / upravene pomocou AI (Model: Gemini 3.8 Flash)
+    // Vygenerovane / upravene pomocou AI (Model: Gemini 3.8 Flash) - Prompt 33 (Zavedenie TPosition a INumber)
     public class QNode<TData, TPosition>(TPosition topLeftX, TPosition topLeftY, TPosition bottomRightX, TPosition bottomRightY)
         where TPosition : INumber<TPosition>
     {
@@ -16,8 +15,11 @@ namespace AUS2_S1
         // (TL, TR, BL, BR)
         public QNode<TData, TPosition>[] Children { get; set; } = new QNode<TData, TPosition>[4];
         public LinkedList<TData> Data { get; set; } = new LinkedList<TData>();
+
+        // Vygenerovane / upravene pomocou AI (Model: Gemini 3.8 Flash) - Prompt 25 (Zovšeobecnenie QNode bez Polygonu/Pointu)
         public bool HasChildren => Children.Any(c => c != null);
 
+        // Vygenerovane / upravene pomocou AI (Model: Gemini 3.8 Flash) - Prompt 25, upravené v Prompt 33
         public bool Intersects(TPosition minX, TPosition minY, TPosition maxX, TPosition maxY)
         {
             return TopLeftX <= maxX &&
@@ -26,7 +28,7 @@ namespace AUS2_S1
                    BottomRightY >= minY;
         }
 
-        // index kvadrantu podla stredu
+        // Vygenerovane / upravene pomocou AI (Model: Gemini 3.8 Flash) - Prompt 25, upravené v Prompt 33
         public int GetQuadrantIndex(TPosition x, TPosition y)
         {
             TPosition two = TPosition.CreateChecked(2);
@@ -43,6 +45,7 @@ namespace AUS2_S1
             }
         }
 
+        // Vygenerovane / upravene pomocou AI (Model: Gemini 3.8 Flash) - Prompt 25, upravené v Prompt 33
         public QNode<TData, TPosition>[] Split()
         {
             TPosition two = TPosition.CreateChecked(2);
@@ -58,16 +61,11 @@ namespace AUS2_S1
             ];
         }
 
+        // Vygenerovane / upravene pomocou AI (Model: Gemini 3.8 Flash) - Prompt 25, upravené v Prompt 33
         public bool IsInside(TPosition x, TPosition y)
         {
             return x >= TopLeftX && x <= BottomRightX &&
                    y >= TopLeftY && y <= BottomRightY;
         }
-    }
-
-    // Pre spatnu kompatibilitu: QNode s jednym parametrom pouzije double
-    public class QNode<TData>(double topLeftX, double topLeftY, double bottomRightX, double bottomRightY)
-        : QNode<TData, double>(topLeftX, topLeftY, bottomRightX, bottomRightY)
-    {
     }
 }

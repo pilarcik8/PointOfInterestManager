@@ -1,14 +1,16 @@
-// Made by Gemini 3.8 Flash
 using System.Collections.Generic;
 using AUS2_S1.KD_Tree;
 
-namespace AUS2_S1
+namespace AUS2_S1.KD_Tree
 {
+    // Vygenerovane / upravene pomocou AI (Model: Gemini 3.8 Flash) - Prompt 17 (kostra), Prompt 24 (refaktor na KDKey)
     public class KDTree<T> where T : IComparable<T>
     {
         public KDNode<T>? Root { get; set; }
         public int K { get; set; }
         public int MaxDepth { get; set; }
+
+        // Vygenerovane / upravene pomocou AI (Model: Gemini 3.8 Flash) - Prompt 27 (pridanie maxDepth pre Tester)
         public KDTree(int k, int maxDepth = int.MaxValue)
         {
             if (maxDepth < 0)
@@ -20,21 +22,7 @@ namespace AUS2_S1
             MaxDepth = maxDepth;
         }
 
-        public void Insert(T data, params T[] keys)
-        {
-            if (keys.Length != K)
-            {
-                throw new ArgumentException($"Pocet klucov ({keys.Length}) sa nezhoduje s dimenziou stromu ({K}).");
-            }
-
-            var keyList = new LinkedList<KDKey<T>>();
-            foreach (var k in keys)
-            {
-                keyList.AddLast(new KDKey<T>(k));
-            }
-            Insert(data, keyList);
-        }
-
+        // Vygenerovane / upravene pomocou AI (Model: Gemini 3.8 Flash) - Prompt 24 (hlavná logika s KDKey), Prompt 27 (kontrola MaxDepth)
         public void Insert(T data, LinkedList<KDKey<T>> keys)
         {
             if (keys.Count != K)
@@ -95,7 +83,7 @@ namespace AUS2_S1
             }
         }
 
-        // Bodove vyhladavanie
+        // Vygenerovane / upravene pomocou AI (Model: Gemini 3.8 Flash) - Prompt 24 (úprava Find pre prácu s KDKey)
         public KDNode<T>? Find(LinkedList<KDKey<T>> targetKeys)
         {
             if (targetKeys.Count != K)
@@ -131,7 +119,7 @@ namespace AUS2_S1
             return null;
         }
 
-        // Intervalove vyhladavanie
+        // Vygenerovane / upravene pomocou AI (Model: Gemini 3.8 Flash) - Prompt 28 (prvý nerekurzívny pokus), Prompt 29 (finálna verzia cez LinkedList namiesto Stacku)
         public LinkedList<KDNode<T>> FindRange(LinkedList<KDKey<T>> minKeys, LinkedList<KDKey<T>> maxKeys)
         {
             var result = new LinkedList<KDNode<T>>();
@@ -183,7 +171,7 @@ namespace AUS2_S1
             return result;
         }
 
-        // Pomocna metoda: vsetky kluce sa zhoduju
+        // Vygenerovane / upravene pomocou AI (Model: Gemini 3.8 Flash) - Prompt 24 (pomocná metóda pre duplikáty zavedená s KDKey)
         private bool AllKeysMatch(LinkedList<KDKey<T>> keysA, LinkedList<KDKey<T>> keysB)
         {
             for (int d = 0; d < K; d++)
