@@ -1,37 +1,43 @@
+using System.Collections.Generic;
 using AUS2_S1;
+using AUS2_S1.KD_Tree;
 
-// 1. Test pre QuadTree s fixnym seedom 42 a vypisom kazdych 10 operacii
-var qMap = new Dictionary<int, (double x, double y)>();
-var testQTree = new QTree<int, double>(
-    topLeftX: 0,
-    topLeftY: 0,
-    bottomRightX: 100,
-    bottomRightY: 100,
+// 1. Test QTree s datami zo suborov v Data/
+// TData = long (id uzla), TPosition = double (lat/lon)
+var qMap = new Dictionary<long, (double x, double y)>();
+var qTree = new QTree<long, double>(
+    topLeftX: 47.0,
+    topLeftY: 16.0,
+    bottomRightX: 50.0,
+    bottomRightY: 23.0,
     getPosition: id => qMap[id],
-    maxDepth: 6
+    maxDepth: 16
 );
 
-var qTester = new Tester(
-    qTree: testQTree,
+var pointsParser = new CSVParser();
+pointsParser.LoadPoints("Data/slovakia_nodes.csv");
+
+var rangesParser = new CSVParser();
+rangesParser.LoadRanges("Data/testovacie_oblasti.csv");
+
+var qTester = new TesterFromCSVData<long, double>(
+    qTree: qTree,
     positionMap: qMap,
-    operationsCount: 50,
-    insertProbability: 70,
-    seed: 42,
-    printStep: 10
+    points: pointsParser,
+    ranges: rangesParser,
+    checkInterval: 100000
 );
-qTester.Run();
 
-// 2. Test pre KDTree s nahodnym seedom a vypisom kazdych 10 operacii
-var testKDTree = new KDTree<int>(
+// 2. Test KDTree s datami zo suborov v Data/
+// TData = long (id/data uzla), TPosition = double (lat/lon suradnice)
+var kdTree = new KDTree<long>(
     k: 2,
     maxDepth: 100
 );
 
-var kdTester = new Tester(
-    kdTree: testKDTree,
-    operationsCount: 50,
-    insertProbability: 70,
-    seed: null,
-    printStep: 10
+var kdTester = new TesterFromCSVData<long, double>(
+    kdTree: kdTree,
+    points: pointsParser,
+    ranges: rangesParser,
+    checkInterval: 100000
 );
-kdTester.Run();
