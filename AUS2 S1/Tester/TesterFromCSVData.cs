@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Numerics;
 using AUS2_S1.KD_Tree;
+using AUS2_S1.Hybrid_Quad_Tree;
 
 namespace AUS2_S1.Tester
 {
@@ -95,6 +96,87 @@ namespace AUS2_S1.Tester
 
             Console.WriteLine("----------------------------------------------------------------------");
             Console.WriteLine($"TesterFromCSVData QTree dokonceny: {insertCount} insertov, {rangeCount} FindRange OK.");
+            Console.WriteLine("----------------------------------------------------------------------\n");
+        }
+
+        public TesterFromCSVData(
+            HybridQTree<TData, TPosition> qTree,
+            Dictionary<TData, (TPosition x, TPosition y)> positionMap,
+            CSVParser points,
+            CSVParser ranges,
+            int checkInterval)
+        {
+            var referenceList = new LinkedList<(TData id, TPosition x, TPosition y)>();
+            var dataNode = points.ColumnData.First;
+            var aNode = points.ColumnA.First;
+            var bNode = points.ColumnB.First;
+            int insertCount = 0;
+
+            while (dataNode != null && aNode != null && bNode != null)
+            {
+                TData id = TData.Parse(dataNode.Value, CultureInfo.InvariantCulture);
+                TPosition x = TPosition.Parse(aNode.Value, CultureInfo.InvariantCulture);
+                TPosition y = TPosition.Parse(bNode.Value, CultureInfo.InvariantCulture);
+                positionMap[id] = (x, y);
+                qTree.Insert(id);
+                referenceList.AddLast((id, x, y));
+                insertCount++;
+                if (insertCount % checkInterval == 0)
+                {
+                    Console.WriteLine($"[Hybrid Insert {insertCount}] Vlozeno {insertCount} prvkov...");
+                }
+                dataNode = dataNode.Next;
+                aNode = aNode.Next;
+                bNode = bNode.Next;
+            }
+
+            var idNode = ranges.ColumnId.First;
+            var minANode = ranges.ColumnMinA.First;
+            var minBNode = ranges.ColumnMinB.First;
+            var maxANode = ranges.ColumnMaxA.First;
+            var maxBNode = ranges.ColumnMaxB.First;
+            int rangeCount = 0;
+
+            while (idNode != null && minANode != null && minBNode != null &&
+                   maxANode != null && maxBNode != null)
+            {
+                TPosition minX = TPosition.Parse(minANode.Value, CultureInfo.InvariantCulture);
+                TPosition minY = TPosition.Parse(minBNode.Value, CultureInfo.InvariantCulture);
+                TPosition maxX = TPosition.Parse(maxANode.Value, CultureInfo.InvariantCulture);
+                TPosition maxY = TPosition.Parse(maxBNode.Value, CultureInfo.InvariantCulture);
+                var actual = qTree.FindRange(minX, minY, maxX, maxY);
+                var expected = new LinkedList<TData>();
+
+                foreach (var item in referenceList)
+                {
+                    if (item.x >= minX && item.x <= maxX &&
+                        item.y >= minY && item.y <= maxY)
+                    {
+                        expected.AddLast(item.id);
+                    }
+                }
+
+                if (!AreListsEqual(actual, expected))
+                {
+                    throw new InvalidOperationException(
+                        $"Chyba Hybrid FindRange pre oblast #{idNode.Value}: " +
+                        $"ocakavane {expected.Count}, ziskane {actual.Count}.");
+                }
+
+                rangeCount++;
+                if (rangeCount % checkInterval == 0)
+                {
+                    Console.WriteLine($"[Hybrid FindRange {rangeCount}] OK...");
+                }
+                idNode = idNode.Next;
+                minANode = minANode.Next;
+                minBNode = minBNode.Next;
+                maxANode = maxANode.Next;
+                maxBNode = maxBNode.Next;
+            }
+
+            Console.WriteLine("----------------------------------------------------------------------");
+            Console.WriteLine($"TesterFromCSVData HybridQTree dokonceny: {insertCount} insertov, {rangeCount} FindRange OK.");
             Console.WriteLine("----------------------------------------------------------------------\n");
         }
 
