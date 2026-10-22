@@ -1,0 +1,63 @@
+﻿using System;
+using System.Threading;
+using NetTopologySuite.Geometries;
+using NetTopologySuite.Geometries.Prepared;
+using NUnit.Framework;
+
+namespace NetTopologySuite.Tests.NUnit.Performance.Geometries.Prepared
+{
+
+    /// <summary>
+    /// Tests for race conditions in the PreparedGeometry classes.
+    /// </summary>
+    /// <author>Martin Davis</author>
+    public class PreparedGeometryThreadSafeTest : ThreadTestCase
+    {
+        private readonly int nPts = 100000;
+        private readonly GeometryFactory _factory = new GeometryFactory(new PrecisionModel(1.0));
+        private IPreparedGeometry _preparedGeometry;
+
+        public override void Setup()
+        {
+            var sinePoly = CreateSineStar(new Coordinate(0, 0), 100000.0, nPts);
+            _preparedGeometry = PreparedGeometryFactory.Prepare(sinePoly);
+
+            WaitHandles = new WaitHandle[ThreadTestRunner.DefaultThreadCount];
+        }
+
+        private Geometry CreateSineStar(Coordinate origin, double size, int numberOfPoints)
+        {
+            var gsf = new NetTopologySuite.Geometries.Utilities.SineStarFactory(_factory)
+                {Centre = origin, Size = size, NumPoints = numberOfPoints, ArmLengthRatio = 0.1, NumArms = 20};
+            var poly = gsf.CreateSineStar();
+            return poly;
+        }
+
+        public override object Argument => _preparedGeometry;
+
+        private static readonly Random Rnd = new Random();
+        public override ParameterizedThreadStart GetRunnable(int threadIndex)
+        {
+            WaitHandles[threadIndex] = new AutoResetEvent(false);
+            return delegate(object parameter)
+                {
+                    var pg = (IPreparedGeometry) parameter;
+
+                    for (int i = 0; i < 20; i++)
+                    {
+                        var g = CreateSineStar(new Coordinate(Rnd.Next(-10, 10), Rnd.Next(-10, 10)), 100000.0, Rnd.Next(75, 110));
+                        bool intersects = pg.Intersects(g);
+                        Console.WriteLine("ThreadId {0} Test {1} Result {2}", threadIndex, i, intersects);
+                    }
+
+                    ((AutoResetEvent) WaitHandles[threadIndex]).Set();
+                };
+        }
+
+        [Test]
+        public void TestIntersectsThreadSafe()
+        {
+            ThreadTestRunner.Run(new PreparedGeometryThreadSafeTest());
+        }
+    }
+}

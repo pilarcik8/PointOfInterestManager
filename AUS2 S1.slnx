@@ -1,3 +1,8 @@
 <Solution>
+  <Folder Name="/External KD Trees/" />
+  <Folder Name="/External KD Trees/NetTopologySuite-develop/" />
+  <Folder Name="/External KD Trees/NetTopologySuite-develop/src/">
+    <Project Path="External KD Trees/NetTopologySuite-develop/src/NetTopologySuite/NetTopologySuite.csproj" />
+  </Folder>
   <Project Path="AUS2 S1/AUS2 S1.csproj" />
 </Solution>

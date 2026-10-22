@@ -1,0 +1,249 @@
+/*
+The MIT License (MIT)
+
+Copyright (c) 2017 Roger Hill
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files 
+(the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, 
+publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do 
+so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF 
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE 
+FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
+
+using FastG;
+using NUnit.Framework;
+using SpatialTrees.Quadtrees;
+using System.Collections.Generic;
+
+namespace SpatialTreesTests
+{
+    [TestFixture]
+    [Category("Quadtree")]
+    public class SpatialTreesTests
+    {
+        private Quadtree _Quadtree;
+
+        [OneTimeSetUp]
+        public void Init()
+        {
+            _Quadtree = new Quadtree(new AARectangle(0, 0, 100, 100), 5, 10);
+
+            _Quadtree.AddItem(new TestItem() { Name = "TestItem1", Location = new Point2(1, 1), ObjectType = (int)TestItem.Properties.Property1 });
+            _Quadtree.AddItem(new TestItem() { Name = "TestItem2", Location = new Point2(5, 5), ObjectType = (int)TestItem.Properties.Property2 });
+            _Quadtree.AddItem(new TestItem() { Name = "TestItem3", Location = new Point2(25, 25), ObjectType = (int)TestItem.Properties.Property2 });
+            _Quadtree.AddItem(new TestItem() { Name = "TestItem4", Location = new Point2(50, 50), ObjectType = (int)TestItem.Properties.Property1 });
+            _Quadtree.AddItem(new TestItem() { Name = "TestItem5", Location = new Point2(75, 75), ObjectType = (int)TestItem.Properties.Property3 });
+            _Quadtree.AddItem(new TestItem() { Name = "TestItem6", Location = new Point2(100, 100), ObjectType = (int)TestItem.Properties.All });
+        }
+
+        [Test]
+        [Category("Quadtree")]
+        public void Quadtree_FindItemsBasicSquare_Passes()
+        {
+            var itemsFound = new List<IMapObject2d>();
+            var searchArea = new AARectangle(1, 1, 1, 1);
+            _Quadtree.GetCollidingItems(searchArea, (int)TestItem.Properties.Property1, itemsFound);
+
+            Assert.That(itemsFound.Count == 1, Is.True);
+        }
+
+        [Test]
+        [Category("Quadtree")]
+        public void Quadtree_FindItemsBasicSquareOversized_Passes()
+        {
+            var itemsFound = new List<IMapObject2d>();
+            var searchArea = new AARectangle(-1, -1, 102, 102);
+            _Quadtree.GetCollidingItems(searchArea, (int)TestItem.Properties.Property1, itemsFound);
+
+            Assert.That(itemsFound.Count == 3, Is.True);
+        }
+
+        [Test]
+        [Category("Quadtree")]
+        public void Quadtree_FindItemsBasicCircle_Passes()
+        {
+            var itemsFound = new List<IMapObject2d>();
+            var searchArea = new Circle(1, 1, 1);
+            _Quadtree.GetCollidingItems(searchArea, (int)TestItem.Properties.Property1, itemsFound);
+
+            Assert.That(itemsFound.Count == 1, Is.True);
+        }
+
+        [Test]
+        [Category("Quadtree")]
+        public void Quadtree_FindItemsBasicCircleOversized_Passes()
+        {
+            var itemsFound = new List<IMapObject2d>();
+            var searchArea = new Circle(50, 50, 100);
+            _Quadtree.GetCollidingItems(searchArea, (int)TestItem.Properties.Property1, itemsFound);
+
+            Assert.That(itemsFound.Count == 3, Is.True);
+        }
+
+        [Test]
+        [Category("Quadtree")]
+        public void Quadtree_FindItemsWithMatchingProperty_Passes()
+        {
+            var itemsFound = new List<IMapObject2d>();
+            var searchArea = new Circle(3, 3, 5);
+            _Quadtree.GetCollidingItems(searchArea, (int)TestItem.Properties.Property2, itemsFound);
+
+            Assert.That(itemsFound.Count == 1, Is.True);
+        }
+
+        // Renamed from "...SquareTangent_Passes": the search rectangle (0,0)-(1,1) and TestItem1's
+        // bounding box (0.5,0.5)-(1.5,1.5) genuinely overlap over a 0.5x0.5 area, they don't just touch
+        // at an edge/corner. See QuadtreeCollisionTests for true zero-area tangency cases.
+        [Test]
+        [Category("Quadtree")]
+        public void Quadtree_FindItemsBasicSquareOverlapping_Passes()
+        {
+            var itemsFound = new List<IMapObject2d>();
+            var searchArea = new AARectangle(0, 0, 1, 1);
+            _Quadtree.GetCollidingItems(searchArea, (int)TestItem.Properties.Property1, itemsFound);
+
+            Assert.That(itemsFound.Count == 1, Is.True);
+        }
+
+        // Renamed from "...CircleTangent_Passes": the circle center (1,2)/radius 1 comes within 0.5 units
+        // of TestItem1's bounding box, well inside the radius rather than exactly touching it.
+        // See QuadtreeCollisionTests for true boundary-distance tangency.
+        [Test]
+        [Category("Quadtree")]
+        public void Quadtree_FindItemsBasicCircleOverlapping_Passes()
+        {
+            var itemsFound = new List<IMapObject2d>();
+            var searchArea = new Circle(1, 2, 1);
+            _Quadtree.GetCollidingItems(searchArea, (int)TestItem.Properties.Property1, itemsFound);
+
+            Assert.That(itemsFound.Count == 1, Is.True);
+        }
+
+        [Test]
+        [Category("Quadtree")]
+        public void Quadtree_FindItemsRectangle_NoIntersection_ReturnsFalseAndEmptySet()
+        {
+            var itemsFound = new List<IMapObject2d>();
+            var searchArea = new AARectangle(40, 0, 5, 5); // clear of every seeded item
+            var result = _Quadtree.GetCollidingItems(searchArea, (int)TestItem.Properties.All, itemsFound);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(result, Is.False);
+                Assert.That(itemsFound, Is.Empty);
+            });
+        }
+
+        [Test]
+        [Category("Quadtree")]
+        public void Quadtree_FindItemsCircle_NoIntersection_ReturnsFalseAndEmptySet()
+        {
+            var itemsFound = new List<IMapObject2d>();
+            var searchArea = new Circle(40, 0, 2); // clear of every seeded item
+            var result = _Quadtree.GetCollidingItems(searchArea, (int)TestItem.Properties.All, itemsFound);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(result, Is.False);
+                Assert.That(itemsFound, Is.Empty);
+            });
+        }
+
+        [Test]
+        [Category("Quadtree")]
+        public void Quadtree_FindItems_ReturnValueTrueWhenAnyItemFound()
+        {
+            var itemsFound = new List<IMapObject2d>();
+            var searchArea = new AARectangle(1, 1, 1, 1);
+            var result = _Quadtree.GetCollidingItems(searchArea, (int)TestItem.Properties.Property1, itemsFound);
+
+            Assert.That(result, Is.True);
+        }
+
+        // TestItem6 carries Properties.All, so any single-flag search mask is a subset of its flags
+        // and should match it regardless of how the query happens to prune the tree (a small area that
+        // only touches TestItem6's own bounding box, vs one large enough to fully contain the node).
+        [Test]
+        [Category("Quadtree")]
+        public void Quadtree_ObjectTypeMask_PartialOverlapSearch_IncludesItemWithAllFlagsSet()
+        {
+            var itemsFound = new List<IMapObject2d>();
+            var searchArea = new AARectangle(99, 99, 2, 2); // overlaps TestItem6 only, far smaller than the world rectangle
+            _Quadtree.GetCollidingItems(searchArea, (int)TestItem.Properties.Property1, itemsFound);
+
+            Assert.That(itemsFound, Has.Some.Property(nameof(TestItem.Name)).EqualTo("TestItem6"));
+        }
+
+        [Test]
+        [Category("Quadtree")]
+        public void Quadtree_ObjectTypeMask_SearchAreaContainsWholeNode_IncludesItemWithAllFlagsSet()
+        {
+            var itemsFound = new List<IMapObject2d>();
+            var searchArea = new AARectangle(-1, -1, 102, 102); // contains the entire world rectangle
+            _Quadtree.GetCollidingItems(searchArea, (int)TestItem.Properties.Property1, itemsFound);
+
+            Assert.That(itemsFound, Has.Some.Property(nameof(TestItem.Name)).EqualTo("TestItem6"));
+        }
+
+        // A query mask combining several types is an OR: it returns items that carry any
+        // one of those types, not only items that carry all of them.
+        [Test]
+        [Category("Quadtree")]
+        public void Quadtree_ObjectTypeMask_CombinedMask_MatchesItemsOfEitherType()
+        {
+            var itemsFound = new List<IMapObject2d>();
+            var searchArea = new AARectangle(-1, -1, 102, 102); // contains the entire world rectangle
+            int mask = (int)TestItem.Properties.Property2 | (int)TestItem.Properties.Property3;
+            _Quadtree.GetCollidingItems(searchArea, mask, itemsFound);
+
+            // TestItem2/3 (Property2), TestItem5 (Property3), TestItem6 (All) match; the Property1-only items do not
+            Assert.That(itemsFound.Count, Is.EqualTo(4));
+        }
+
+        [Test]
+        [Category("Quadtree")]
+        public void Quadtree_ObjectTypeMask_MaskDisjointFromItem_ExcludesItem()
+        {
+            var itemsFound = new List<IMapObject2d>();
+            var searchArea = new AARectangle(4, 4, 3, 3); // overlaps TestItem2 (Property2) only
+            _Quadtree.GetCollidingItems(searchArea, (int)TestItem.Properties.Property1, itemsFound);
+
+            Assert.That(itemsFound, Is.Empty);
+        }
+
+        // The caller owns the result list and is expected to reuse it, so the fill overloads
+        // reject null rather than quietly allocating one the caller can never see again.
+        [Test]
+        [Category("Quadtree")]
+        public void Quadtree_GetCollidingItems_NullResultList_Throws()
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.Throws<System.ArgumentNullException>(
+                    () => _Quadtree.GetCollidingItems(new AARectangle(1, 1, 1, 1), (int)TestItem.Properties.Property1, null));
+                Assert.Throws<System.ArgumentNullException>(
+                    () => _Quadtree.GetCollidingItems(new Circle(1, 1, 1), (int)TestItem.Properties.Property1, null));
+            });
+        }
+
+        [Test]
+        [Category("Quadtree")]
+        public void Quadtree_GetCollidingItems_AllocatingOverloads_ReturnHits()
+        {
+            var rectHits = _Quadtree.GetCollidingItems(new AARectangle(-1, -1, 102, 102), (int)TestItem.Properties.Property1);
+            var circleHits = _Quadtree.GetCollidingItems(new Circle(1, 1, 1), (int)TestItem.Properties.Property1);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(rectHits, Has.Count.EqualTo(3));
+                Assert.That(circleHits, Has.Count.EqualTo(1));
+            });
+        }
+    }
+}

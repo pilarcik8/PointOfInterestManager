@@ -63,3 +63,6 @@ var kdTester = new TesterFromCSVData<long, double>(
     ranges: rangesParser,
     checkInterval: 100000
 );
+
+// 3. Test externych implementacii s rovnakymi CSV datami.
+ExternalTreeTester.Run(pointsParser, rangesParser);

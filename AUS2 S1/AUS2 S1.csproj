@@ -8,4 +8,9 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\External KD Trees\NetTopologySuite-develop\src\NetTopologySuite\NetTopologySuite.csproj" />
+    <ProjectReference Include="..\External Quad Trees\SpatialTrees-master\SpatialTrees\SpatialTrees.csproj" />
+  </ItemGroup>
+
 </Project>
