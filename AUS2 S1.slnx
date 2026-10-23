@@ -2,11 +2,15 @@
   <Folder Name="/External KD Trees/" />
   <Folder Name="/External KD Trees/NetTopologySuite-develop/" />
   <Folder Name="/External KD Trees/NetTopologySuite-develop/src/">
-    <Project Path="External KD Trees/NetTopologySuite-develop/src/NetTopologySuite/NetTopologySuite.csproj" />
+    <Project Path="External Trees/NetTopologySuite-develop/src/NetTopologySuite/NetTopologySuite.csproj" />
   </Folder>
   <Folder Name="/External Quad Trees/" />
   <Folder Name="/External Quad Trees/SpatialTrees-master/">
-    <Project Path="External Quad Trees/SpatialTrees-master/SpatialTrees/SpatialTrees.csproj" />
+    <Project Path="External Trees/SpatialTrees-master/SpatialTrees/SpatialTrees.csproj" />
+  </Folder>
+  <Folder Name="/External Trees/" />
+  <Folder Name="/External Trees/QuadTree-master/">
+    <Project Path="External Trees/QuadTree-master/QuadTree.csproj" />
   </Folder>
   <Project Path="AUS2 S1/AUS2 S1.csproj" />
 </Solution>

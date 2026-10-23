@@ -1,3 +1,11 @@
+//QAUD:
+// QuadTree: https://github.com/futurechris/QuadTree - 41 stars - 1 watching - 12 forks
+// NetTopologySuite: https://github.com/NetTopologySuite/NetTopologySuite -1.7k stars - 94 watching - 338 forks
+// SpatialTrees: https://github.com/hroger1030/SpatialTrees - 1 star - 1 watching - 0 forks
+
+//KD:
+// NetTopologySuite: https://github.com/NetTopologySuite/NetTopologySuite -1.7k stars - 94 watching - 338 forks
+
 // Vygenerovane / upravene pomocou AI (Modely: Gemini 3.8 Flash, Claude Sonnet 4.6) - Prompt 26, 27, 34, 35
 using AUS2_S1.Tester;
 
@@ -8,4 +16,4 @@ var rangesParser = new CSVParser();
 rangesParser.LoadRanges("C:\\Users\\Admin\\source\\repos\\AUS2 S1\\AUS2 S1\\Data\\testovacie_oblasti.csv");
 
 // Rychlostny tester vlastnych aj externych stromov.
-ExternalDataTreeTester.Run(pointsParser, rangesParser, maxRanges : 100);
+ExternalDataTreeTester.Run(pointsParser, rangesParser, maxPoints : 100000, maxRanges : 10000);

@@ -8,6 +8,7 @@ using NetTopologySuite.Index.KdTree;
 using SpatialTrees.Quadtrees;
 using AUS2_S1.Hybrid_Quad_Tree;
 using AUS2_S1.KD_Tree;
+using QuadTree;
 
 namespace AUS2_S1.Tester
 {
@@ -141,6 +142,39 @@ namespace AUS2_S1.Tester
         }
     }
 
+    // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt pridanie QuadTree-master adaptéra do testera
+    internal sealed class QuadTreeMasterAdapter : IBenchmarkTree
+    {
+        private const float PointSize = 0.000001f;
+        private readonly QuadTree<long> _tree =
+            new(16, 16, 47f, 16f, 3f, 7f);
+        private List<long> _result = new();
+
+        // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt pridanie QuadTree-master adaptéra do testera
+        public void Insert(long id, double x, double y)
+        {
+            _tree.Insert(
+                id,
+                new Quad(
+                    (float)x,
+                    (float)y,
+                    (float)x + PointSize,
+                    (float)y + PointSize));
+        }
+
+        // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt pridanie QuadTree-master adaptéra do testera
+        public void FindRange(double minX, double minY, double maxX, double maxY)
+        {
+            _tree.SearchArea(
+                new Quad(
+                    (float)minX,
+                    (float)minY,
+                    (float)maxX,
+                    (float)maxY),
+                ref _result);
+        }
+    }
+
     // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt vytvorenie jednoducheho testera externych stromov
     internal sealed class NetTopologyKdTreeAdapter : IBenchmarkTree
     {
@@ -216,7 +250,8 @@ namespace AUS2_S1.Tester
             var rangeData = LoadRanges(ranges, maxRanges);
             RunBenchmark("Vlastny KD strom", new OwnKdTreeAdapter(), pointData, rangeData);
             RunBenchmark("Vlastny Quad strom", new OwnQuadTreeAdapter(), pointData, rangeData);
-            RunBenchmark("Hybridny Quad strom", new HybridQuadTreeAdapter(), pointData, rangeData);
+            RunBenchmark("Vlastny Hybridny Quad strom", new HybridQuadTreeAdapter(), pointData, rangeData);
+            RunBenchmark("QuadTree-master", new QuadTreeMasterAdapter(), pointData, rangeData);
             RunBenchmark("NetTopologySuite KD strom", new NetTopologyKdTreeAdapter(), pointData, rangeData);
             RunBenchmark("NetTopologySuite Quad strom", new NetTopologyQuadTreeAdapter(), pointData, rangeData);
             RunBenchmark("SpatialTrees Quad strom", new SpatialTreesQuadTreeAdapter(), pointData, rangeData);
