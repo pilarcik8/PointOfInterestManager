@@ -1,0 +1,66 @@
+@startuml
+!theme plain
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+
+package "Benchmark Jadro" {
+    interface IBenchmarkTree {
+        + Insert(long id, double x, double y)
+        + FindRange(minX, minY, maxX, maxY)
+    }
+
+    class ExternalDataTreeTester {
+        + Run(CSVParser, CSVParser)
+    }
+    
+    ExternalDataTreeTester ..> IBenchmarkTree : používa
+}
+
+package "Vlastné Adaptéry" {
+    class OwnKdTreeAdapter
+    class OwnQuadTreeAdapter
+    class HybridQuadTreeAdapter
+
+    OwnKdTreeAdapter ..|> IBenchmarkTree
+    OwnQuadTreeAdapter ..|> IBenchmarkTree
+    HybridQuadTreeAdapter ..|> IBenchmarkTree
+}
+
+package "Adaptéry pre Externé Knižnice" {
+    class QuadTreeMasterAdapter
+    class NetTopologySuiteKdTreeAdapter
+    class NetTopologyQuadTreeAdapter
+    class SpatialTreesQuadTreeAdapter
+    class OmniKdTreeAdapter
+    class BkdTreeAdapter
+
+    QuadTreeMasterAdapter ..|> IBenchmarkTree
+    NetTopologySuiteKdTreeAdapter ..|> IBenchmarkTree
+    NetTopologyQuadTreeAdapter ..|> IBenchmarkTree
+    SpatialTreesQuadTreeAdapter ..|> IBenchmarkTree
+    OmniKdTreeAdapter ..|> IBenchmarkTree
+    BkdTreeAdapter ..|> IBenchmarkTree
+}
+
+package "Externé Knižnice" <<Rectangle>> {
+    class QuadTree <<external>>
+    class NetTopologySuite <<external>>
+    class SpatialTrees <<external>>
+    class Omni_Collections <<external>>
+    class BKDTree <<external>>
+}
+
+' Naznačenie závislostí adaptérov na externé knižnice
+QuadTreeMasterAdapter ..> QuadTree : obaľuje
+NetTopologySuiteKdTreeAdapter ..> NetTopologySuite : obaľuje
+NetTopologyQuadTreeAdapter ..> NetTopologySuite : obaľuje
+SpatialTreesQuadTreeAdapter ..> SpatialTrees : obaľuje
+OmniKdTreeAdapter ..> Omni_Collections : obaľuje
+BkdTreeAdapter ..> BKDTree : obaľuje
+
+' Naznačenie závislostí vlastných adaptérov na vlastné štruktúry (pre kontext)
+OwnKdTreeAdapter ..> KDTree : obaľuje
+OwnQuadTreeAdapter ..> QTree : obaľuje
+HybridQuadTreeAdapter ..> HybridQTree : obaľuje
+
+@enduml
