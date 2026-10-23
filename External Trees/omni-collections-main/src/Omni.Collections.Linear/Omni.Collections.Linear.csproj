@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <PackageId>OmniCollections.Linear</PackageId>
+    <Description>Linear data structures (FastQueue, MinHeap, BoundedList) for Omni.Collections</Description>
+    <PackageTags>collections;linear;queue;heap;performance</PackageTags>
+    <PackageReleaseNotes>Linear data structures: FastQueue, MinHeap, BoundedList, PooledList, PooledStack</PackageReleaseNotes>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../Omni.Collections.Core/Omni.Collections.Core.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,382 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Threading;
+using Omni.Collections.Hybrid.LinkedDictionary;
+using Omni.Collections.Core.Node;
+using Omni.Collections.Core.Security;
+using Omni.Collections.Core.Time;
+
+namespace Omni.Collections.Hybrid
+{
+    /// <summary>
+    /// A thread-safe LRU dictionary with per-bucket monitors for hash-table mutation and a per-instance LRU writer lock for ordering.
+    /// Reads acquire the per-bucket monitor briefly to update the access timestamp; writes (AddOrUpdate on existing key, Remove,
+    /// MoveToFront) additionally acquire the LRU writer lock. Enumeration takes a one-time O(N) snapshot of the LRU chain under the read lock, then releases the lock before yielding — concurrent writers are not blocked during iteration.
+    /// Suited to high-concurrency LRU caches and multi-threaded event processors where strict access-order eviction matters; if
+    /// only insertion-order semantics are needed, <see cref="LinkedDictionary.LinkedDictionary{TKey,TValue}"/> is leaner.
+    /// </summary>
+    public class ConcurrentLinkedDictionary<TKey, TValue> : IEnumerable<KeyValuePair<TKey, TValue>>, IDisposable
+        where TKey : notnull
+    {
+        #region Bucket
+        sealed private class Bucket
+        {
+            private UniversalDictionaryNode<TKey, TValue>? _head;
+
+            private readonly object _lock = new object();
+            public bool TryGet(TKey key, int hashCode, IEqualityComparer<TKey> comparer, long timestamp, out UniversalDictionaryNode<TKey, TValue>? node)
+            {
+                lock (_lock)
+                {
+                    node = _head;
+                    while (node != null) {
+                        if (node.HashCode == hashCode && comparer.Equals(node.Key, key)) {
+                            UniversalNodeHelper.SetAccessTime(node, timestamp);
+                            return true;
+                        }
+                        node = node.Next;
+                    }
+                    return false;
+                }
+            }
+
+            public void AddOrUpdate(UniversalDictionaryNode<TKey, TValue> newNode, TKey key, int hashCode, IEqualityComparer<TKey> comparer, out UniversalDictionaryNode<TKey, TValue>? existing)
+            {
+                lock (_lock) {
+                    UniversalDictionaryNode<TKey, TValue>? current = _head;
+                    while (current != null) {
+                        if (current.HashCode == hashCode && comparer.Equals(current.Key, key)) {
+                            existing = current;
+                            current.Value = newNode.Value;
+                            UniversalNodeHelper.SetAccessTime(current, UniversalNodeHelper.GetAccessTime(newNode));
+                            return;
+                        }
+                        current = current.Next;
+                    }
+                    existing = null;
+                    newNode.Next = _head;
+                    _head = newNode;
+                }
+            }
+
+            public bool TryRemove(TKey key, int hashCode, IEqualityComparer<TKey> comparer, out UniversalDictionaryNode<TKey, TValue>? removed)
+            {
+                lock (_lock) {
+                    UniversalDictionaryNode<TKey, TValue>? current = _head;
+                    UniversalDictionaryNode<TKey, TValue>? previous = null;
+                    while (current != null) {
+                        if (current.HashCode == hashCode && comparer.Equals(current.Key, key)) {
+                            removed = current;
+                            if (previous == null)
+                                _head = current.Next;
+                            else
+                                previous.Next = current.Next;
+                            return true;
+                        }
+                        previous = current;
+                        current = current.Next;
+                    }
+                    removed = null;
+                    return false;
+                }
+            }
+
+            public void Clear()
+            {
+                lock (_lock)
+                {
+                    _head = null;
+                }
+            }
+        }
+        #endregion Bucket
+        private readonly Bucket[] _buckets;
+        private volatile UniversalDictionaryNode<TKey, TValue>? _lruHead;
+        private volatile UniversalDictionaryNode<TKey, TValue>? _lruTail;
+        private volatile int _count;
+        private readonly int _maxCapacity;
+        private readonly CapacityMode _capacityMode;
+        private readonly IEqualityComparer<TKey> _comparer;
+        private readonly SecureHashOptions _hashOptions;
+        private readonly IClock _clock;
+        private readonly ReaderWriterLockSlim _lruLock = new ReaderWriterLockSlim();
+        public int Count => _count;
+        public CapacityMode Mode => _capacityMode;
+        public ConcurrentLinkedDictionary() : this(1024)
+        {
+        }
+
+        public ConcurrentLinkedDictionary(int capacity, CapacityMode mode = CapacityMode.Dynamic)
+            : this(capacity, mode, null, null, null)
+        {
+        }
+
+        public ConcurrentLinkedDictionary(int capacity, IClock clock)
+            : this(capacity, CapacityMode.Dynamic, null, null, clock ?? throw new ArgumentNullException(nameof(clock)))
+        {
+        }
+
+        public static ConcurrentLinkedDictionary<TKey, TValue> CreateWithoutPooling(int capacity = 1024, CapacityMode mode = CapacityMode.Dynamic, IEqualityComparer<TKey>? comparer = null, SecureHashOptions? hashOptions = null)
+        {
+            return new ConcurrentLinkedDictionary<TKey, TValue>(capacity, mode, comparer, hashOptions, null);
+        }
+
+        private ConcurrentLinkedDictionary(int capacity, CapacityMode mode, IEqualityComparer<TKey>? comparer, SecureHashOptions? hashOptions, IClock? clock)
+        {
+            if (capacity < 0)
+                throw new ArgumentOutOfRangeException(nameof(capacity));
+            _capacityMode = mode;
+            _maxCapacity = mode == CapacityMode.Fixed ? capacity : int.MaxValue;
+            _hashOptions = hashOptions ?? SecureHashOptions.Default;
+            _clock = clock ?? SystemClock.Instance;
+
+            // Use secure comparer if randomized hashing is enabled and no custom comparer provided
+            if (_hashOptions.EnableRandomizedHashing && comparer == null)
+            {
+                _comparer = SecureHashHelper.CreateSecureComparer<TKey>();
+            }
+            else
+            {
+                _comparer = comparer ?? EqualityComparer<TKey>.Default;
+            }
+            var bucketCount = HybridUtils.GetNextPowerOfTwo(capacity);
+            _buckets = new Bucket[bucketCount];
+            for (int i = 0; i < bucketCount; i++)
+            {
+                _buckets[i] = new Bucket();
+            }
+        }
+
+        public TValue this[TKey key]
+        {
+            get
+            {
+                if (TryGetValue(key, out var value))
+                    return value;
+                throw new KeyNotFoundException($"Key '{key}' was not found");
+            }
+            set => AddOrUpdate(key, value);
+        }
+
+        public bool TryGetValue(TKey key, out TValue value)
+        {
+            var hashCode = _comparer.GetHashCode(key) & 0x7FFFFFFF;
+            var bucket = _buckets[hashCode % _buckets.Length];
+            if (bucket.TryGet(key, hashCode, _comparer, _clock.GetTimestamp(), out UniversalDictionaryNode<TKey, TValue>? node))
+            {
+                value = node!.Value;
+                return true;
+            }
+            value = default!;
+            return false;
+        }
+
+        public void AddOrUpdate(TKey key, TValue value)
+        {
+            var hashCode = _comparer.GetHashCode(key) & 0x7FFFFFFF;
+            var bucket = _buckets[hashCode % _buckets.Length];
+            var node = new UniversalDictionaryNode<TKey, TValue>(key, value, hashCode);
+            UniversalNodeHelper.SetAccessTime(node, _clock.GetTimestamp());
+            bucket.AddOrUpdate(node, key, hashCode, _comparer, out UniversalDictionaryNode<TKey, TValue>? existing);
+            if (existing == null)
+            {
+                AddToLru(node);
+                Interlocked.Increment(ref _count);
+                if (_capacityMode == CapacityMode.Fixed && _count > _maxCapacity)
+                {
+                    EvictLru();
+                }
+            }
+            else
+            {
+                MoveToFrontLru(existing);
+            }
+        }
+
+        public bool TryRemove(TKey key, out TValue value)
+        {
+            var hashCode = _comparer.GetHashCode(key) & 0x7FFFFFFF;
+            var bucket = _buckets[hashCode % _buckets.Length];
+            if (bucket.TryRemove(key, hashCode, _comparer, out UniversalDictionaryNode<TKey, TValue>? removed))
+            {
+                value = removed!.Value;
+                RemoveFromLru(removed);
+                Interlocked.Decrement(ref _count);
+                return true;
+            }
+            value = default!;
+            return false;
+        }
+
+        public bool ContainsKey(TKey key)
+        {
+            return TryGetValue(key, out _);
+        }
+
+        public void Clear()
+        {
+            _lruLock.EnterWriteLock();
+            try
+            {
+                for (int i = 0; i < _buckets.Length; i++)
+                {
+                    _buckets[i].Clear();
+                }
+                _lruHead = _lruTail = null;
+                _count = 0;
+            }
+            finally
+            {
+                _lruLock.ExitWriteLock();
+            }
+        }
+        #region LRU Management
+        private void AddToLru(UniversalDictionaryNode<TKey, TValue> node)
+        {
+            _lruLock.EnterWriteLock();
+            try
+            {
+                UniversalNodeHelper.SetNextLru(node, _lruHead);
+                UniversalNodeHelper.SetPrevLru(node, null);
+                if (_lruHead != null)
+                    UniversalNodeHelper.SetPrevLru(_lruHead, node);
+                else
+                    _lruTail = node;
+                _lruHead = node;
+            }
+            finally
+            {
+                _lruLock.ExitWriteLock();
+            }
+        }
+
+        private void MoveToFrontLru(UniversalDictionaryNode<TKey, TValue> node)
+        {
+            _lruLock.EnterWriteLock();
+            try
+            {
+                if (node == _lruHead) return;
+                UniversalDictionaryNode<TKey, TValue>? prev = UniversalNodeHelper.GetPrevLru(node);
+                UniversalDictionaryNode<TKey, TValue>? next = UniversalNodeHelper.GetNextLru(node);
+                if (prev != null)
+                    UniversalNodeHelper.SetNextLru(prev, next);
+                if (next != null)
+                    UniversalNodeHelper.SetPrevLru(next, prev);
+                if (node == _lruTail)
+                    _lruTail = prev;
+                UniversalNodeHelper.SetNextLru(node, _lruHead);
+                UniversalNodeHelper.SetPrevLru(node, null);
+                if (_lruHead != null)
+                    UniversalNodeHelper.SetPrevLru(_lruHead, node);
+                _lruHead = node;
+            }
+            finally
+            {
+                _lruLock.ExitWriteLock();
+            }
+        }
+
+        private void RemoveFromLru(UniversalDictionaryNode<TKey, TValue> node)
+        {
+            _lruLock.EnterWriteLock();
+            try
+            {
+                RemoveFromLruNoLock(node);
+            }
+            finally
+            {
+                _lruLock.ExitWriteLock();
+            }
+        }
+
+        // Caller MUST hold the LRU write lock. Lets EvictLru splice the tail without
+        // re-entering its own lock (the SupportsRecursion policy was previously masking
+        // a self-recursion bug that fired on every Fixed-mode overflow).
+        private void RemoveFromLruNoLock(UniversalDictionaryNode<TKey, TValue> node)
+        {
+            UniversalDictionaryNode<TKey, TValue>? prev = UniversalNodeHelper.GetPrevLru(node);
+            UniversalDictionaryNode<TKey, TValue>? next = UniversalNodeHelper.GetNextLru(node);
+            if (prev != null)
+                UniversalNodeHelper.SetNextLru(prev, next);
+            else
+                _lruHead = next;
+            if (next != null)
+                UniversalNodeHelper.SetPrevLru(next, prev);
+            else
+                _lruTail = prev;
+        }
+
+        private void EvictLru()
+        {
+            _lruLock.EnterWriteLock();
+            try
+            {
+                if (_lruTail == null) return;
+                UniversalDictionaryNode<TKey, TValue>? nodeToEvict = _lruTail;
+                var hashCode = nodeToEvict.HashCode;
+                var bucket = _buckets[hashCode % _buckets.Length];
+                if (bucket.TryRemove(nodeToEvict.Key, hashCode, _comparer, out _))
+                {
+                    RemoveFromLruNoLock(nodeToEvict);
+                    Interlocked.Decrement(ref _count);
+                }
+            }
+            finally
+            {
+                _lruLock.ExitWriteLock();
+            }
+        }
+        #endregion
+        #region Enumeration
+        /// <summary>
+        /// Returns an enumerator over the dictionary in LRU order (most-recently-used first).
+        /// Materializes a snapshot of the LRU chain under the LRU read lock at enumerator-
+        /// construction time, then releases the lock and iterates the snapshot — concurrent
+        /// writers are NOT blocked for the iterator's lifetime.
+        /// </summary>
+        /// <remarks>
+        /// Snapshot cost: O(N) time + O(N) space (one <see cref="KeyValuePair{TKey,TValue}"/>
+        /// per current entry). Mutations that occur after the snapshot is taken are not
+        /// reflected in the iteration; this is the standard concurrent-snapshot trade-off.
+        /// Previously this method held the LRU read lock for the entire enumerator lifetime,
+        /// which serialized all writers behind enumerations of any duration.
+        /// </remarks>
+        public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator()
+        {
+            // Take the snapshot under the read lock, then release it before yielding so
+            // concurrent writers aren't blocked by the duration of the caller's iteration.
+            KeyValuePair<TKey, TValue>[] snapshot;
+            _lruLock.EnterReadLock();
+            try
+            {
+                snapshot = new KeyValuePair<TKey, TValue>[_count];
+                int idx = 0;
+                UniversalDictionaryNode<TKey, TValue>? current = _lruHead;
+                while (current != null && idx < snapshot.Length)
+                {
+                    snapshot[idx++] = new KeyValuePair<TKey, TValue>(current.Key, current.Value);
+                    current = UniversalNodeHelper.GetNextLru(current);
+                }
+                // If the chain was shorter than _count (transient state during a concurrent
+                // mutation we observed mid-step), trim the unfilled tail.
+                if (idx < snapshot.Length)
+                    Array.Resize(ref snapshot, idx);
+            }
+            finally
+            {
+                _lruLock.ExitReadLock();
+            }
+            for (int i = 0; i < snapshot.Length; i++)
+                yield return snapshot[i];
+        }
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+        #endregion
+        #region IDisposable
+        public void Dispose()
+        {
+            _lruLock?.Dispose();
+        }
+        #endregion
+    }
+}

@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <PackageId>OmniCollections.Probabilistic</PackageId>
+    <Description>Probabilistic data structures (BloomFilter, CountMinSketch, HyperLogLog) for Omni.Collections</Description>
+    <PackageTags>collections;probabilistic;bloomfilter;analytics;performance</PackageTags>
+    <PackageReleaseNotes>Probabilistic data structures: BloomFilter, CountMinSketch, HyperLogLog, TDigest</PackageReleaseNotes>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../Omni.Collections.Core/Omni.Collections.Core.csproj" />
+    <ProjectReference Include="../Omni.Collections.Hybrid/Omni.Collections.Hybrid.csproj" />
+  </ItemGroup>
+
+</Project>

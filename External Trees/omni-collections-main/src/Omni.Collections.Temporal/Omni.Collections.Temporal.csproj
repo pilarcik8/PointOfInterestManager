@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <PackageId>OmniCollections.Temporal</PackageId>
+    <Description>Temporal data structures (TimelineArray, TemporalSpatialGrid) for Omni.Collections</Description>
+    <PackageTags>collections;temporal;timeline;performance</PackageTags>
+    <PackageReleaseNotes>Temporal data structures: TimelineArray, TemporalSpatialGrid</PackageReleaseNotes>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.1'">
+    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../Omni.Collections.Core/Omni.Collections.Core.csproj" />
+    <ProjectReference Include="../Omni.Collections.Spatial/Omni.Collections.Spatial.csproj" />
+  </ItemGroup>
+
+</Project>

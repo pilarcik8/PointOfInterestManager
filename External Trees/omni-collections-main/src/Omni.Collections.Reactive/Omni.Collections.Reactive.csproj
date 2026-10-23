@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <PackageId>OmniCollections.Reactive</PackageId>
+    <Description>Reactive data structures (ObservableList, ObservableHashSet) for Omni.Collections</Description>
+    <PackageTags>collections;reactive;observable;performance</PackageTags>
+    <PackageReleaseNotes>Reactive data structures: ObservableList, ObservableHashSet</PackageReleaseNotes>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Reactive" />
+    <ProjectReference Include="../Omni.Collections.Core/Omni.Collections.Core.csproj" />
+  </ItemGroup>
+
+</Project>

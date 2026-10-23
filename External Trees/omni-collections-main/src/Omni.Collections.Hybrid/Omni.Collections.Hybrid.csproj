@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <PackageId>OmniCollections.Hybrid</PackageId>
+    <Description>Hybrid data structures (QueueDictionary, LinkedDictionary, CircularDictionary) for Omni.Collections</Description>
+    <PackageTags>collections;hybrid;dictionary;queue;performance</PackageTags>
+    <PackageReleaseNotes>Hybrid data structures: QueueDictionary, LinkedDictionary, CircularDictionary</PackageReleaseNotes>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../Omni.Collections.Core/Omni.Collections.Core.csproj" />
+    <ProjectReference Include="../Omni.Collections.Linear/Omni.Collections.Linear.csproj" />
+  </ItemGroup>
+
+</Project>

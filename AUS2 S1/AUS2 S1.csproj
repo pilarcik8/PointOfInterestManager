@@ -11,6 +11,7 @@
   <ItemGroup>
     <ProjectReference Include="..\External Trees\NetTopologySuite-develop\src\NetTopologySuite\NetTopologySuite.csproj" />
     <ProjectReference Include="..\External Trees\SpatialTrees-master\SpatialTrees\SpatialTrees.csproj" />
+    <ProjectReference Include="..\External Trees\omni-collections-main\src\Omni.Collections.Spatial\Omni.Collections.Spatial.csproj" />
     <Compile Include="..\External Trees\QuadTree-master\QuadTree.cs" Link="External Trees\QuadTree-master\QuadTree.cs" />
   </ItemGroup>
 

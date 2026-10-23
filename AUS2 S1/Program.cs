@@ -5,6 +5,7 @@
 
 //KD:
 // NetTopologySuite: https://github.com/NetTopologySuite/NetTopologySuite -1.7k stars - 94 watching - 338 forks
+// omni-collections: https://github.com/Codeturion/omni-collections - 9 stars - 0 watchers - 0 forks
 
 // Vygenerovane / upravene pomocou AI (Modely: Gemini 3.8 Flash, Claude Sonnet 4.6) - Prompt 26, 27, 34, 35
 using AUS2_S1.Tester;
@@ -16,4 +17,4 @@ var rangesParser = new CSVParser();
 rangesParser.LoadRanges("C:\\Users\\Admin\\source\\repos\\AUS2 S1\\AUS2 S1\\Data\\testovacie_oblasti.csv");
 
 // Rychlostny tester vlastnych aj externych stromov.
-ExternalDataTreeTester.Run(pointsParser, rangesParser, maxPoints : 100000, maxRanges : 10000);
+ExternalDataTreeTester.Run(pointsParser, rangesParser, maxPoints : 10, maxRanges : 10);

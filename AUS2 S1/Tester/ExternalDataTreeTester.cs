@@ -175,6 +175,43 @@ namespace AUS2_S1.Tester
         }
     }
 
+    // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt 47: Pridanie Omni KD stromu do testera
+    internal sealed class OmniKdTreeAdapter : IBenchmarkTree
+    {
+        private sealed class Point
+        {
+            public long Id { get; }
+            public double X { get; }
+            public double Y { get; }
+
+            public Point(long id, double x, double y)
+            {
+                Id = id;
+                X = x;
+                Y = y;
+            }
+        }
+
+        private readonly Omni.Collections.Spatial.KDTree.KdTree<Point> _tree =
+            Omni.Collections.Spatial.KDTree.KdTree<Point>.Create2D(
+                point => point.X,
+                point => point.Y);
+
+        // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt 47: Pridanie Omni KD stromu do testera
+        public void Insert(long id, double x, double y)
+        {
+            _tree.Insert(new Point(id, x, y));
+        }
+
+        // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt pridanie Omni KD stromu do testera
+        public void FindRange(double minX, double minY, double maxX, double maxY)
+        {
+            _tree.FindInRange(
+                new[] { minX, minY },
+                new[] { maxX, maxY });
+        }
+    }
+
     // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt vytvorenie jednoducheho testera externych stromov
     internal sealed class NetTopologyKdTreeAdapter : IBenchmarkTree
     {
@@ -248,13 +285,18 @@ namespace AUS2_S1.Tester
         {
             var pointData = LoadPoints(points, maxPoints);
             var rangeData = LoadRanges(ranges, maxRanges);
+            // MOJE
             RunBenchmark("Vlastny KD strom", new OwnKdTreeAdapter(), pointData, rangeData);
             RunBenchmark("Vlastny Quad strom", new OwnQuadTreeAdapter(), pointData, rangeData);
             RunBenchmark("Vlastny Hybridny Quad strom", new HybridQuadTreeAdapter(), pointData, rangeData);
+            // EXTERNE
+            //QUAD
             RunBenchmark("QuadTree-master", new QuadTreeMasterAdapter(), pointData, rangeData);
-            RunBenchmark("NetTopologySuite KD strom", new NetTopologyKdTreeAdapter(), pointData, rangeData);
             RunBenchmark("NetTopologySuite Quad strom", new NetTopologyQuadTreeAdapter(), pointData, rangeData);
             RunBenchmark("SpatialTrees Quad strom", new SpatialTreesQuadTreeAdapter(), pointData, rangeData);
+            //KD
+            RunBenchmark("Omni KD strom", new OmniKdTreeAdapter(), pointData, rangeData);
+            RunBenchmark("NetTopologySuite KD strom", new NetTopologyKdTreeAdapter(), pointData, rangeData);
         }
 
         // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt vytvorenie jednoducheho testera externych stromov
