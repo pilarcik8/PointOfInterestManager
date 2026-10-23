@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
+using BKDTree;
 using FastG;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Index.KdTree;
@@ -212,18 +213,76 @@ namespace AUS2_S1.Tester
         }
     }
 
-    // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt vytvorenie jednoducheho testera externych stromov
-    internal sealed class NetTopologyKdTreeAdapter : IBenchmarkTree
+    // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt 49: Vytvorenie BKDTree adaptéra
+    internal sealed class BkdTreeAdapter : IBenchmarkTree
+    {
+        private sealed class Point
+        {
+            public long Id { get; }
+            public double X { get; }
+            public double Y { get; }
+
+            public Point(long id, double x, double y)
+            {
+                Id = id;
+                X = x;
+                Y = y;
+            }
+        }
+
+        private readonly struct PointComparer : IDimensionalComparer<Point>
+        {
+            public int Compare(in Point left, in Point right, int dimension)
+            {
+                return dimension switch
+                {
+                    0 => left.X.CompareTo(right.X),
+                    1 => left.Y.CompareTo(right.Y),
+                    _ => throw new ArgumentOutOfRangeException(nameof(dimension))
+                };
+            }
+        }
+
+        private readonly BKDTree<Point, PointComparer> _tree =
+            new(2, new PointComparer());
+
+
+        // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt 49: Vytvorenie BKDTree adaptéra
+        public void Insert(long id, double x, double y)
+        {
+            _tree.Insert(new Point(id, x, y));
+        }
+
+        // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt 49: Vytvorenie BKDTree adaptéra
+        public void FindRange(double minX, double minY, double maxX, double maxY)
+        {
+            var lowerLimit = new Option<Point>(
+                true,
+                new Point(0, minX, minY));
+            var upperLimit = new Option<Point>(
+                true,
+                new Point(0, maxX, maxY));
+
+            _tree.DoForEach(
+                _ => false,
+                lowerLimit,
+                upperLimit,
+                upperLimitInclusive: true);
+        }
+    }
+
+    // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt 48: Pridanie NetTopologySuite KD stromu do testera
+    internal sealed class NetTopologySuiteKdTreeAdapter : IBenchmarkTree
     {
         private readonly KdTree<ExternalPoint> _tree = new();
 
-        // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt vytvorenie jednoducheho testera externych stromov
+        // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt 48: Pridanie NetTopologySuite KD stromu do testera
         public void Insert(long id, double x, double y)
         {
             _tree.Insert(new Coordinate(x, y), new ExternalPoint(id, x, y));
         }
 
-        // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt vytvorenie jednoducheho testera externych stromov
+        // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt 48: Pridanie NetTopologySuite KD stromu do testera
         public void FindRange(double minX, double minY, double maxX, double maxY)
         {
             _tree.Query(new Envelope(minX, maxX, minY, maxY));
@@ -296,7 +355,8 @@ namespace AUS2_S1.Tester
             RunBenchmark("SpatialTrees Quad strom", new SpatialTreesQuadTreeAdapter(), pointData, rangeData);
             //KD
             RunBenchmark("Omni KD strom", new OmniKdTreeAdapter(), pointData, rangeData);
-            RunBenchmark("NetTopologySuite KD strom", new NetTopologyKdTreeAdapter(), pointData, rangeData);
+            RunBenchmark("BKDTree", new BkdTreeAdapter(), pointData, rangeData);
+            RunBenchmark("NetTopologySuite KD strom", new NetTopologySuiteKdTreeAdapter(), pointData, rangeData);
         }
 
         // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt vytvorenie jednoducheho testera externych stromov

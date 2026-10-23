@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>disable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <Title>BKDTree.Benchmark</Title>
+    <Authors>DevAM</Authors>
+    <Company>DevAM</Company>
+    <Product>BKDTree</Product>
+    <Version>3.0.0</Version>
+	  <AssemblyVersion>3.0.0</AssemblyVersion>
+	  <FileVersion>3.0.0</FileVersion>
+    <Copyright>Copyright (c) 2024 DevAM. All Rights Reserved.</Copyright>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\BKDTree.Test\BKDTree.Test.csproj" />
+    <ProjectReference Include="..\BKDTree\BKDTree.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BenchmarkDotNet" Version="0.15.8" />
+    <PackageReference Include="BenchmarkDotNet.Annotations" Version="0.15.8" />
+  </ItemGroup>
+
+</Project>

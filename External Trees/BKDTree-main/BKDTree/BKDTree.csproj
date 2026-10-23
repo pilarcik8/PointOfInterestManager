@@ -1,0 +1,46 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFrameworks>netstandard2.0;net6.0;net8.0;net10.0</TargetFrameworks>
+		<Nullable>disable</Nullable>
+		<LangVersion>latest</LangVersion>
+		<InvariantGlobalization>true</InvariantGlobalization>
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<Title>BKDTree</Title>
+		<Authors>DevAM</Authors>
+		<Company>DevAM</Company>
+		<Product>BTree</Product>
+		<Version>3.0.0</Version>
+		<AssemblyVersion>3.0.0</AssemblyVersion>
+		<FileVersion>3.0.0</FileVersion>
+		<Description>BKDTree offers a simple and high performant implementation of a growing only BKDTree and a static KDTree for C# and .NET. </Description>
+		<Copyright>Copyright (c) 2024 DevAM. All Rights Reserved.</Copyright>
+		<PackageIcon>icon.png</PackageIcon>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<RepositoryType>git</RepositoryType>
+		<PackageTags>BKDTree</PackageTags>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+		<AssemblyName>BKDTree</AssemblyName>
+		<SignAssembly>False</SignAssembly>
+		<PackageId>BKDTree</PackageId>
+		<PackageProjectUrl>https://github.com/DevAM-Tools/BKDTree</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/DevAM-Tools/BKDTree</RepositoryUrl>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)' == 'Release'">
+		<ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+  	</PropertyGroup>
+
+	<ItemGroup>
+		<None Include="..\icon.png">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+		<None Include="..\README.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
+
+</Project>

@@ -1,0 +1,86 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace BKDTree.Test.KDTree;
+
+public class NearestNeighborTest
+{
+    [Test]
+    [MethodDataSource(nameof(TestCases))]
+    public async Task GetNearestNeighbor(int count, int seed, bool parallel)
+    {
+        Random random = new(seed);
+
+        Point[] points = Enumerable.Range(0, count).Select(value =>
+        {
+            double x = Point.GenerateValue(Pattern.Random, value, count, random);
+            double y = Point.GenerateValue(Pattern.Random, value, count, random);
+            Point point = new(x, y);
+            return point;
+        }).ToArray();
+
+        MetricKDTree<Point, PointMetric> tree = new(2, points, new PointMetric(), parallel);
+
+        foreach (Point point in points)
+        {
+            bool found = tree.Contains(point);
+
+            await Assert.That(found).IsEqualTo(true);
+        }
+
+        double x = Point.GenerateValue(Pattern.Random, 0, count, random);
+        double y = Point.GenerateValue(Pattern.Random, 0, count, random);
+        Point targetPoint = new(x, y);
+
+        Option<Point> expectedNearestNeighbor = default;
+        double? expectedMinSquaredDistance = null;
+        PointMetric metric = new();
+
+        for (int i = 0; i < points.Length; i++)
+        {
+            Point point = points[i];
+            double squaredDistance = GetSquaredDistance(ref point, ref targetPoint, metric);
+            if (!expectedMinSquaredDistance.HasValue || squaredDistance < expectedMinSquaredDistance.Value)
+            {
+                expectedNearestNeighbor = point;
+                expectedMinSquaredDistance = squaredDistance;
+            }
+        }
+        bool neighborFound = tree.GetNearestNeighbor(targetPoint, out Point actualNearestNeighbor, out double actualMinSquaredDistance);
+
+        await Assert.That(neighborFound).IsEqualTo(true);
+        await Assert.That(actualNearestNeighbor).IsEqualTo(expectedNearestNeighbor.Value);
+    }
+
+    private static double GetSquaredDistance(ref Point source, ref Point target, PointMetric metric)
+    {
+        double result = 0;
+        for (int dimension = 0; dimension < 2; dimension++)
+        {
+            double diff = metric.GetDimension(target, dimension) - metric.GetDimension(source, dimension);
+            result += diff * diff;
+        }
+        return result;
+    }
+
+    public static IEnumerable<object[]> TestCases()
+    {
+        int[] counts = [10, 500];
+        // Reduced from 100 seeds to 10 - still provides good random coverage
+        int[] seeds = Enumerable.Range(0, 10).ToArray();
+        bool[] parallels = [false, true];
+
+        foreach (int count in counts)
+        {
+            foreach (int seed in seeds)
+            {
+                foreach (bool parallel in parallels)
+                {
+                    yield return new object[] { count, seed, parallel };
+                }
+            }
+        }
+    }
+}
