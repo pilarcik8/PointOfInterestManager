@@ -8,4 +8,4 @@ var rangesParser = new CSVParser();
 rangesParser.LoadRanges("C:\\Users\\Admin\\source\\repos\\AUS2 S1\\AUS2 S1\\Data\\testovacie_oblasti.csv");
 
 // Rychlostny tester vlastnych aj externych stromov.
-ExternalTreeTester.Run(pointsParser, rangesParser);
+ExternalDataTreeTester.Run(pointsParser, rangesParser, maxRanges : 100);

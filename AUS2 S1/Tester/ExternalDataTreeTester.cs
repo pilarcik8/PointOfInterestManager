@@ -6,6 +6,7 @@ using FastG;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Index.KdTree;
 using SpatialTrees.Quadtrees;
+using AUS2_S1.Hybrid_Quad_Tree;
 using AUS2_S1.KD_Tree;
 
 namespace AUS2_S1.Tester
@@ -113,6 +114,33 @@ namespace AUS2_S1.Tester
         }
     }
 
+    // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt pridanie HybridQTree do testera
+    internal sealed class HybridQuadTreeAdapter : IBenchmarkTree
+    {
+        private readonly Dictionary<long, (double x, double y)> _positions = new();
+        private readonly HybridQTree<long, double> _tree;
+
+        // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt pridanie HybridQTree do testera
+        public HybridQuadTreeAdapter()
+        {
+            _tree = new HybridQTree<long, double>(
+                47.0, 16.0, 50.0, 23.0, id => _positions[id], 16);
+        }
+
+        // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt pridanie HybridQTree do testera
+        public void Insert(long id, double x, double y)
+        {
+            _positions[id] = (x, y);
+            _tree.Insert(id);
+        }
+
+        // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt pridanie HybridQTree do testera
+        public void FindRange(double minX, double minY, double maxX, double maxY)
+        {
+            _tree.FindRange(minX, minY, maxX, maxY);
+        }
+    }
+
     // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt vytvorenie jednoducheho testera externych stromov
     internal sealed class NetTopologyKdTreeAdapter : IBenchmarkTree
     {
@@ -175,7 +203,7 @@ namespace AUS2_S1.Tester
     }
 
     // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt vytvorenie jednoducheho testera externych stromov
-    public static class ExternalTreeTester
+    public static class ExternalDataTreeTester
     {
         // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt vytvorenie jednoducheho testera externych stromov
         public static void Run(
@@ -188,6 +216,7 @@ namespace AUS2_S1.Tester
             var rangeData = LoadRanges(ranges, maxRanges);
             RunBenchmark("Vlastny KD strom", new OwnKdTreeAdapter(), pointData, rangeData);
             RunBenchmark("Vlastny Quad strom", new OwnQuadTreeAdapter(), pointData, rangeData);
+            RunBenchmark("Hybridny Quad strom", new HybridQuadTreeAdapter(), pointData, rangeData);
             RunBenchmark("NetTopologySuite KD strom", new NetTopologyKdTreeAdapter(), pointData, rangeData);
             RunBenchmark("NetTopologySuite Quad strom", new NetTopologyQuadTreeAdapter(), pointData, rangeData);
             RunBenchmark("SpatialTrees Quad strom", new SpatialTreesQuadTreeAdapter(), pointData, rangeData);
@@ -197,8 +226,8 @@ namespace AUS2_S1.Tester
         private static void RunBenchmark(
             string name,
             IBenchmarkTree tree,
-            List<(long id, double x, double y)> points,
-            List<(double minX, double minY, double maxX, double maxY)> ranges)
+            LinkedList<(long id, double x, double y)> points,
+            LinkedList<(double minX, double minY, double maxX, double maxY)> ranges)
         {
             var stopwatch = Stopwatch.StartNew();
             foreach (var point in points)
@@ -220,15 +249,15 @@ namespace AUS2_S1.Tester
         }
 
         // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt vytvorenie jednoducheho testera externych stromov
-        private static List<(long id, double x, double y)> LoadPoints(CSVParser points, int maximum)
+        private static LinkedList<(long id, double x, double y)> LoadPoints(CSVParser points, int maximum)
         {
-            var result = new List<(long, double, double)>();
+            var result = new LinkedList<(long, double, double)>();
             var id = points.ColumnData.First;
             var x = points.ColumnA.First;
             var y = points.ColumnB.First;
             while (id != null && x != null && y != null && result.Count < maximum)
             {
-                result.Add((
+                result.AddFirst((
                     long.Parse(id.Value, CultureInfo.InvariantCulture),
                     double.Parse(x.Value, CultureInfo.InvariantCulture),
                     double.Parse(y.Value, CultureInfo.InvariantCulture)));

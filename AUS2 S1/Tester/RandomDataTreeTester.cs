@@ -6,7 +6,7 @@ using AUS2_S1.KD_Tree;
 namespace AUS2_S1.Tester
 {
     // Vygenerovane / upravene pomocou AI (Model: Gemini 3.8 Flash) - Prompt 27 (vytvorenie), Prompt 34 (finálna štruktúra s checkInterval)
-    public class Tester
+    public class RandomDataTreeTester
     {
         private readonly QTree<int, double>? _qTree;
         private readonly KDTree<int>? _kdTree;
@@ -18,7 +18,7 @@ namespace AUS2_S1.Tester
 
         // Konstruktor pre QTree
         // Vygenerovane / upravene pomocou AI (Model: Gemini 3.8 Flash) - Prompt 27 (vytvorenie konštruktora), Prompt 33 (zmena na QTree<int, double>)
-        public Tester(
+        public RandomDataTreeTester(
             QTree<int, double> qTree,
             int operationsCount,
             int insertProbability,
@@ -35,7 +35,7 @@ namespace AUS2_S1.Tester
 
         // Konstruktor pre KDTree
         // Vygenerovane / upravene pomocou AI (Model: Gemini 3.8 Flash) - Prompt 27 (vytvorenie konštruktora)
-        public Tester(
+        public RandomDataTreeTester(
             KDTree<int> kdTree,
             int operationsCount,
             int insertProbability,

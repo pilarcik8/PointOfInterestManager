@@ -4,5 +4,9 @@
   <Folder Name="/External KD Trees/NetTopologySuite-develop/src/">
     <Project Path="External KD Trees/NetTopologySuite-develop/src/NetTopologySuite/NetTopologySuite.csproj" />
   </Folder>
+  <Folder Name="/External Quad Trees/" />
+  <Folder Name="/External Quad Trees/SpatialTrees-master/">
+    <Project Path="External Quad Trees/SpatialTrees-master/SpatialTrees/SpatialTrees.csproj" />
+  </Folder>
   <Project Path="AUS2 S1/AUS2 S1.csproj" />
 </Solution>
