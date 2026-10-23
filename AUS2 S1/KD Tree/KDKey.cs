@@ -4,12 +4,12 @@ using System.Text;
 
 namespace AUS2_S1.KD_Tree
 {
-    // Vygenerovane / upravene pomocou AI (Model: Gemini 3.8 Flash) - Prompt 24
+    // Vygenerovane / upravene pomocou AI - Kapitola 24
     public class KDKey<T>(T value) where T : IComparable<T>
     {
         public readonly T Value = value;
 
-        // Vygenerovane / upravene pomocou AI (Model: Gemini 3.8 Flash) - Prompt 24
+        // Vygenerovane / upravene pomocou AI - Kapitola 19 (v KDNode), 24 (presunute do kluča)
         public int CompareTo(KDKey<T>? other)
         {
             if (other == null)

@@ -3,14 +3,14 @@ using AUS2_S1.KD_Tree;
 
 namespace AUS2_S1.KD_Tree
 {
-    // Vygenerovane / upravene pomocou AI (Model: Gemini 3.8 Flash) - Prompt 17 (kostra), Prompt 24 (refaktor na KDKey)
+    // Vygenerovane / upravene pomocou AI - Kapitola 17 (kostra), 24 (refaktor na KDKey)
     public class KDTree<T> where T : IComparable<T>
     {
         public KDNode<T>? Root { get; set; }
         public int K { get; set; }
         public int MaxDepth { get; set; }
 
-        // Vygenerovane / upravene pomocou AI (Model: Gemini 3.8 Flash) - Prompt 27 (pridanie maxDepth pre Tester)
+        // Vygenerovane / upravene pomocou AI - Kapitola 27 (pridanie maxDepth pre Tester)
         public KDTree(int k, int maxDepth = int.MaxValue)
         {
             if (maxDepth < 0)
@@ -22,7 +22,7 @@ namespace AUS2_S1.KD_Tree
             MaxDepth = maxDepth;
         }
 
-        // Vygenerovane / upravene pomocou AI (Model: Gemini 3.8 Flash) - Prompt 24 (hlavná logika s KDKey), Prompt 27 (kontrola MaxDepth)
+        // Vygenerovane / upravene pomocou AI - Kapitola 24, Kapitola 27
         public void Insert(T data, LinkedList<KDKey<T>> keys)
         {
             if (keys.Count != K)
@@ -83,7 +83,7 @@ namespace AUS2_S1.KD_Tree
             }
         }
 
-        // Vygenerovane / upravene pomocou AI (Model: Gemini 3.8 Flash) - Prompt 24 (úprava Find pre prácu s KDKey)
+        // Vygenerovane / upravene pomocou AI - Kapitola 22, 28
         public KDNode<T>? Find(LinkedList<KDKey<T>> targetKeys)
         {
             if (targetKeys.Count != K)
@@ -119,7 +119,7 @@ namespace AUS2_S1.KD_Tree
             return null;
         }
 
-        // Vygenerovane / upravene pomocou AI (Model: Gemini 3.8 Flash) - Prompt 28 (prvý nerekurzívny pokus), Prompt 29 (finálna verzia cez LinkedList namiesto Stacku)
+        // Vygenerovane / upravene pomocou AI - Kapitola 22, 28, 29
         public LinkedList<KDNode<T>> FindRange(LinkedList<KDKey<T>> minKeys, LinkedList<KDKey<T>> maxKeys)
         {
             var result = new LinkedList<KDNode<T>>();
@@ -171,7 +171,7 @@ namespace AUS2_S1.KD_Tree
             return result;
         }
 
-        // Vygenerovane / upravene pomocou AI (Model: Gemini 3.8 Flash) - Prompt 24 (pomocná metóda pre duplikáty zavedená s KDKey)
+        // Vygenerovane / upravene pomocou AI - Kapitola 24
         private bool AllKeysMatch(LinkedList<KDKey<T>> keysA, LinkedList<KDKey<T>> keysB)
         {
             for (int d = 0; d < K; d++)

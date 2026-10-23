@@ -13,36 +13,36 @@ using QuadTree;
 
 namespace AUS2_S1.Tester
 {
-    // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt vytvorenie jednoducheho testera externych stromov
+    // Vygenerovane / upravene pomocou AI - Kapitola 41, 42
     internal interface IBenchmarkTree
     {
-        // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt vytvorenie jednoducheho testera externych stromov
+        // Vygenerovane / upravene pomocou AI - Kapitola 41, 42
         void Insert(long id, double x, double y);
-        // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt vytvorenie jednoducheho testera externych stromov
+        // Vygenerovane / upravene pomocou AI - Kapitola 41, 42
         void FindRange(double minX, double minY, double maxX, double maxY);
     }
 
-    // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt vytvorenie jednoducheho testera externych stromov
+    // Vygenerovane / upravene pomocou AI - Kapitola 41, 42
     internal sealed class CoordinateValue : IComparable<CoordinateValue>
     {
         public long Id { get; }
         public double Value { get; }
 
-        // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt vytvorenie jednoducheho testera externych stromov
+        // Vygenerovane / upravene pomocou AI - Kapitola 41, 42
         public CoordinateValue(long id, double value)
         {
             Id = id;
             Value = value;
         }
 
-        // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt vytvorenie jednoducheho testera externych stromov
+        // Vygenerovane / upravene pomocou AI - Kapitola 41, 42
         public int CompareTo(CoordinateValue? other)
         {
             return other == null ? 1 : Value.CompareTo(other.Value);
         }
     }
 
-    // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt vytvorenie jednoducheho testera externych stromov
+    // Vygenerovane / upravene pomocou AI - Kapitola 41, 42
     internal sealed class ExternalPoint : IMapObject2d
     {
         private const float PointBoundingBoxSize = 0.000001f; // nevie urobit point tak robim extremne maly box
@@ -52,7 +52,7 @@ namespace AUS2_S1.Tester
         public Point2 Location { get; set; }
         public AARectangle BoundingBox { get; }
 
-        // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt vytvorenie jednoducheho testera externych stromov
+        // Vygenerovane / upravene pomocou AI - Kapitola 41, 42
         public ExternalPoint(long id, double x, double y)
         {
             Id = id;
@@ -61,12 +61,12 @@ namespace AUS2_S1.Tester
         }
     }
 
-    // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt vytvorenie jednoducheho testera externych stromov
+    // Vygenerovane / upravene pomocou AI - Kapitola 41, 42
     internal sealed class OwnKdTreeAdapter : IBenchmarkTree
     {
         private readonly KDTree<CoordinateValue> _tree = new(2);
 
-        // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt vytvorenie jednoducheho testera externych stromov
+        // Vygenerovane / upravene pomocou AI - Kapitola 41, 42
         public void Insert(long id, double x, double y)
         {
             var data = new CoordinateValue(id, x);
@@ -76,7 +76,7 @@ namespace AUS2_S1.Tester
             _tree.Insert(data, keys);
         }
 
-        // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt vytvorenie jednoducheho testera externych stromov
+        // Vygenerovane / upravene pomocou AI - Kapitola 41, 42
         public void FindRange(double minX, double minY, double maxX, double maxY)
         {
             var minKeys = new LinkedList<KDKey<CoordinateValue>>();
@@ -89,61 +89,62 @@ namespace AUS2_S1.Tester
         }
     }
 
-    // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt vytvorenie jednoducheho testera externych stromov
+    // Vygenerovane / upravene pomocou AI - Kapitola 41, 42
     internal sealed class OwnQuadTreeAdapter : IBenchmarkTree
     {
         private readonly Dictionary<long, (double x, double y)> _positions = new();
         private readonly QTree<long, double> _tree;
 
-        // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt vytvorenie jednoducheho testera externych stromov
+        // Vygenerovane / upravene pomocou AI - Kapitola 41, 42
         public OwnQuadTreeAdapter()
         {
             _tree = new QTree<long, double>(
                 47.0, 16.0, 50.0, 23.0, id => _positions[id], 16);
         }
 
-        // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt vytvorenie jednoducheho testera externych stromov
+        // Vygenerovane / upravene pomocou AI - Kapitola 41, 42
         public void Insert(long id, double x, double y)
         {
             _positions[id] = (x, y);
             _tree.Insert(id);
         }
 
-        // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt vytvorenie jednoducheho testera externych stromov
+        // Vygenerovane / upravene pomocou AI - Kapitola 41, 42
         public void FindRange(double minX, double minY, double maxX, double maxY)
         {
             _tree.FindRange(minX, minY, maxX, maxY);
         }
     }
 
-    // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt pridanie HybridQTree do testera
+
+    // Vygenerovane / upravene pomocou AI - Kapitola 43
     internal sealed class HybridQuadTreeAdapter : IBenchmarkTree
     {
         private readonly Dictionary<long, (double x, double y)> _positions = new();
         private readonly HybridQTree<long, double> _tree;
 
-        // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt pridanie HybridQTree do testera
+        // Vygenerovane / upravene pomocou AI - Kapitola 43
         public HybridQuadTreeAdapter()
         {
             _tree = new HybridQTree<long, double>(
                 47.0, 16.0, 50.0, 23.0, id => _positions[id], 16);
         }
 
-        // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt pridanie HybridQTree do testera
+        // Vygenerovane / upravene pomocou AI - Kapitola 43
         public void Insert(long id, double x, double y)
         {
             _positions[id] = (x, y);
             _tree.Insert(id);
         }
 
-        // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt pridanie HybridQTree do testera
+        // Vygenerovane / upravene pomocou AI - Kapitola 43
         public void FindRange(double minX, double minY, double maxX, double maxY)
         {
             _tree.FindRange(minX, minY, maxX, maxY);
         }
     }
 
-    // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt pridanie QuadTree-master adaptéra do testera
+    // Vygenerovane / upravene pomocou AI - Kapitola 46
     internal sealed class QuadTreeMasterAdapter : IBenchmarkTree
     {
         private const float PointSize = 0.000001f;
@@ -151,7 +152,7 @@ namespace AUS2_S1.Tester
             new(16, 16, 47f, 16f, 3f, 7f);
         private List<long> _result = new();
 
-        // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt pridanie QuadTree-master adaptéra do testera
+        // Vygenerovane / upravene pomocou AI - Kapitola 46
         public void Insert(long id, double x, double y)
         {
             _tree.Insert(
@@ -163,7 +164,7 @@ namespace AUS2_S1.Tester
                     (float)y + PointSize));
         }
 
-        // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt pridanie QuadTree-master adaptéra do testera
+        // Vygenerovane / upravene pomocou AI - Kapitola 46
         public void FindRange(double minX, double minY, double maxX, double maxY)
         {
             _tree.SearchArea(
@@ -176,7 +177,7 @@ namespace AUS2_S1.Tester
         }
     }
 
-    // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt 47: Pridanie Omni KD stromu do testera
+    // Vygenerovane / upravene pomocou AI - Kapitola 47
     internal sealed class OmniKdTreeAdapter : IBenchmarkTree
     {
         private sealed class Point
@@ -198,13 +199,13 @@ namespace AUS2_S1.Tester
                 point => point.X,
                 point => point.Y);
 
-        // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt 47: Pridanie Omni KD stromu do testera
+        // Vygenerovane / upravene pomocou AI - Kapitola 47
         public void Insert(long id, double x, double y)
         {
             _tree.Insert(new Point(id, x, y));
         }
 
-        // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt pridanie Omni KD stromu do testera
+        // Vygenerovane / upravene pomocou AI - Kapitola 47
         public void FindRange(double minX, double minY, double maxX, double maxY)
         {
             _tree.FindInRange(
@@ -213,7 +214,7 @@ namespace AUS2_S1.Tester
         }
     }
 
-    // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt 49: Vytvorenie BKDTree adaptéra
+    // Vygenerovane / upravene pomocou AI - Kapitola 50
     internal sealed class BkdTreeAdapter : IBenchmarkTree
     {
         private sealed class Point
@@ -247,13 +248,13 @@ namespace AUS2_S1.Tester
             new(2, new PointComparer());
 
 
-        // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt 49: Vytvorenie BKDTree adaptéra
+        // Vygenerovane / upravene pomocou AI - Kapitola 50
         public void Insert(long id, double x, double y)
         {
             _tree.Insert(new Point(id, x, y));
         }
 
-        // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt 49: Vytvorenie BKDTree adaptéra
+        // Vygenerovane / upravene pomocou AI - Kapitola 50
         public void FindRange(double minX, double minY, double maxX, double maxY)
         {
             var lowerLimit = new Option<Point>(
@@ -271,56 +272,56 @@ namespace AUS2_S1.Tester
         }
     }
 
-    // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt 48: Pridanie NetTopologySuite KD stromu do testera
+    // Vygenerovane / upravene pomocou AI - Kapitola 41, 42
     internal sealed class NetTopologySuiteKdTreeAdapter : IBenchmarkTree
     {
         private readonly KdTree<ExternalPoint> _tree = new();
 
-        // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt 48: Pridanie NetTopologySuite KD stromu do testera
+    // Vygenerovane / upravene pomocou AI - Kapitola 41, 42
         public void Insert(long id, double x, double y)
         {
             _tree.Insert(new Coordinate(x, y), new ExternalPoint(id, x, y));
         }
 
-        // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt 48: Pridanie NetTopologySuite KD stromu do testera
+    // Vygenerovane / upravene pomocou AI - Kapitola 41, 42
         public void FindRange(double minX, double minY, double maxX, double maxY)
         {
             _tree.Query(new Envelope(minX, maxX, minY, maxY));
         }
     }
 
-    // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt vytvorenie jednoducheho testera externych stromov
+    // Vygenerovane / upravene pomocou AI - Kapitola 41, 42
     internal sealed class NetTopologyQuadTreeAdapter : IBenchmarkTree
     {
         private readonly NetTopologySuite.Index.Quadtree.Quadtree<ExternalPoint> _tree = new();
 
-        // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt vytvorenie jednoducheho testera externych stromov
+        // Vygenerovane / upravene pomocou AI - Kapitola 41, 42
         public void Insert(long id, double x, double y)
         {
             _tree.Insert(new Envelope(x, x, y, y), new ExternalPoint(id, x, y));
         }
 
-        // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt vytvorenie jednoducheho testera externych stromov
+        // Vygenerovane / upravene pomocou AI - Kapitola 41, 42
         public void FindRange(double minX, double minY, double maxX, double maxY)
         {
             _tree.Query(new Envelope(minX, maxX, minY, maxY));
         }
     }
 
-    // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt vytvorenie jednoducheho testera externych stromov
+    // Vygenerovane / upravene pomocou AI - Kapitola 41, 42
     internal sealed class SpatialTreesQuadTreeAdapter : IBenchmarkTree
     {
         private readonly SpatialTrees.Quadtrees.Quadtree _tree =
             new(new AARectangle(16f, 47f, 7f, 3f), 16, 16);
         private readonly List<IMapObject2d> _result = new();
 
-        // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt vytvorenie jednoducheho testera externych stromov
+        // Vygenerovane / upravene pomocou AI - Kapitola 41, 42
         public void Insert(long id, double x, double y)
         {
             _tree.AddItem(new ExternalPoint(id, x, y));
         }
 
-        // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt vytvorenie jednoducheho testera externych stromov
+        // Vygenerovane / upravene pomocou AI - Kapitola 41, 42
         public void FindRange(double minX, double minY, double maxX, double maxY)
         {
             _result.Clear();
@@ -332,10 +333,9 @@ namespace AUS2_S1.Tester
         }
     }
 
-    // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt vytvorenie jednoducheho testera externych stromov
     public static class ExternalDataTreeTester
     {
-        // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt vytvorenie jednoducheho testera externych stromov
+    // Vygenerovane / upravene pomocou AI - Kapitola 41, 42
         public static void Run(
             CSVParser points,
             CSVParser ranges,
@@ -359,7 +359,7 @@ namespace AUS2_S1.Tester
             RunBenchmark("NetTopologySuite KD strom", new NetTopologySuiteKdTreeAdapter(), pointData, rangeData);
         }
 
-        // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt vytvorenie jednoducheho testera externych stromov
+        // Vygenerovane / upravene pomocou AI - Kapitola 41, 42
         private static void RunBenchmark(
             string name,
             IBenchmarkTree tree,
@@ -385,7 +385,7 @@ namespace AUS2_S1.Tester
                 $"{name}: Insert {insertMilliseconds} ms, FindRange {stopwatch.ElapsedMilliseconds} ms");
         }
 
-        // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt vytvorenie jednoducheho testera externych stromov
+        // Vygenerovane / upravene pomocou AI - Kapitola 41, 42
         private static LinkedList<(long id, double x, double y)> LoadPoints(CSVParser points, int maximum)
         {
             var result = new LinkedList<(long, double, double)>();
@@ -406,7 +406,7 @@ namespace AUS2_S1.Tester
             return result;
         }
 
-        // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt vytvorenie jednoducheho testera externych stromov
+        // Vygenerovane / upravene pomocou AI - Kapitola 41, 42
         private static LinkedList<(double minX, double minY, double maxX, double maxY)> LoadRanges(
             CSVParser ranges,
             int maximum)

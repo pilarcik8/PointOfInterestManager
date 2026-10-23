@@ -5,7 +5,7 @@ using System.IO;
 
 namespace AUS2_S1.Tester
 {
-    // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt 35
+    // Vygenerovane / upravene pomocou AI - Kapitola 35
     public class CSVParser
     {
         public LinkedList<string> ColumnData { get; } = new LinkedList<string>();
@@ -18,7 +18,7 @@ namespace AUS2_S1.Tester
         public LinkedList<string> ColumnMaxA { get; } = new LinkedList<string>();
         public LinkedList<string> ColumnMaxB { get; } = new LinkedList<string>();
 
-        // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt 35
+        // Vygenerovane / upravene pomocou AI - Kapitola 35
         public void LoadPoints(string filePath, int dataColumnIndex = 0, int aColumnIndex = 1, int bColumnIndex = 2, char delimiter = ';')
         {
             ColumnData.Clear();
@@ -43,7 +43,7 @@ namespace AUS2_S1.Tester
             }
         }
 
-        // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt 35
+        // Vygenerovane / upravene pomocou AI - Kapitola 35
         public void LoadRanges(string filePath, int idColumnIndex = 0, int minAColumnIndex = 1, int minBColumnIndex = 2, int maxAColumnIndex = 3, int maxBColumnIndex = 4, char delimiter = ';')
         {
             ColumnId.Clear();

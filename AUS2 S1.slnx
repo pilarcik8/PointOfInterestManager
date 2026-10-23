@@ -9,6 +9,9 @@
     <Project Path="External Trees/SpatialTrees-master/SpatialTrees/SpatialTrees.csproj" />
   </Folder>
   <Folder Name="/External Trees/" />
+  <Folder Name="/External Trees/bkdtree-main/">
+    <Project Path="External Trees/bkdtree-main/BKDTree/BKDTree.csproj" />
+  </Folder>
   <Folder Name="/External Trees/omni-collections-main/" />
   <Folder Name="/External Trees/omni-collections-main/src/">
     <Project Path="External Trees/omni-collections-main/src/Omni.Collections.Core/Omni.Collections.Core.csproj" />

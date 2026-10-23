@@ -13,7 +13,7 @@ namespace AUS2_S1
         public LinkedList<TData> OutOfBoundsData;
         private Func<TData, (TPosition x, TPosition y)> GetPosition;
 
-        // Vygenerovane / upravene pomocou AI (Model: Gemini 3.8 Flash) - Prompt 27 (pridanie maxDepth), Prompt 33 (TPosition)
+        // Vygenerovane / upravene pomocou AI - Kapitola 4, 33
         public QTree(TPosition topLeftX, TPosition topLeftY, TPosition bottomRightX, TPosition bottomRightY, Func<TData, (TPosition x, TPosition y)> getPosition, int maxDepth)
         {
             if (maxDepth < 0)
@@ -27,7 +27,7 @@ namespace AUS2_S1
             GetPosition = getPosition;
         }
 
-        // Vygenerovane / upravene pomocou AI (Model: Gemini 3.8 Flash) - Prompt 11 (pôvodná nerekurzívna logika), Prompt 25 (univerzálny Insert), Prompt 33 (TPosition)
+        // Vygenerovane / upravene pomocou AI - Kapitola 11, 12, 13 (pôvodná logika), Kapitola 25 (univerzálny Insert), Kapitola 33 (TPosition)
         public void Insert(TData item)
         {
             var (x, y) = GetPosition(item);
@@ -111,7 +111,7 @@ namespace AUS2_S1
             }
         }
 
-        // Vygenerovane / upravene pomocou AI (Model: Gemini 3.8 Flash) - Prompt 14 (pôvodný Find), Prompt 25 (návratový typ LinkedList a refaktor), Prompt 33 (TPosition)
+        // Vygenerovane / upravene pomocou AI - Kapitola 14, 33 (TPosition)
         public LinkedList<TData> FindRange(TPosition minX, TPosition minY, TPosition maxX, TPosition maxY)
         {
             var result = new LinkedList<TData>();

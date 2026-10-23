@@ -16,7 +16,7 @@ namespace AUS2_S1.Hybrid_Quad_Tree
             public Node?[] Children { get; } = new Node?[4];
             public HybridKDTree<TData, TPosition> Data { get; set; } = new();
             
-            // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt X
+            // Vygenerovane / upravene pomocou AI - Kapitola 36, 39
             public Node(TPosition topLeftX, TPosition topLeftY, TPosition bottomRightX, 
                     TPosition bottomRightY)
             {
@@ -26,7 +26,7 @@ namespace AUS2_S1.Hybrid_Quad_Tree
                 BottomRightY = bottomRightY;
             }
 
-            // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt X
+            // Vygenerovane / upravene pomocou AI - Kapitola 36, 39
             public bool HasChildren
             {
                 get
@@ -49,7 +49,7 @@ namespace AUS2_S1.Hybrid_Quad_Tree
         private readonly Node _root;
         private readonly LinkedList<TData> _outOfBoundsData = new();
 
-        // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt X
+        // Vygenerovane / upravene pomocou AI - Kapitola 36, 39
         public HybridQTree(
             TPosition topLeftX,
             TPosition topLeftY,
@@ -68,7 +68,7 @@ namespace AUS2_S1.Hybrid_Quad_Tree
             _root = new Node(topLeftX, topLeftY, bottomRightX, bottomRightY);
         }
 
-        // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt X
+        // Vygenerovane / upravene pomocou AI - Kapitola 36, 39
         public void Insert(TData item)
         {
             var (x, y) = _getPosition(item);
@@ -101,10 +101,10 @@ namespace AUS2_S1.Hybrid_Quad_Tree
             }
         }
 
-        // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt X
+        // Vygenerovane / upravene pomocou AI - Kapitola 36, 39
         private static void Split(Node node)
         {
-            var existing = node.Data.Enumerate();
+            var existing = node.Data.GetAllPoints();
             node.Data = new HybridKDTree<TData, TPosition>();
             foreach (var item in existing)
             {
@@ -114,7 +114,7 @@ namespace AUS2_S1.Hybrid_Quad_Tree
             }
         }
 
-        // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt X
+        // Vygenerovane / upravene pomocou AI - Kapitola 36, 39
         public LinkedList<TData> FindRange(
             TPosition minX,
             TPosition minY,
@@ -155,7 +155,7 @@ namespace AUS2_S1.Hybrid_Quad_Tree
             return result;
         }
 
-        // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt X
+        // Vygenerovane / upravene pomocou AI - Kapitola 36, 39
         private static Node CreateChild(Node node, int index)
         {
             TPosition two = TPosition.CreateChecked(2);
@@ -171,7 +171,7 @@ namespace AUS2_S1.Hybrid_Quad_Tree
             };
         }
 
-        // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt X
+        // Vygenerovane / upravene pomocou AI - Kapitola 36, 39
         private static int GetQuadrantIndex(Node node, TPosition x, TPosition y)
         {
             TPosition two = TPosition.CreateChecked(2);
@@ -180,14 +180,14 @@ namespace AUS2_S1.Hybrid_Quad_Tree
             return x < midX ? (y < midY ? 0 : 2) : (y < midY ? 1 : 3);
         }
 
-        // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt X
+        // Vygenerovane / upravene pomocou AI - Kapitola 36, 39
         private static bool IsInside(Node node, TPosition x, TPosition y)
         {
             return x >= node.TopLeftX && x <= node.BottomRightX &&
                    y >= node.TopLeftY && y <= node.BottomRightY;
         }
 
-        // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt X
+        // Vygenerovane / upravene pomocou AI - Kapitola 36, 39
         private static bool Intersects(
             Node node,
             TPosition minX,

@@ -7,13 +7,13 @@ using AUS2_S1.Hybrid_Quad_Tree;
 
 namespace AUS2_S1.Tester
 {
-    // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt 35
+    // Vygenerovane / upravene pomocou AI - Kapitola 35
     public class TesterFromCSVData<TData, TPosition>
         where TData : notnull, IComparable<TData>, IParsable<TData>
         where TPosition : INumber<TPosition>, IParsable<TPosition>
     {
         // Konstruktor pre QTree
-        // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt 35
+        // Vygenerovane / upravene pomocou AI - Kapitola 35
         public TesterFromCSVData(
             QTree<TData, TPosition> qTree,
             Dictionary<TData, (TPosition x, TPosition y)> positionMap,
@@ -180,7 +180,7 @@ namespace AUS2_S1.Tester
             Console.WriteLine("----------------------------------------------------------------------\n");
         }
 
-        // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt 35
+        // Vygenerovane / upravene pomocou AI - Kapitola 35
         public TesterFromCSVData(
             KDTree<TData> kdTree,
             CSVParser points,
@@ -263,7 +263,7 @@ namespace AUS2_S1.Tester
         }
 
         // Konstruktor pre KDTree
-        // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt 35
+        // Vygenerovane / upravene pomocou AI - Kapitola 35
         private static bool AreListsEqual<T>(LinkedList<T> a, LinkedList<T> b) where T : notnull
         {
             if (a.Count != b.Count)

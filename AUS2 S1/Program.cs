@@ -8,7 +8,6 @@
 // omni-collections: https://github.com/Codeturion/omni-collections - 9 stars - 0 watchers - 0 forks
 // BKDTree: https://github.com/DevAM-Tools/BKDTree - 2 stars - 1 watchers - 0 forks
 
-// Vygenerovane / upravene pomocou AI (Modely: Gemini 3.8 Flash, Claude Sonnet 4.6) - Prompt 26, 27, 34, 35
 using AUS2_S1.Tester;
 
 var pointsParser = new CSVParser();

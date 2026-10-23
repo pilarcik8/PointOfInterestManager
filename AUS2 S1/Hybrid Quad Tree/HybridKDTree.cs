@@ -15,7 +15,7 @@ namespace AUS2_S1.Hybrid_Quad_Tree
             public Node? Left { get; set; }
             public Node? Right { get; set; }
 
-            // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt X
+        // Vygenerovane / upravene pomocou AI - Kapitola 36, 39
             public Node(TData data, TPosition x, TPosition y)
             {
                 Data = data;
@@ -27,7 +27,7 @@ namespace AUS2_S1.Hybrid_Quad_Tree
         private Node? _root;
         public int Count { get; private set; }
 
-        // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt X
+        // Vygenerovane / upravene pomocou AI - Kapitola 36, 39
         public void Insert(TData data, TPosition x, TPosition y)
         {
             if (_root == null)
@@ -72,7 +72,7 @@ namespace AUS2_S1.Hybrid_Quad_Tree
             Count++;
         }
 
-        // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt X
+        // Vygenerovane / upravene pomocou AI - Kapitola 36, 39 
         public void FindRange(
             TPosition minX,
             TPosition minY,
@@ -115,8 +115,8 @@ namespace AUS2_S1.Hybrid_Quad_Tree
             }
         }
 
-        // Vygenerovane / upravene pomocou AI (Model: Claude Sonnet 4.6) - Prompt X
-        public LinkedList<(TData data, TPosition x, TPosition y)> Enumerate()
+        // Vygenerovane / upravene pomocou AI - Kapitola 36, 39
+        public LinkedList<(TData data, TPosition x, TPosition y)> GetAllPoints()
         {
             var result = new LinkedList<(TData data, TPosition x, TPosition y)>();
             if (_root == null)
