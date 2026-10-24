@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Globalization;
+using System.IO;
 using BKDTree;
 using FastG;
 using NetTopologySuite.Geometries;
@@ -539,7 +540,8 @@ namespace AUS2_S1.Tester
             int maxPoints = int.MaxValue,
             int maxRanges = int.MaxValue,
             int insertCheckInterval = 0,
-            int findCheckInterval = 0)
+            int findCheckInterval = 0,
+            string outputFilePath = "test_funkcnosti.txt")
         {
             if (insertCheckInterval < 0 || findCheckInterval < 0)
             {
@@ -547,6 +549,7 @@ namespace AUS2_S1.Tester
                     "Interval kontroly spravnosti musi byt vacsi ako nula.");
             }
 
+            using var output = new StreamWriter(outputFilePath, false);
             var pointData = LoadPoints(points, maxPoints);
             var rangeData = LoadRanges(ranges, maxRanges);
             RunCorrectnessTestForTree(
@@ -555,7 +558,8 @@ namespace AUS2_S1.Tester
                 pointData,
                 rangeData,
                 insertCheckInterval, 
-                findCheckInterval);
+                findCheckInterval,
+                output);
             
             RunCorrectnessTestForTree(
                 "Vlastny Quad strom",
@@ -563,7 +567,8 @@ namespace AUS2_S1.Tester
                 pointData,
                 rangeData,
                 insertCheckInterval,
-                findCheckInterval);
+                findCheckInterval,
+                output);
             
             RunCorrectnessTestForTree(
                 "Vlastny Hybridny Quad strom",
@@ -571,7 +576,8 @@ namespace AUS2_S1.Tester
                 pointData,
                 rangeData,
                 insertCheckInterval,
-                findCheckInterval);
+                findCheckInterval,
+                output);
 
             RunCorrectnessTestForTree(
                 "QuadTree",
@@ -579,7 +585,8 @@ namespace AUS2_S1.Tester
                 pointData,
                 rangeData,
                 insertCheckInterval,
-                findCheckInterval);
+                findCheckInterval,
+                output);
 
             RunCorrectnessTestForTree(
                 "QuadTrees GetObjects",
@@ -587,7 +594,8 @@ namespace AUS2_S1.Tester
                 pointData,
                 rangeData,
                 insertCheckInterval,
-                findCheckInterval);
+                findCheckInterval,
+                output);
 
             RunCorrectnessTestForTree(
                 "SpatialTrees Quad strom",
@@ -595,7 +603,8 @@ namespace AUS2_S1.Tester
                 pointData,
                 rangeData,
                 insertCheckInterval,
-                findCheckInterval);
+                findCheckInterval,
+                output);
 
             RunCorrectnessTestForTree(
                 "Omni KD strom",
@@ -603,7 +612,8 @@ namespace AUS2_S1.Tester
                 pointData,
                 rangeData,
                 insertCheckInterval,
-                findCheckInterval);
+                findCheckInterval,
+                output);
 
             RunCorrectnessTestForTree(
                 "BKDTree",
@@ -611,7 +621,8 @@ namespace AUS2_S1.Tester
                 pointData,
                 rangeData,
                 insertCheckInterval,
-                findCheckInterval);
+                findCheckInterval,
+                output);
 
             RunCorrectnessTestForTree(
                 "NetTopologySuite KD strom",
@@ -619,7 +630,8 @@ namespace AUS2_S1.Tester
                 pointData,
                 rangeData,
                 insertCheckInterval,
-                findCheckInterval);
+                findCheckInterval,
+                output);
 
         }
 
@@ -656,8 +668,10 @@ namespace AUS2_S1.Tester
             LinkedList<(long id, double x, double y)> points,
             LinkedList<(double minX, double minY, double maxX, double maxY)> ranges,
             int insertCheckInterval,
-            int findCheckInterval)
+            int findCheckInterval,
+            TextWriter output)
         {
+            WriteTestOutput(output, $"\n{name}: Spustenie testu spravnosti.");
             var reference = new Dictionary<long, (double x, double y)>();
             int pointCount = points.Count;
 
@@ -668,11 +682,12 @@ namespace AUS2_S1.Tester
 
             int mildstone = pointCount / 10;
 
+            // Vlozenie bodov a kontrola spravnosti po kazdom n-tom inserti a na konci. 
             for (int i = 0; i < pointCount; i++)
             {
                 if (i + 1 == mildstone)
                 {
-                    Console.WriteLine($"{name}: Vkladanie bodu {i + 1}/{pointCount}.");
+                    WriteTestOutput(output, $"{name}: Vkladanie bodu {i + 1}/{pointCount}.");
                     mildstone += pointCount / 10;
                 }
 
@@ -689,17 +704,15 @@ namespace AUS2_S1.Tester
                 {
                     continue;
                 }
-                var actual = tree.FindRangeResults(pointMinX, pointMinY, pointMaxX, pointMaxY).ToHashSet();
-
-                
+                // kontrola findrange celej oblasti == kontrola insertu
+                var actual = tree.FindRangeResults(pointMinX, pointMinY, pointMaxX, pointMaxY).ToHashSet();      
                 if (!actual.SetEquals(reference.Keys))
                 {
-                    Console.WriteLine($"/{name}: Chyba spravnosti pri Insert #{i}.\n");
+                    WriteTestOutput(output, $"/{name}: Chyba spravnosti pri Insert #{i}.");
                     return;
                 }
-                //Console.WriteLine($"{name}: Kontrola spravnosti pri Insert {i + 1}/{pointCount} (FindRange celej oblasti) - OK");                
+                Console.WriteLine($"{name}: Kontrola spravnosti pri Insert {i + 1}/{pointCount} (FindRange celej oblasti) - OK");                
             }
-            Console.WriteLine($"{name}: Vkladanie bodov dokoncene\n");
 
             // kontrola findrandge
             int rangeCount = ranges.Count;
@@ -711,7 +724,7 @@ namespace AUS2_S1.Tester
 
                 if (i + 1 == mildstone)
                 {
-                    Console.WriteLine($"{name}: Hladanie obdlznika {i + 1}/{rangeCount}.");
+                    WriteTestOutput(output, $"{name}: Hladanie obdlznika {i + 1}/{rangeCount}.");
                     mildstone += rangeCount / 10;
                 }
 
@@ -740,16 +753,22 @@ namespace AUS2_S1.Tester
                 if (!expected.SetEquals(actual))
                 {
                     // Vypis chyby spravnosti a ukonci test.
-                    Console.WriteLine(
+                    WriteTestOutput(
+                        output,
                         $"{name}: Chyba spravnosti pri FindRange #{i}. " +
-                        $"Ocakavane {expected.Count}, ziskane {actual.Count}.\n");
-                        return;
+                        $"Ocakavane {expected.Count}, ziskane {actual.Count}.");
+                    return;
                 }
 
-                //Console.WriteLine($"{name}: kontrola spravnosti po FindRange #{i}/{ranges.Count} OK.");
+                Console.WriteLine($"{name}: kontrola spravnosti po FindRange #{i}/{ranges.Count} OK.");
             }
+        }
 
-            Console.WriteLine($"{name}: test spravnosti dokonceny.\n");
+        private static void WriteTestOutput(TextWriter output, string message)
+        {
+            Console.WriteLine(message);
+            output.WriteLine(message);
+            output.Flush();
         }
 
         // Vygenerovane / upravene pomocou AI - Kapitola X

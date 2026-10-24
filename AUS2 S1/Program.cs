@@ -14,10 +14,14 @@ using AUS2_S1.Tester;
 var pointsParser = new CSVParser();
 pointsParser.LoadPoints("C:\\Users\\Admin\\source\\repos\\AUS2 S1\\AUS2 S1\\Data\\slovakia_nodes.csv");
 
+Console.WriteLine($"Body nahrate\nPocet bodov: {pointsParser.GetRowCount()}\n");
+
 var rangesParser = new CSVParser();
 rangesParser.LoadRanges("C:\\Users\\Admin\\source\\repos\\AUS2 S1\\AUS2 S1\\Data\\testovacie_oblasti.csv");
 
-ExternalDataTreeTester.RunCorrectnessTest(pointsParser, rangesParser, insertCheckInterval: pointsParser.GetRowCount() / 10);
+Console.WriteLine($"Obdlzniky nahrate\nPocet obdlznikov: {rangesParser.GetRowCount()}\n");
+
+ExternalDataTreeTester.RunCorrectnessTest(pointsParser, rangesParser, insertCheckInterval: 10, maxPoints: 100, maxRanges: 100, outputFilePath: "C:\\Users\\Admin\\source\\repos\\AUS2 S1\\AUS2 S1\\Data\\test_results.txt");
 // Rychlostny tester vlastnych aj externych stromov.
 //ExternalDataTreeTester.Run(pointsParser, rangesParser, maxPoints : 100, maxRanges : 100);
 
