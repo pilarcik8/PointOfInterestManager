@@ -33,7 +33,7 @@ namespace AUS2_S1
             var (x, y) = GetPosition(item);
 
             // mimo rozsahu Root
-            if (!Root.IsInside(x, y))
+            if (!Root.Bounds.IsInside(x, y))
             {
                 OutOfBoundsData.AddLast(item);
                 return;
@@ -44,22 +44,22 @@ namespace AUS2_S1
 
             while (true)
             {
-                // dosiahnuta max hlbka -> dame do listu
+                // ovewlow
                 if (depth >= MaxDepth)
                 {
                     current.Data.AddLast(item);
                     return;
                 }
 
-                // Splitnu sa ak ma uzol deti
-                if (current.HasChildren)
+                //ideme do syna
+                if (current.IsSplit)
                 {
                     int targetIndex = current.GetQuadrantIndex(x, y);
 
                     // neexistuje potrebny syn tak ho vytvorime
                     if (current.Children[targetIndex] == null)
                     {
-                        QNode<TData, TPosition>[] quadrants = current.Split();
+                        QNode<TData, TPosition>[] quadrants = current.Split()!;
                         current.Children[targetIndex] = quadrants[targetIndex];
                     }
 
@@ -68,7 +68,7 @@ namespace AUS2_S1
                     continue;
                 }
 
-                // List je prazdny - vloz priamo
+                // List je prazdny - vloz priamo (šetríme pamäť)
                 if (current.Data.Count == 0)
                 {
                     current.Data.AddLast(item);
@@ -85,7 +85,14 @@ namespace AUS2_S1
                 }
 
                 // Treba splitnut - presun existujuce data do deti
-                QNode<TData, TPosition>[] splitQuadrants = current.Split();
+                QNode<TData, TPosition>[]? splitQuadrants = current.Split();
+                if (splitQuadrants == null)
+                {
+                    // Uz sa neda splitnut - overflow
+                    current.Data.AddLast(item);
+                    return;
+                }
+
                 LinkedList<TData> existingData = current.Data;
                 current.Data = new LinkedList<TData>();
 
@@ -129,7 +136,7 @@ namespace AUS2_S1
                 QNode<TData, TPosition> current = nodesToVisit.First!.Value;
                 nodesToVisit.RemoveFirst();
 
-                if (!current.Intersects(minX, minY, maxX, maxY))
+                if (!current.Bounds.Intersects(minX, minY, maxX, maxY))
                 {
                     continue;
                 }

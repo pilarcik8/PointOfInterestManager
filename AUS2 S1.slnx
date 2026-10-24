@@ -2,26 +2,30 @@
   <Folder Name="/External KD Trees/" />
   <Folder Name="/External KD Trees/NetTopologySuite-develop/" />
   <Folder Name="/External KD Trees/NetTopologySuite-develop/src/">
-    <Project Path="External Trees/NetTopologySuite-develop/src/NetTopologySuite/NetTopologySuite.csproj" />
+    <Project Path="External Trees/KD/NetTopologySuite-develop/src/NetTopologySuite/NetTopologySuite.csproj" />
   </Folder>
   <Folder Name="/External Quad Trees/" />
   <Folder Name="/External Quad Trees/SpatialTrees-master/">
-    <Project Path="External Trees/SpatialTrees-master/SpatialTrees/SpatialTrees.csproj" />
+    <Project Path="External Trees/Quad/SpatialTrees-master/SpatialTrees/SpatialTrees.csproj" />
   </Folder>
   <Folder Name="/External Trees/" />
   <Folder Name="/External Trees/bkdtree-main/">
-    <Project Path="External Trees/bkdtree-main/BKDTree/BKDTree.csproj" />
+    <Project Path="External Trees/KD/BKDTree-main/BKDTree/BKDTree.csproj" />
   </Folder>
   <Folder Name="/External Trees/omni-collections-main/" />
   <Folder Name="/External Trees/omni-collections-main/src/">
-    <Project Path="External Trees/omni-collections-main/src/Omni.Collections.Core/Omni.Collections.Core.csproj" />
-    <Project Path="External Trees/omni-collections-main/src/Omni.Collections.Hybrid/Omni.Collections.Hybrid.csproj" />
-    <Project Path="External Trees/omni-collections-main/src/Omni.Collections.Linear/Omni.Collections.Linear.csproj" />
-    <Project Path="External Trees/omni-collections-main/src/Omni.Collections.Probabilistic/Omni.Collections.Probabilistic.csproj" />
-    <Project Path="External Trees/omni-collections-main/src/Omni.Collections.Spatial/Omni.Collections.Spatial.csproj" />
+    <Project Path="External Trees/KD/omni-collections-main/src/Omni.Collections.Core/Omni.Collections.Core.csproj" />
+    <Project Path="External Trees/KD/omni-collections-main/src/Omni.Collections.Hybrid/Omni.Collections.Hybrid.csproj" />
+    <Project Path="External Trees/KD/omni-collections-main/src/Omni.Collections.Linear/Omni.Collections.Linear.csproj" />
+    <Project Path="External Trees/KD/omni-collections-main/src/Omni.Collections.Probabilistic/Omni.Collections.Probabilistic.csproj" />
+    <Project Path="External Trees/KD/omni-collections-main/src/Omni.Collections.Spatial/Omni.Collections.Spatial.csproj" />
+  </Folder>
+  <Folder Name="/External Trees/Quad/" />
+  <Folder Name="/External Trees/Quad/QuadTrees-master/">
+    <Project Path="External Trees/Quad/QuadTrees-master/QuadTrees/QuadTrees.csproj" />
   </Folder>
   <Folder Name="/External Trees/QuadTree-master/">
-    <Project Path="External Trees/QuadTree-master/QuadTree.csproj" />
+    <Project Path="External Trees/Quad/QuadTree-master/QuadTree.csproj" />
   </Folder>
   <Project Path="AUS2 S1/AUS2 S1.csproj" />
 </Solution>

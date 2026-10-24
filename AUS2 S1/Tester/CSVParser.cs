@@ -12,7 +12,6 @@ namespace AUS2_S1.Tester
         public LinkedList<string> ColumnA { get; } = new LinkedList<string>();
         public LinkedList<string> ColumnB { get; } = new LinkedList<string>();
 
-        public LinkedList<string> ColumnId { get; } = new LinkedList<string>();
         public LinkedList<string> ColumnMinA { get; } = new LinkedList<string>();
         public LinkedList<string> ColumnMinB { get; } = new LinkedList<string>();
         public LinkedList<string> ColumnMaxA { get; } = new LinkedList<string>();
@@ -46,7 +45,7 @@ namespace AUS2_S1.Tester
         // Vygenerovane / upravene pomocou AI - Kapitola 35
         public void LoadRanges(string filePath, int idColumnIndex = 0, int minAColumnIndex = 1, int minBColumnIndex = 2, int maxAColumnIndex = 3, int maxBColumnIndex = 4, char delimiter = ';')
         {
-            ColumnId.Clear();
+            ColumnData.Clear();
             ColumnMinA.Clear();
             ColumnMinB.Clear();
             ColumnMaxA.Clear();
@@ -64,12 +63,17 @@ namespace AUS2_S1.Tester
                 }
 
                 string[] parts = line.Split(delimiter);
-                ColumnId.AddLast(parts[idColumnIndex]);
+                ColumnData.AddLast(parts[idColumnIndex]);
                 ColumnMinA.AddLast(parts[minAColumnIndex]);
                 ColumnMinB.AddLast(parts[minBColumnIndex]);
                 ColumnMaxA.AddLast(parts[maxAColumnIndex]);
                 ColumnMaxB.AddLast(parts[maxBColumnIndex]);
             }
+        }
+
+        public int GetRowCount()
+        {
+            return ColumnData.Count;
         }
     }
 }

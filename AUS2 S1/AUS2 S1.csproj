@@ -9,11 +9,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\External Trees\NetTopologySuite-develop\src\NetTopologySuite\NetTopologySuite.csproj" />
-    <ProjectReference Include="..\External Trees\SpatialTrees-master\SpatialTrees\SpatialTrees.csproj" />
-    <ProjectReference Include="..\External Trees\omni-collections-main\src\Omni.Collections.Spatial\Omni.Collections.Spatial.csproj" />
-    <ProjectReference Include="..\External Trees\bkdtree-main\BKDTree\BKDTree.csproj" />
-    <Compile Include="..\External Trees\QuadTree-master\QuadTree.cs" Link="External Trees\QuadTree-master\QuadTree.cs" />
+    <ProjectReference Include="..\External Trees\KD\NetTopologySuite-develop\src\NetTopologySuite\NetTopologySuite.csproj" />
+    <ProjectReference Include="..\External Trees\Quad\SpatialTrees-master\SpatialTrees\SpatialTrees.csproj" />
+    <ProjectReference Include="..\External Trees\Quad\QuadTrees-master\QuadTrees\QuadTrees.csproj" />
+    <ProjectReference Include="..\External Trees\KD\omni-collections-main\src\Omni.Collections.Spatial\Omni.Collections.Spatial.csproj" />
+    <ProjectReference Include="..\External Trees\KD\BKDTree-main\BKDTree\BKDTree.csproj" />
+    <Compile Include="..\External Trees\Quad\QuadTree-master\QuadTree.cs" Link="External Trees\QuadTree-master\QuadTree.cs" />
   </ItemGroup>
 
 </Project>
