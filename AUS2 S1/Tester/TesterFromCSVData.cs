@@ -51,7 +51,7 @@ namespace AUS2_S1.Tester
 
             Console.WriteLine($"Vlozeno celkovo {insertCount} prvkov. Spustam FindRange testy...");
 
-            var idNode = ranges.ColumnId.First;
+            var idNode = ranges.ColumnData.First;
             var minANode = ranges.ColumnMinA.First;
             var minBNode = ranges.ColumnMinB.First;
             var maxANode = ranges.ColumnMaxA.First;
@@ -84,8 +84,10 @@ namespace AUS2_S1.Tester
                 rangeCount++;
                 if (rangeCount % checkInterval == 0)
                 {
-                    Console.WriteLine($"[FindRange {rangeCount}] OK...");
+                    //Console.WriteLine($"[FindRange {rangeCount}] OK...");
+                    throw new NotImplementedException("TesterFromCSVData: FindRange test.");
                 }
+
 
                 idNode = idNode.Next;
                 minANode = minANode.Next;
@@ -130,7 +132,7 @@ namespace AUS2_S1.Tester
                 bNode = bNode.Next;
             }
 
-            var idNode = ranges.ColumnId.First;
+            var idNode = ranges.ColumnData.First;
             var minANode = ranges.ColumnMinA.First;
             var minBNode = ranges.ColumnMinB.First;
             var maxANode = ranges.ColumnMaxA.First;
@@ -219,7 +221,7 @@ namespace AUS2_S1.Tester
 
             Console.WriteLine($"Vlozeno celkovo {insertCount} prvkov. Spustam FindRange testy...");
 
-            var idNode = ranges.ColumnId.First;
+            var idNode = ranges.ColumnData.First;
             var minANode = ranges.ColumnMinA.First;
             var minBNode = ranges.ColumnMinB.First;
             var maxANode = ranges.ColumnMaxA.First;

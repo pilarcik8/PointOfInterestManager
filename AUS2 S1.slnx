@@ -25,7 +25,7 @@
     <Project Path="External Trees/Quad/QuadTrees-master/QuadTrees/QuadTrees.csproj" />
   </Folder>
   <Folder Name="/External Trees/QuadTree-master/">
-    <Project Path="External Trees/Quad/QuadTree-master/QuadTree.csproj" />
+    <Project Path="External Trees/Quad/QuadTree-master/QuadTree.csproj" Id="ee15f6da-9f5b-4554-baaf-4bfc8618ce76" />
   </Folder>
   <Project Path="AUS2 S1/AUS2 S1.csproj" />
 </Solution>

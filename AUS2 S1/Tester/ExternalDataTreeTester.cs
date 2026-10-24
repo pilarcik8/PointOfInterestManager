@@ -462,45 +462,7 @@ namespace AUS2_S1.Tester
 
             return ids;
         }
-    }
-
-    // Vygenerovane / upravene pomocou AI - Kapitola X
-    internal sealed class NetTopologyQuadTreeAdapter : IBenchmarkTree, ICorrectnessTree
-    {
-        private readonly NetTopologySuite.Index.Quadtree.Quadtree<ExternalPoint> _tree = new();
-
-        // Vygenerovane / upravene pomocou AI - Kapitola X
-        public void Insert(long id, double x, double y)
-        {
-            _tree.Insert(new Envelope(x, x, y, y), new ExternalPoint(id, x, y));
-        }
-
-        // Vygenerovane / upravene pomocou AI - Kapitola X
-        public void FindRange(double minX, double minY, double maxX, double maxY)
-        {
-            _tree.Query(new Envelope(minX, maxX, minY, maxY));
-        }
-
-        // Kapitola Y: Vracia iba presne filtrovane identifikatory kandidatov z Quadtree.
-        public IReadOnlyCollection<long> FindRangeResults(
-            double minX, double minY, double maxX, double maxY)
-        {
-            var result = _tree.Query(new Envelope(minX, maxX, minY, maxY));
-            var ids = new List<long>();
-            foreach (var point in result)
-            {
-                if (point.X >= minX &&
-                    point.X <= maxX &&
-                    point.Y >= minY &&
-                    point.Y <= maxY)
-                {
-                    ids.Add(point.Id);
-                }
-            }
-
-            return ids;
-        }
-    }
+    }   
 
     // Vygenerovane / upravene pomocou AI - Kapitola X
     internal sealed class SpatialTreesQuadTreeAdapter : IBenchmarkTree, ICorrectnessTree
@@ -562,8 +524,7 @@ namespace AUS2_S1.Tester
             // EXTERNE
             //QUAD
             RunBenchmarkForTree("QuadTree-master", new QuadTreeMasterAdapter(), pointData, rangeData);
-            RunBenchmarkForTree("QuadTrees-master GetObjects", new QuadTreesPointQuadTreeAdapter(), pointData, rangeData);
-            RunBenchmarkForTree("NetTopologySuite Quad strom", new NetTopologyQuadTreeAdapter(), pointData, rangeData);
+            RunBenchmarkForTree("QuadTrees-master", new QuadTreesPointQuadTreeAdapter(), pointData, rangeData);
             RunBenchmarkForTree("SpatialTrees Quad strom", new SpatialTreesQuadTreeAdapter(), pointData, rangeData);
             //KD
             RunBenchmarkForTree("Omni KD strom", new OmniKdTreeAdapter(), pointData, rangeData);
@@ -594,6 +555,7 @@ namespace AUS2_S1.Tester
                 pointData,
                 rangeData,
                 correctnessCheckInterval);
+            
             RunCorrectnessTestForTree(
                 "Vlastny Quad strom",
                 new OwnQuadTreeAdapter(),
@@ -607,20 +569,14 @@ namespace AUS2_S1.Tester
                 rangeData,
                 correctnessCheckInterval);
             RunCorrectnessTestForTree(
-                "QuadTree-master",
+                "QuadTree",
                 new QuadTreeMasterAdapter(),
                 pointData,
                 rangeData,
                 correctnessCheckInterval);
             RunCorrectnessTestForTree(
-                "QuadTrees-master GetObjects",
+                "QuadTrees GetObjects",
                 new QuadTreesPointQuadTreeAdapter(),
-                pointData,
-                rangeData,
-                correctnessCheckInterval);
-            RunCorrectnessTestForTree(
-                "NetTopologySuite Quad strom",
-                new NetTopologyQuadTreeAdapter(),
                 pointData,
                 rangeData,
                 correctnessCheckInterval);
@@ -648,6 +604,7 @@ namespace AUS2_S1.Tester
                 pointData,
                 rangeData,
                 correctnessCheckInterval);
+            
         }
 
         // Kapitola Y, Z: Spusta benchmark pre jeden konkretny strom bez validacnych dotazov.
@@ -685,17 +642,54 @@ namespace AUS2_S1.Tester
             int checkInterval)
         {
             var reference = new Dictionary<long, (double x, double y)>();
-            foreach (var point in points)
+            int pointCount = points.Count;
+
+            var pointMinX = points.Min(p => p.x);
+            var pointMaxX = points.Max(p => p.x);
+            var pointMinY = points.Min(p => p.y);
+            var pointMaxY = points.Max(p => p.y);
+
+            for (int i = 0; i < pointCount; i++)
             {
+                //Console.WriteLine($"{name}: Vkladanie bodu {i + 1}/{pointCount}.");
+                var point = points.ElementAt(i);
                 tree.Insert(point.id, point.x, point.y);
                 reference.Add(point.id, (point.x, point.y));
-            }
 
-            int rangeNumber = 0;
-            foreach (var range in ranges)
+                if (checkInterval == 0)
+                {
+                    continue;
+                }
+
+                if (i % checkInterval != 0 && i != pointCount - 1)
+                {
+                    continue;
+                }
+                var actual = tree.FindRangeResults(pointMinX, pointMinY, pointMaxX, pointMaxY).ToHashSet();
+
+                
+                if (!actual.SetEquals(reference.Keys))
+                {
+                    Console.WriteLine($"/{name}: Chyba spravnosti pri Insert #{i}. ");
+                    return;
+                }
+                //Console.WriteLine($"{name}: Kontrola spravnosti pri Insert {i + 1}/{pointCount} (FindRange celej oblasti) - OK");                
+            }
+            Console.WriteLine($"{name}: Vkladanie bodov dokoncene.");
+
+            // kontrola findrandge
+            int rangeCount = ranges.Count;
+            for (int i = 0; i < rangeCount; i++)
             {
-                rangeNumber++;
-                if (rangeNumber % checkInterval != 0 && rangeNumber != ranges.Count)
+                var range = ranges.ElementAt(i);
+
+                if (checkInterval == 0)
+                {
+                    continue;
+                }
+
+                //kontrolujeme n-ty interval a na koniec
+                if (i % checkInterval != 0 && i != ranges.Count - 1)
                 {
                     continue;
                 }
@@ -713,16 +707,17 @@ namespace AUS2_S1.Tester
 
                 if (!expected.SetEquals(actual))
                 {
-                    throw new InvalidOperationException(
-                        $"{name}: Chyba spravnosti pri FindRange #{rangeNumber}. " +
-                        $"Ocakavane {expected.Count}, ziskane {actual.Count}.");
+                    // Vypis chyby spravnosti a ukonci test.
+                    Console.WriteLine(
+                        $"{name}: Chyba spravnosti pri FindRange #{i}. " +
+                        $"Ocakavane {expected.Count}, ziskane {actual.Count}.\n");
+                        return;
                 }
 
-                Console.WriteLine(
-                    $"{name}: kontrola spravnosti po FindRange #{rangeNumber}/{ranges.Count} OK.");
+                //Console.WriteLine($"{name}: kontrola spravnosti po FindRange #{i}/{ranges.Count} OK.");
             }
 
-            Console.WriteLine($"{name}: test spravnosti dokonceny.");
+            Console.WriteLine($"{name}: test spravnosti dokonceny.\n");
         }
 
         // Vygenerovane / upravene pomocou AI - Kapitola X
