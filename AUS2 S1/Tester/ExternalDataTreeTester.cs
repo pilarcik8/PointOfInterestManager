@@ -538,12 +538,12 @@ namespace AUS2_S1.Tester
             CSVParser ranges,
             int maxPoints = int.MaxValue,
             int maxRanges = int.MaxValue,
-            int correctnessCheckInterval = 0)
+            int insertCheckInterval = 0,
+            int findCheckInterval = 0)
         {
-            if (correctnessCheckInterval < 0)
+            if (insertCheckInterval < 0 || findCheckInterval < 0)
             {
                 throw new ArgumentOutOfRangeException(
-                    nameof(correctnessCheckInterval),
                     "Interval kontroly spravnosti musi byt vacsi ako nula.");
             }
 
@@ -554,57 +554,73 @@ namespace AUS2_S1.Tester
                 new OwnKdTreeAdapter(),
                 pointData,
                 rangeData,
-                correctnessCheckInterval);
+                insertCheckInterval, 
+                findCheckInterval);
             
             RunCorrectnessTestForTree(
                 "Vlastny Quad strom",
                 new OwnQuadTreeAdapter(),
                 pointData,
                 rangeData,
-                correctnessCheckInterval);
+                insertCheckInterval,
+                findCheckInterval);
+            
             RunCorrectnessTestForTree(
                 "Vlastny Hybridny Quad strom",
                 new HybridQuadTreeAdapter(),
                 pointData,
                 rangeData,
-                correctnessCheckInterval);
+                insertCheckInterval,
+                findCheckInterval);
+
             RunCorrectnessTestForTree(
                 "QuadTree",
                 new QuadTreeMasterAdapter(),
                 pointData,
                 rangeData,
-                correctnessCheckInterval);
+                insertCheckInterval,
+                findCheckInterval);
+
             RunCorrectnessTestForTree(
                 "QuadTrees GetObjects",
                 new QuadTreesPointQuadTreeAdapter(),
                 pointData,
                 rangeData,
-                correctnessCheckInterval);
+                insertCheckInterval,
+                findCheckInterval);
+
             RunCorrectnessTestForTree(
                 "SpatialTrees Quad strom",
                 new SpatialTreesQuadTreeAdapter(),
                 pointData,
                 rangeData,
-                correctnessCheckInterval);
+                insertCheckInterval,
+                findCheckInterval);
+
             RunCorrectnessTestForTree(
                 "Omni KD strom",
                 new OmniKdTreeAdapter(),
                 pointData,
                 rangeData,
-                correctnessCheckInterval);
+                insertCheckInterval,
+                findCheckInterval);
+
             RunCorrectnessTestForTree(
                 "BKDTree",
                 new BkdTreeAdapter(),
                 pointData,
                 rangeData,
-                correctnessCheckInterval);
+                insertCheckInterval,
+                findCheckInterval);
+
             RunCorrectnessTestForTree(
                 "NetTopologySuite KD strom",
                 new NetTopologySuiteKdTreeAdapter(),
                 pointData,
                 rangeData,
-                correctnessCheckInterval);
-            
+                insertCheckInterval,
+                findCheckInterval);
+
         }
 
         // Kapitola Y, Z: Spusta benchmark pre jeden konkretny strom bez validacnych dotazov.
@@ -639,7 +655,8 @@ namespace AUS2_S1.Tester
             ICorrectnessTree tree,
             LinkedList<(long id, double x, double y)> points,
             LinkedList<(double minX, double minY, double maxX, double maxY)> ranges,
-            int checkInterval)
+            int insertCheckInterval,
+            int findCheckInterval)
         {
             var reference = new Dictionary<long, (double x, double y)>();
             int pointCount = points.Count;
@@ -649,19 +666,26 @@ namespace AUS2_S1.Tester
             var pointMinY = points.Min(p => p.y);
             var pointMaxY = points.Max(p => p.y);
 
+            int mildstone = pointCount / 10;
+
             for (int i = 0; i < pointCount; i++)
             {
-                //Console.WriteLine($"{name}: Vkladanie bodu {i + 1}/{pointCount}.");
+                if (i + 1 == mildstone)
+                {
+                    Console.WriteLine($"{name}: Vkladanie bodu {i + 1}/{pointCount}.");
+                    mildstone += pointCount / 10;
+                }
+
                 var point = points.ElementAt(i);
                 tree.Insert(point.id, point.x, point.y);
                 reference.Add(point.id, (point.x, point.y));
 
-                if (checkInterval == 0)
+                if (insertCheckInterval == 0)
                 {
                     continue;
                 }
 
-                if (i % checkInterval != 0 && i != pointCount - 1)
+                if (i % insertCheckInterval != 0 && i != pointCount - 1)
                 {
                     continue;
                 }
@@ -670,26 +694,34 @@ namespace AUS2_S1.Tester
                 
                 if (!actual.SetEquals(reference.Keys))
                 {
-                    Console.WriteLine($"/{name}: Chyba spravnosti pri Insert #{i}. ");
+                    Console.WriteLine($"/{name}: Chyba spravnosti pri Insert #{i}.\n");
                     return;
                 }
                 //Console.WriteLine($"{name}: Kontrola spravnosti pri Insert {i + 1}/{pointCount} (FindRange celej oblasti) - OK");                
             }
-            Console.WriteLine($"{name}: Vkladanie bodov dokoncene.");
+            Console.WriteLine($"{name}: Vkladanie bodov dokoncene\n");
 
             // kontrola findrandge
             int rangeCount = ranges.Count;
+            mildstone = rangeCount / 10;
+
             for (int i = 0; i < rangeCount; i++)
             {
                 var range = ranges.ElementAt(i);
 
-                if (checkInterval == 0)
+                if (i + 1 == mildstone)
+                {
+                    Console.WriteLine($"{name}: Hladanie obdlznika {i + 1}/{rangeCount}.");
+                    mildstone += rangeCount / 10;
+                }
+
+                if (findCheckInterval == 0)
                 {
                     continue;
                 }
 
                 //kontrolujeme n-ty interval a na koniec
-                if (i % checkInterval != 0 && i != ranges.Count - 1)
+                if (i % findCheckInterval != 0 && i != ranges.Count - 1)
                 {
                     continue;
                 }

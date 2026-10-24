@@ -17,7 +17,7 @@ pointsParser.LoadPoints("C:\\Users\\Admin\\source\\repos\\AUS2 S1\\AUS2 S1\\Data
 var rangesParser = new CSVParser();
 rangesParser.LoadRanges("C:\\Users\\Admin\\source\\repos\\AUS2 S1\\AUS2 S1\\Data\\testovacie_oblasti.csv");
 
-ExternalDataTreeTester.RunCorrectnessTest(pointsParser, rangesParser, correctnessCheckInterval: 1);
+ExternalDataTreeTester.RunCorrectnessTest(pointsParser, rangesParser, insertCheckInterval: pointsParser.GetRowCount() / 10);
 // Rychlostny tester vlastnych aj externych stromov.
 //ExternalDataTreeTester.Run(pointsParser, rangesParser, maxPoints : 100, maxRanges : 100);
 
