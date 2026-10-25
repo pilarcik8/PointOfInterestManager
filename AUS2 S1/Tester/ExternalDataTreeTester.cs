@@ -14,6 +14,7 @@ using AUS2_S1.KD_Tree;
 using QuadTree;
 using QuadTrees;
 using QuadTrees.QTreePointF;
+using System.Runtime.ConstrainedExecution;
 
 namespace AUS2_S1.Tester
 {
@@ -135,10 +136,10 @@ namespace AUS2_S1.Tester
         private readonly QTree<long, double> _tree;
 
         // Vygenerovane / upravene pomocou AI - Kapitola 41, 42
-        public OwnQuadTreeAdapter()
+        public OwnQuadTreeAdapter(double minX, double minY, double maxX, double maxY, int maxDepth)
         {
             _tree = new QTree<long, double>(
-                47.0, 16.0, 50.0, 23.0, id => _positions[id], 16);
+                minX, minY, maxX, maxY, id => _positions[id], maxDepth);
         }
 
         // Vygenerovane / upravene pomocou AI - Kapitola 41, 42
@@ -170,10 +171,16 @@ namespace AUS2_S1.Tester
         private readonly HybridQTree<long, double> _tree;
 
         // Vygenerovane / upravene pomocou AI - Kapitola 43
-        public HybridQuadTreeAdapter()
+        public HybridQuadTreeAdapter(double minX, double minY, double maxX, double maxY, int maxDepth)
         {
             _tree = new HybridQTree<long, double>(
-                47.0, 16.0, 50.0, 23.0, id => _positions[id], 16);
+                minX: minX,
+                minY: minY,
+                maxX: maxX,
+                maxY: maxY,
+                maxDepth: maxDepth,
+                getPosition: id => _positions[id]
+                );
         }
 
         // Vygenerovane / upravene pomocou AI - Kapitola 43
@@ -201,8 +208,22 @@ namespace AUS2_S1.Tester
     internal sealed class QuadTreeAdapter : IBenchmarkTree, ICorrectnessTree
     {
         private const float PointSize = 0.000001f;
-        private readonly QuadTree<long> _tree =
-            new(16, 16, 47f, 16f, 3f, 7f);
+        private readonly QuadTree<long> _tree;
+        public QuadTreeAdapter(double minX, double minY, double maxX, double maxY, int maxDepth)
+        {
+            float padding = 0.0001f;
+            var root = new Quad(
+                (float)minX,
+                (float)minY,
+                (float)maxX + PointSize + padding,
+                (float)maxY + PointSize + padding);
+
+            _tree = new QuadTree<long>(
+                splitCount: 4,
+                depthLimit: maxDepth,
+                region: root
+            );
+        }
         private List<long> _result = new();
 
         // Vygenerovane / upravene pomocou AI - Kapitola 44, 46
@@ -220,12 +241,13 @@ namespace AUS2_S1.Tester
         // Vygenerovane / upravene pomocou AI - Kapitola 44, 46
         public void FindRange(double minX, double minY, double maxX, double maxY)
         {
+            _result.Clear();
             _tree.SearchArea(
                 new Quad(
                     (float)minX,
                     (float)minY,
-                    (float)maxX,
-                    (float)maxY),
+                    (float)maxX + PointSize,
+                    (float)maxY + PointSize),
                 ref _result);
         }
 
@@ -254,8 +276,13 @@ namespace AUS2_S1.Tester
             }
         }
 
-        private readonly QuadTreePointF<QuadPoint> _tree =
-            new(new RectangleF(47f, 16f, 3f, 7f));
+        private readonly QuadTreePointF<QuadPoint> _tree;
+
+        public QuadTreesPointQuadTreeAdapter(double minX, double minY, double maxX, double maxY)
+        {
+            float padding = 0.0001f;
+            _tree = new QuadTreePointF<QuadPoint>(new RectangleF((float)minX, (float)minY, (float)(maxX - minX) + padding, (float)(maxY - minY) + padding));
+        }
 
         // Vygenerovane / upravene pomocou AI - Kapitola 46
         public void Insert(long id, double x, double y)
@@ -438,18 +465,18 @@ namespace AUS2_S1.Tester
     {
         private readonly KdTree<ExternalPoint> _tree = new();
 
-    // Vygenerovane / upravene pomocou AI - Kapitola 41
+        // Vygenerovane / upravene pomocou AI - Kapitola 41
         public void Insert(long id, double x, double y)
         {
             _tree.Insert(new Coordinate(x, y), new ExternalPoint(id, x, y));
         }
 
-    // Vygenerovane / upravene pomocou AI - Kapitola 41
+        // Vygenerovane / upravene pomocou AI - Kapitola 41
         public void FindRange(double minX, double minY, double maxX, double maxY)
         {
             _tree.Query(new Envelope(minX, maxX, minY, maxY));
         }
-    
+
         // Vygenerovane / upravene pomocou AI - Kapitola 53
         public IReadOnlyCollection<long> FindRangeResults(
             double minX, double minY, double maxX, double maxY)
@@ -463,14 +490,22 @@ namespace AUS2_S1.Tester
 
             return ids;
         }
-    }   
+    }
 
     // Vygenerovane / upravene pomocou AI - Kapitola 41
     internal sealed class SpatialTreesQuadTreeAdapter : IBenchmarkTree, ICorrectnessTree
     {
-        private readonly SpatialTrees.Quadtrees.Quadtree _tree =
-            new(new AARectangle(16f, 47f, 7f, 3f), 16, 16);
+        private readonly SpatialTrees.Quadtrees.Quadtree _tree;
         private readonly List<IMapObject2d> _result = new();
+
+        public SpatialTreesQuadTreeAdapter(double minX, double minY, double maxX, double maxY, int maxDepth = 16)
+        {
+            float padding = 0.0001f;
+            _tree = new SpatialTrees.Quadtrees.Quadtree(
+                new AARectangle((float)minY, (float)minX, (float)(maxY - minY) + padding, (float)(maxX - minX) + padding),
+                maxDepth,
+                maxDepth);
+        }
 
         // Vygenerovane / upravene pomocou AI - Kapitola 41
         public void Insert(long id, double x, double y)
@@ -509,7 +544,7 @@ namespace AUS2_S1.Tester
 
     public static class ExternalDataTreeTester
     {
-    // Vygenerovane / upravene pomocou AI - Kapitola 41
+        // Vygenerovane / upravene pomocou AI - Kapitola 41
         public static void RunBenchmark(
             CSVParser points,
             CSVParser ranges,
@@ -520,16 +555,48 @@ namespace AUS2_S1.Tester
             using var output = new StreamWriter(outputFilePath, false);
             var pointData = LoadPoints(points, maxPoints);
             var rangeData = LoadRanges(ranges, maxRanges);
+
+            var pointMinX = pointData.Min(p => p.x);
+            var pointMaxX = pointData.Max(p => p.x);
+            var pointMinY = pointData.Min(p => p.y);
+            var pointMaxY = pointData.Max(p => p.y);
+
+            const int maxDepth = 12;
+
             // MOJE
             RunBenchmarkForTree("Vlastny KD strom", new OwnKdTreeAdapter(), pointData, rangeData, output);
-            RunBenchmarkForTree("Vlastny Quad strom", new OwnQuadTreeAdapter(), pointData, rangeData, output);
-            RunBenchmarkForTree("Vlastny Hybridny Quad strom", new HybridQuadTreeAdapter(), pointData, rangeData, output);
+            RunBenchmarkForTree("Vlastny Quad strom", new OwnQuadTreeAdapter(minX: pointMinX,
+                                                                        minY: pointMinY,
+                                                                        maxX: pointMaxX,
+                                                                        maxY: pointMaxY,
+                                                                        maxDepth: maxDepth),
+                                                                        pointData, rangeData, output);
+            RunBenchmarkForTree("Vlastny Hybridny Quad strom", new HybridQuadTreeAdapter(minX: pointMinX,
+                                                                                        minY: pointMinY,
+                                                                                        maxX: pointMaxX,
+                                                                                        maxY: pointMaxY,
+                                                                                        maxDepth: maxDepth),
+                                                                                        pointData, rangeData, output);
             // EXTERNE
             //QUAD
-            RunBenchmarkForTree("QuadTree", new QuadTreeAdapter(), pointData, rangeData, output);
-            RunBenchmarkForTree("QuadTrees", new QuadTreesPointQuadTreeAdapter(), pointData, rangeData, output);
-            RunBenchmarkForTree("SpatialTrees Quad strom", new SpatialTreesQuadTreeAdapter(), pointData, rangeData, output);
+            RunBenchmarkForTree("QuadTree", new QuadTreeAdapter(minX: pointMinX,
+                                                                minY: pointMinY,
+                                                                maxX: pointMaxX,
+                                                                maxY: pointMaxY,
+                                                                maxDepth: maxDepth), pointData, rangeData, output);
+            // max depth nema takze v parametri neni
+            RunBenchmarkForTree("QuadTrees", new QuadTreesPointQuadTreeAdapter(minX: pointMinX,
+                                                                               minY: pointMinY,
+                                                                               maxX: pointMaxX,
+                                                                               maxY: pointMaxY),
+                                                                               pointData, rangeData, output);
+            RunBenchmarkForTree("SpatialTrees Quad strom", new SpatialTreesQuadTreeAdapter(minX: pointMinX,
+                                                                                          minY: pointMinY,
+                                                                                          maxX: pointMaxX,
+                                                                                          maxY: pointMaxY,
+                                                                                     maxDepth: maxDepth), pointData, rangeData, output);
             //KD
+                
             RunBenchmarkForTree("Omni KD strom", new OmniKdTreeAdapter(), pointData, rangeData, output);
             RunBenchmarkForTree("BKDTree", new BkdTreeAdapter(), pointData, rangeData, output);
             RunBenchmarkForTree("NetTopologySuite KD strom", new NetTopologySuiteKdTreeAdapter(), pointData, rangeData, output);
@@ -555,29 +622,45 @@ namespace AUS2_S1.Tester
             using var output = new StreamWriter(outputFilePath, false);
             var pointData = LoadPoints(points, maxPoints);
             var rangeData = LoadRanges(ranges, maxRanges);
+            var pointMinX = pointData.Min(p => p.x);
+            var pointMaxX = pointData.Max(p => p.x);
+            var pointMinY = pointData.Min(p => p.y);
+            var pointMaxY = pointData.Max(p => p.y);
+
+            const int maxDepth = 12;
+
+            // MOJE            
             RunCorrectnessTestForTree(
                 "Vlastny KD strom",
                 new OwnKdTreeAdapter(),
-                pointData,
-                rangeData,
-                insertCheckInterval, 
-                findCheckInterval,
-                stopCheckInsertAfter,
-                output);
-            
-            RunCorrectnessTestForTree(
-                "Vlastny Quad strom",
-                new OwnQuadTreeAdapter(),
                 pointData,
                 rangeData,
                 insertCheckInterval,
                 findCheckInterval,
                 stopCheckInsertAfter,
                 output);
-            
+          
+            RunCorrectnessTestForTree(
+                "Vlastny Quad strom",
+                new OwnQuadTreeAdapter(minX: pointMinX,
+                                       minY: pointMinY,
+                                       maxX: pointMaxX,
+                                       maxY: pointMaxY,
+                                       maxDepth: maxDepth),
+                pointData,
+                rangeData,
+                insertCheckInterval,
+                findCheckInterval,
+                stopCheckInsertAfter,
+                output);
+              
             RunCorrectnessTestForTree(
                 "Vlastny Hybridny Quad strom",
-                new HybridQuadTreeAdapter(),
+                new HybridQuadTreeAdapter(minX: pointMinX,
+                                          minY: pointMinY,
+                                          maxX: pointMaxX,
+                                          maxY: pointMaxY,
+                                          maxDepth: maxDepth),
                 pointData,
                 rangeData,
                 insertCheckInterval,
@@ -585,9 +668,15 @@ namespace AUS2_S1.Tester
                 stopCheckInsertAfter,
                 output);
 
+            // EXTERNE
+            // QUAD
             RunCorrectnessTestForTree(
                 "QuadTree",
-                new QuadTreeAdapter(),
+                new QuadTreeAdapter(minX: pointMinX,
+                                    minY: pointMinY,
+                                    maxX: pointMaxX,
+                                    maxY: pointMaxY,
+                                    maxDepth: maxDepth),
                 pointData,
                 rangeData,
                 insertCheckInterval,
@@ -597,7 +686,10 @@ namespace AUS2_S1.Tester
 
             RunCorrectnessTestForTree(
                 "QuadTrees GetObjects",
-                new QuadTreesPointQuadTreeAdapter(),
+                new QuadTreesPointQuadTreeAdapter(minX: pointMinX,
+                                                  minY: pointMinY,
+                                                  maxX: pointMaxX,
+                                                  maxY: pointMaxY),
                 pointData,
                 rangeData,
                 insertCheckInterval,
@@ -607,7 +699,11 @@ namespace AUS2_S1.Tester
 
             RunCorrectnessTestForTree(
                 "SpatialTrees Quad strom",
-                new SpatialTreesQuadTreeAdapter(),
+                new SpatialTreesQuadTreeAdapter(minX: pointMinX,
+                                                minY: pointMinY,
+                                                maxX: pointMaxX,
+                                                maxY: pointMaxY,
+                                                maxDepth: maxDepth),
                 pointData,
                 rangeData,
                 insertCheckInterval,
@@ -615,6 +711,8 @@ namespace AUS2_S1.Tester
                 stopCheckInsertAfter,
                 output);
 
+            // KD    
+            
             RunCorrectnessTestForTree(
                 "Omni KD strom",
                 new OmniKdTreeAdapter(),
@@ -644,7 +742,7 @@ namespace AUS2_S1.Tester
                 findCheckInterval,
                 stopCheckInsertAfter,
                 output);
-
+            
         }
 
         // Kapitola 41, 52, 53, 54
@@ -709,9 +807,9 @@ namespace AUS2_S1.Tester
             // Vlozenie bodov a kontrola spravnosti po kazdom n-tom inserti a na konci. 
             for (int i = 0; i < pointCount; i++)
             {
-                if (i== mildstone)
+                if (i == mildstone)
                 {
-                    Console.WriteLine($"{name}: Vkladanie bodu {i}/{pointCount-1}.");
+                    Console.WriteLine($"{name}: Vkladanie bodu {i}/{pointCount - 1}.");
                     mildstone += pointCount / 10;
                 }
 
@@ -734,13 +832,13 @@ namespace AUS2_S1.Tester
                     continue;
                 }
                 // kontrola findrange celej oblasti == kontrola insertu
-                var actual = tree.FindRangeResults(pointMinX, pointMinY, pointMaxX, pointMaxY).ToHashSet();      
+                var actual = tree.FindRangeResults(pointMinX, pointMinY, pointMaxX, pointMaxY).ToHashSet();
                 if (!actual.SetEquals(reference.Keys))
                 {
                     WriteTestOutput(output, $"/{name}: Chyba spravnosti pri Insert #{i}.");
-                    return; //nebudem testovat findrange ked insert nefunguje
+                    //return; //nebudem testovat findrange ked insert nefunguje
                 }
-                Console.WriteLine($"{name}: Kontrola spravnosti pri poradi Insert {i}/{pointCount-1} - OK");                
+                Console.WriteLine($"{name}: Kontrola spravnosti pri poradi Insert {i}/{pointCount - 1} - OK");
             }
 
             // kontrola findrandge
@@ -753,7 +851,7 @@ namespace AUS2_S1.Tester
 
                 if (i + 1 == mildstone)
                 {
-                    Console.WriteLine($"{name}: Hladanie obdlznika {i}/{rangeCount-1}.");
+                    Console.WriteLine($"{name}: Hladanie obdlznika {i}/{rangeCount - 1}.");
                     mildstone += rangeCount / 10;
                 }
 
@@ -785,7 +883,7 @@ namespace AUS2_S1.Tester
                         output,
                         $"{name}: Chyba spravnosti pri FindRange #{i}. " +
                         $"Ocakavane {expected.Count}, ziskane {actual.Count}.");
-                        continue;
+                    continue;
                 }
 
                 if (!expected.SetEquals(actual))
@@ -794,7 +892,7 @@ namespace AUS2_S1.Tester
                         output,
                         $"{name}: Chyba spravnosti pri FindRange #{i}. " +
                         $"Ocakavane {expected.Count}, ziskane {actual.Count}.");
-                        continue;
+                    continue;
                 }
 
                 Console.WriteLine($"{name}: kontrola spravnosti po FindRange #{i}/{ranges.Count} OK.");

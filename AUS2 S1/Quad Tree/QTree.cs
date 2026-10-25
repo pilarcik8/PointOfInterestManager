@@ -14,7 +14,7 @@ namespace AUS2_S1
         private Func<TData, (TPosition x, TPosition y)> GetPosition;
 
         // Vygenerovane / upravene pomocou AI - Kapitola 4, 33
-        public QTree(TPosition topLeftX, TPosition topLeftY, TPosition bottomRightX, TPosition bottomRightY, Func<TData, (TPosition x, TPosition y)> getPosition, int maxDepth)
+        public QTree(TPosition minX, TPosition minY, TPosition maxX, TPosition maxY, Func<TData, (TPosition x, TPosition y)> getPosition, int maxDepth)
         {
             if (maxDepth < 0)
             {
@@ -22,7 +22,7 @@ namespace AUS2_S1
             }
 
             OutOfBoundsData = new LinkedList<TData>();
-            Root = new QNode<TData, TPosition>(topLeftX, topLeftY, bottomRightX, bottomRightY);
+            Root = new QNode<TData, TPosition>(minX, minY, maxX, maxY);
             MaxDepth = maxDepth;
             GetPosition = getPosition;
         }

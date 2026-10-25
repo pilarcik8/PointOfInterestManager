@@ -9,21 +9,21 @@ namespace AUS2_S1.Hybrid_Quad_Tree
     {
         private sealed class Node
         {
-            public TPosition TopLeftX { get; }
-            public TPosition TopLeftY { get; }
-            public TPosition BottomRightX { get; }
-            public TPosition BottomRightY { get; }
+            public TPosition MinX { get; }
+            public TPosition MinY { get; }
+            public TPosition MaxX { get; }
+            public TPosition MaxY { get; }
             public Node?[] Children { get; } = new Node?[4];
             public HybridKDTree<TData, TPosition> Data { get; set; } = new();
-            
+
             // Vygenerovane / upravene pomocou AI - Kapitola 36, 39
-            public Node(TPosition topLeftX, TPosition topLeftY, TPosition bottomRightX, 
-                    TPosition bottomRightY)
+            public Node(TPosition minX, TPosition minY, TPosition maxX,
+                    TPosition maxY)
             {
-                TopLeftX = topLeftX;
-                TopLeftY = topLeftY;
-                BottomRightX = bottomRightX;
-                BottomRightY = bottomRightY;
+                MinX = minX;
+                MinY = minY;
+                MaxX = maxX;
+                MaxY = maxY;
             }
 
             // Vygenerovane / upravene pomocou AI - Kapitola 36, 39
@@ -51,10 +51,10 @@ namespace AUS2_S1.Hybrid_Quad_Tree
 
         // Vygenerovane / upravene pomocou AI - Kapitola 36, 39
         public HybridQTree(
-            TPosition topLeftX,
-            TPosition topLeftY,
-            TPosition bottomRightX,
-            TPosition bottomRightY,
+            TPosition minX,
+            TPosition minY,
+            TPosition maxX,
+            TPosition maxY,
             Func<TData, (TPosition x, TPosition y)> getPosition,
             int maxDepth = 16)
         {
@@ -65,7 +65,7 @@ namespace AUS2_S1.Hybrid_Quad_Tree
 
             _getPosition = getPosition ?? throw new ArgumentNullException(nameof(getPosition));
             _maxDepth = maxDepth;
-            _root = new Node(topLeftX, topLeftY, bottomRightX, bottomRightY);
+            _root = new Node(minX, minY, maxX, maxY);
         }
 
         // Vygenerovane / upravene pomocou AI - Kapitola 36, 39
@@ -159,15 +159,15 @@ namespace AUS2_S1.Hybrid_Quad_Tree
         private static Node CreateChild(Node node, int index)
         {
             TPosition two = TPosition.CreateChecked(2);
-            TPosition midX = (node.TopLeftX + node.BottomRightX) / two;
-            TPosition midY = (node.TopLeftY + node.BottomRightY) / two;
+            TPosition midX = (node.MinX + node.MaxX) / two;
+            TPosition midY = (node.MinY + node.MaxY) / two;
 
             return index switch
             {
-                0 => new Node(node.TopLeftX, node.TopLeftY, midX, midY),
-                1 => new Node(midX, node.TopLeftY, node.BottomRightX, midY),
-                2 => new Node(node.TopLeftX, midY, midX, node.BottomRightY),
-                _ => new Node(midX, midY, node.BottomRightX, node.BottomRightY)
+                0 => new Node(node.MinX, node.MinY, midX, midY),
+                1 => new Node(midX, node.MinY, node.MaxX, midY),
+                2 => new Node(node.MinX, midY, midX, node.MaxY),
+                _ => new Node(midX, midY, node.MaxX, node.MaxY)
             };
         }
 
@@ -175,16 +175,16 @@ namespace AUS2_S1.Hybrid_Quad_Tree
         private static int GetQuadrantIndex(Node node, TPosition x, TPosition y)
         {
             TPosition two = TPosition.CreateChecked(2);
-            TPosition midX = (node.TopLeftX + node.BottomRightX) / two;
-            TPosition midY = (node.TopLeftY + node.BottomRightY) / two;
+            TPosition midX = (node.MinX + node.MaxX) / two;
+            TPosition midY = (node.MinY + node.MaxY) / two;
             return x < midX ? (y < midY ? 0 : 2) : (y < midY ? 1 : 3);
         }
 
         // Vygenerovane / upravene pomocou AI - Kapitola 36, 39
         private static bool IsInside(Node node, TPosition x, TPosition y)
         {
-            return x >= node.TopLeftX && x <= node.BottomRightX &&
-                   y >= node.TopLeftY && y <= node.BottomRightY;
+            return x >= node.MinX && x <= node.MaxX &&
+                   y >= node.MinY && y <= node.MaxY;
         }
 
         // Vygenerovane / upravene pomocou AI - Kapitola 36, 39
@@ -195,8 +195,8 @@ namespace AUS2_S1.Hybrid_Quad_Tree
             TPosition maxX,
             TPosition maxY)
         {
-            return node.TopLeftX <= maxX && node.BottomRightX >= minX &&
-                   node.TopLeftY <= maxY && node.BottomRightY >= minY;
+            return node.MinX <= maxX && node.MaxX >= minX &&
+                   node.MinY <= maxY && node.MaxY >= minY;
         }
     }
 }

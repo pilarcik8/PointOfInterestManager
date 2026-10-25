@@ -21,15 +21,20 @@ rangesParser.LoadRanges("C:\\Users\\Admin\\source\\repos\\AUS2 S1\\AUS2 S1\\Data
 
 Console.WriteLine($"Obdlzniky nahrate\nPocet obdlznikov: {rangesParser.GetRowCount()}\n");
 
-ExternalDataTreeTester.RunCorrectnessTest(pointsParser, 
-                                            rangesParser, 
-                                            findCheckInterval : 1, 
-                                            insertCheckInterval: 1,
-                                            maxPoints: 1000,
-                                            maxRanges: 100,
+ExternalDataTreeTester.RunCorrectnessTest(pointsParser,
+                                            rangesParser,
+                                            findCheckInterval: 1,
+                                            insertCheckInterval: 0,
                                             outputFilePath: "C:\\Users\\Admin\\source\\repos\\AUS2 S1\\AUS2 S1\\Data\\test_correctness_results.txt");
 
-
-ExternalDataTreeTester.RunBenchmark(pointsParser,
-                                    rangesParser,
-                                    outputFilePath: "C:\\Users\\Admin\\source\\repos\\AUS2 S1\\AUS2 S1\\Data\\test_speed_results.txt");
+/*
+for (int i = 0; i < 3; i++)
+{
+    Console.WriteLine($"Spustam test {i + 1}...\n");
+    ExternalDataTreeTester.RunBenchmark(pointsParser,
+                                        rangesParser,
+                                        //maxPoints: 1000,
+                                        //maxRanges: 100,
+                                        outputFilePath: "C:\\Users\\Admin\\source\\repos\\AUS2 S1\\AUS2 S1\\Data\\test_speed_results.txt");
+}
+*/
