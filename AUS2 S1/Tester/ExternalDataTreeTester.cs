@@ -26,10 +26,9 @@ namespace AUS2_S1.Tester
         void FindRange(double minX, double minY, double maxX, double maxY);
     }
 
-    // Kapitola Y: Rozhranie pre oddelenie kontroly spravnosti od profileroveho benchmarku.
+    // Vygenerovane / upravene pomocou AI - Kapitola 53
     internal interface ICorrectnessTree : IBenchmarkTree
     {
-        // Kapitola Y: Vykona dotaz a vrati identifikatory pre porovnanie s referencnym vysledkom.
         IReadOnlyCollection<long> FindRangeResults(
             double minX, double minY, double maxX, double maxY);
     }
@@ -104,7 +103,7 @@ namespace AUS2_S1.Tester
             _tree.FindRange(minKeys, maxKeys);
         }
 
-        // Kapitola Y: Vracia identifikatory iba pre samostatny test spravnosti.
+        // Vygenerovane / upravene pomocou AI - Kapitola 53
         public IReadOnlyCollection<long> FindRangeResults(
             double minX, double minY, double maxX, double maxY)
         {
@@ -155,7 +154,7 @@ namespace AUS2_S1.Tester
             _tree.FindRange(minX, minY, maxX, maxY);
         }
 
-        // Kapitola Y: Vracia identifikatory iba pre samostatny test spravnosti.
+        // Vygenerovane / upravene pomocou AI - Kapitola 53
         public IReadOnlyCollection<long> FindRangeResults(
             double minX, double minY, double maxX, double maxY)
         {
@@ -190,7 +189,7 @@ namespace AUS2_S1.Tester
             _tree.FindRange(minX, minY, maxX, maxY);
         }
 
-        // Kapitola Y: Vracia identifikatory iba pre samostatny test spravnosti.
+        // Vygenerovane / upravene pomocou AI - Kapitola 53
         public IReadOnlyCollection<long> FindRangeResults(
             double minX, double minY, double maxX, double maxY)
         {
@@ -198,15 +197,15 @@ namespace AUS2_S1.Tester
         }
     }
 
-    // Vygenerovane / upravene pomocou AI - X
-    internal sealed class QuadTreeMasterAdapter : IBenchmarkTree, ICorrectnessTree
+    // Vygenerovane / upravene pomocou AI - Kapitola 44, 46
+    internal sealed class QuadTreeAdapter : IBenchmarkTree, ICorrectnessTree
     {
         private const float PointSize = 0.000001f;
         private readonly QuadTree<long> _tree =
             new(16, 16, 47f, 16f, 3f, 7f);
         private List<long> _result = new();
 
-        // Vygenerovane / upravene pomocou AI - X
+        // Vygenerovane / upravene pomocou AI - Kapitola 44, 46
         public void Insert(long id, double x, double y)
         {
             _tree.Insert(
@@ -218,7 +217,7 @@ namespace AUS2_S1.Tester
                     (float)y + PointSize));
         }
 
-        // Vygenerovane / upravene pomocou AI - X
+        // Vygenerovane / upravene pomocou AI - Kapitola 44, 46
         public void FindRange(double minX, double minY, double maxX, double maxY)
         {
             _tree.SearchArea(
@@ -230,7 +229,7 @@ namespace AUS2_S1.Tester
                 ref _result);
         }
 
-        // Kapitola Y: Vracia kopiu vysledkov, aby dalsi dotaz nezmenil overovany vysledok.
+        // Vygenerovane / upravene pomocou AI - Kapitola 53
         public IReadOnlyCollection<long> FindRangeResults(
             double minX, double minY, double maxX, double maxY)
         {
@@ -239,7 +238,7 @@ namespace AUS2_S1.Tester
         }
     }
 
-    // Kapitola Z: Adapter pre QuadTrees-master s presnym GetObjects dotazom.
+    // Vygenerovane / upravene pomocou AI - Kapitola 46
     internal sealed class QuadTreesPointQuadTreeAdapter : IBenchmarkTree, ICorrectnessTree
     {
         private sealed class QuadPoint : IPointFQuadStorable
@@ -247,7 +246,7 @@ namespace AUS2_S1.Tester
             public long Id { get; }
             public PointF Point { get; }
 
-            // Kapitola Z: Uchovava identifikator a suradnice bodu pre obe formy testu.
+            // Vygenerovane / upravene pomocou AI - Kapitola 46
             public QuadPoint(long id, double x, double y)
             {
                 Id = id;
@@ -258,19 +257,19 @@ namespace AUS2_S1.Tester
         private readonly QuadTreePointF<QuadPoint> _tree =
             new(new RectangleF(47f, 16f, 3f, 7f));
 
-        // Kapitola Y: Vlozi bod do QuadTrees-master.
+        // Vygenerovane / upravene pomocou AI - Kapitola 46
         public void Insert(long id, double x, double y)
         {
             _tree.Add(new QuadPoint(id, x, y));
         }
 
-        // Kapitola Y: Vykona profilerovy dotaz bez kopirovania vysledkov.
+        // Vygenerovane / upravene pomocou AI - Kapitola 46
         public void FindRange(double minX, double minY, double maxX, double maxY)
         {
             _tree.GetObjects(CreateQueryRectangle(minX, minY, maxX, maxY));
         }
 
-        // Kapitola Y: Vrati presne vysledky metody GetObjects pre kontrolu spravnosti.
+        // Vygenerovane / upravene pomocou AI - Kapitola 53
         public IReadOnlyCollection<long> FindRangeResults(
             double minX, double minY, double maxX, double maxY)
         {
@@ -285,7 +284,7 @@ namespace AUS2_S1.Tester
             return ids;
         }
 
-        // Kapitola Y: Prevedie testovany rozsah na typ pozadovany QuadTrees-master.
+        // Vygenerovane / upravene pomocou AI - Kapitola 46
         private static RectangleF CreateQueryRectangle(
             double minX, double minY, double maxX, double maxY)
         {
@@ -297,7 +296,7 @@ namespace AUS2_S1.Tester
         }
     }
 
-    // Vygenerovane / upravene pomocou AI - X
+    // Vygenerovane / upravene pomocou AI - Kapitola 47
     internal sealed class OmniKdTreeAdapter : IBenchmarkTree, ICorrectnessTree
     {
         private sealed class Point
@@ -319,13 +318,13 @@ namespace AUS2_S1.Tester
                 point => point.X,
                 point => point.Y);
 
-        // Vygenerovane / upravene pomocou AI - X
+        // Vygenerovane / upravene pomocou AI - Kapitola 47
         public void Insert(long id, double x, double y)
         {
             _tree.Insert(new Point(id, x, y));
         }
 
-        // Vygenerovane / upravene pomocou AI - X
+        // Vygenerovane / upravene pomocou AI - Kapitola 47
         public void FindRange(double minX, double minY, double maxX, double maxY)
         {
             _tree.FindInRange(
@@ -333,7 +332,7 @@ namespace AUS2_S1.Tester
                 new[] { maxX, maxY });
         }
 
-        // Kapitola Y: Vracia identifikatory iba pre samostatny test spravnosti.
+        // Vygenerovane / upravene pomocou AI - Kapitola 53
         public IReadOnlyCollection<long> FindRangeResults(
             double minX, double minY, double maxX, double maxY)
         {
@@ -350,7 +349,7 @@ namespace AUS2_S1.Tester
         }
     }
 
-    // Vygenerovane / upravene pomocou AI - X
+    // Vygenerovane / upravene pomocou AI - Kapitola 50
     internal sealed class BkdTreeAdapter : IBenchmarkTree, ICorrectnessTree
     {
         private sealed class Point
@@ -384,13 +383,14 @@ namespace AUS2_S1.Tester
             new(2, new PointComparer());
 
 
-        // Vygenerovane / upravene pomocou AI - X
+
+        // Vygenerovane / upravene pomocou AI - Kapitola 50
         public void Insert(long id, double x, double y)
         {
             _tree.Insert(new Point(id, x, y));
         }
 
-        // Vygenerovane / upravene pomocou AI - X
+        // Vygenerovane / upravene pomocou AI - Kapitola 50
         public void FindRange(double minX, double minY, double maxX, double maxY)
         {
             var lowerLimit = new Option<Point>(
@@ -407,7 +407,7 @@ namespace AUS2_S1.Tester
                 upperLimitInclusive: true);
         }
 
-        // Kapitola Y: Zhromazdi vysledky callbackom iba pocas testu spravnosti.
+        // Vygenerovane / upravene pomocou AI - Kapitola 53
         public IReadOnlyCollection<long> FindRangeResults(
             double minX, double minY, double maxX, double maxY)
         {
@@ -433,24 +433,24 @@ namespace AUS2_S1.Tester
         }
     }
 
-    // Vygenerovane / upravene pomocou AI - Kapitola X
+    // Vygenerovane / upravene pomocou AI - Kapitola 41
     internal sealed class NetTopologySuiteKdTreeAdapter : IBenchmarkTree, ICorrectnessTree
     {
         private readonly KdTree<ExternalPoint> _tree = new();
 
-    // Vygenerovane / upravene pomocou AI - Kapitola X
+    // Vygenerovane / upravene pomocou AI - Kapitola 41
         public void Insert(long id, double x, double y)
         {
             _tree.Insert(new Coordinate(x, y), new ExternalPoint(id, x, y));
         }
 
-    // Vygenerovane / upravene pomocou AI - Kapitola X
+    // Vygenerovane / upravene pomocou AI - Kapitola 41
         public void FindRange(double minX, double minY, double maxX, double maxY)
         {
             _tree.Query(new Envelope(minX, maxX, minY, maxY));
         }
-
-        // Kapitola Y: Vracia identifikatory iba pre samostatny test spravnosti.
+    
+        // Vygenerovane / upravene pomocou AI - Kapitola 53
         public IReadOnlyCollection<long> FindRangeResults(
             double minX, double minY, double maxX, double maxY)
         {
@@ -465,20 +465,20 @@ namespace AUS2_S1.Tester
         }
     }   
 
-    // Vygenerovane / upravene pomocou AI - Kapitola X
+    // Vygenerovane / upravene pomocou AI - Kapitola 41
     internal sealed class SpatialTreesQuadTreeAdapter : IBenchmarkTree, ICorrectnessTree
     {
         private readonly SpatialTrees.Quadtrees.Quadtree _tree =
             new(new AARectangle(16f, 47f, 7f, 3f), 16, 16);
         private readonly List<IMapObject2d> _result = new();
 
-        // Vygenerovane / upravene pomocou AI - Kapitola X
+        // Vygenerovane / upravene pomocou AI - Kapitola 41
         public void Insert(long id, double x, double y)
         {
             _tree.AddItem(new ExternalPoint(id, x, y));
         }
 
-        // Vygenerovane / upravene pomocou AI - Kapitola X
+        // Vygenerovane / upravene pomocou AI - Kapitola 41
         public void FindRange(double minX, double minY, double maxX, double maxY)
         {
             _result.Clear();
@@ -489,7 +489,7 @@ namespace AUS2_S1.Tester
                 _result);
         }
 
-        // Kapitola Y: Kopiruje vysledky iba pre samostatny test spravnosti.
+        // Vygenerovane / upravene pomocou AI - Kapitola 53
         public IReadOnlyCollection<long> FindRangeResults(
             double minX, double minY, double maxX, double maxY)
         {
@@ -509,31 +509,33 @@ namespace AUS2_S1.Tester
 
     public static class ExternalDataTreeTester
     {
-    // Vygenerovane / upravene pomocou AI - Kapitola X; Kapitola Y: Spusta iba profilerove meranie rychlosti.
+    // Vygenerovane / upravene pomocou AI - Kapitola 41
         public static void RunBenchmark(
             CSVParser points,
             CSVParser ranges,
+            string outputFilePath = "test_speed_results.txt",
             int maxPoints = int.MaxValue,
             int maxRanges = int.MaxValue)
         {
+            using var output = new StreamWriter(outputFilePath, false);
             var pointData = LoadPoints(points, maxPoints);
             var rangeData = LoadRanges(ranges, maxRanges);
             // MOJE
-            RunBenchmarkForTree("Vlastny KD strom", new OwnKdTreeAdapter(), pointData, rangeData);
-            RunBenchmarkForTree("Vlastny Quad strom", new OwnQuadTreeAdapter(), pointData, rangeData);
-            RunBenchmarkForTree("Vlastny Hybridny Quad strom", new HybridQuadTreeAdapter(), pointData, rangeData);
+            RunBenchmarkForTree("Vlastny KD strom", new OwnKdTreeAdapter(), pointData, rangeData, output);
+            RunBenchmarkForTree("Vlastny Quad strom", new OwnQuadTreeAdapter(), pointData, rangeData, output);
+            RunBenchmarkForTree("Vlastny Hybridny Quad strom", new HybridQuadTreeAdapter(), pointData, rangeData, output);
             // EXTERNE
             //QUAD
-            RunBenchmarkForTree("QuadTree-master", new QuadTreeMasterAdapter(), pointData, rangeData);
-            RunBenchmarkForTree("QuadTrees-master", new QuadTreesPointQuadTreeAdapter(), pointData, rangeData);
-            RunBenchmarkForTree("SpatialTrees Quad strom", new SpatialTreesQuadTreeAdapter(), pointData, rangeData);
+            RunBenchmarkForTree("QuadTree", new QuadTreeAdapter(), pointData, rangeData, output);
+            RunBenchmarkForTree("QuadTrees", new QuadTreesPointQuadTreeAdapter(), pointData, rangeData, output);
+            RunBenchmarkForTree("SpatialTrees Quad strom", new SpatialTreesQuadTreeAdapter(), pointData, rangeData, output);
             //KD
-            RunBenchmarkForTree("Omni KD strom", new OmniKdTreeAdapter(), pointData, rangeData);
-            RunBenchmarkForTree("BKDTree", new BkdTreeAdapter(), pointData, rangeData);
-            RunBenchmarkForTree("NetTopologySuite KD strom", new NetTopologySuiteKdTreeAdapter(), pointData, rangeData);
+            RunBenchmarkForTree("Omni KD strom", new OmniKdTreeAdapter(), pointData, rangeData, output);
+            RunBenchmarkForTree("BKDTree", new BkdTreeAdapter(), pointData, rangeData, output);
+            RunBenchmarkForTree("NetTopologySuite KD strom", new NetTopologySuiteKdTreeAdapter(), pointData, rangeData, output);
         }
 
-        // Kapitola Y, Z: Spusta iba test spravnosti s intervalom kontrolovanym volajucim.
+        // Kapitola 52
         public static void RunCorrectnessTest(
             CSVParser points,
             CSVParser ranges,
@@ -541,6 +543,7 @@ namespace AUS2_S1.Tester
             int maxRanges = int.MaxValue,
             int insertCheckInterval = 0,
             int findCheckInterval = 0,
+            int stopCheckInsertAfter = int.MaxValue,
             string outputFilePath = "test_funkcnosti.txt")
         {
             if (insertCheckInterval < 0 || findCheckInterval < 0)
@@ -559,6 +562,7 @@ namespace AUS2_S1.Tester
                 rangeData,
                 insertCheckInterval, 
                 findCheckInterval,
+                stopCheckInsertAfter,
                 output);
             
             RunCorrectnessTestForTree(
@@ -568,6 +572,7 @@ namespace AUS2_S1.Tester
                 rangeData,
                 insertCheckInterval,
                 findCheckInterval,
+                stopCheckInsertAfter,
                 output);
             
             RunCorrectnessTestForTree(
@@ -577,15 +582,17 @@ namespace AUS2_S1.Tester
                 rangeData,
                 insertCheckInterval,
                 findCheckInterval,
+                stopCheckInsertAfter,
                 output);
 
             RunCorrectnessTestForTree(
                 "QuadTree",
-                new QuadTreeMasterAdapter(),
+                new QuadTreeAdapter(),
                 pointData,
                 rangeData,
                 insertCheckInterval,
                 findCheckInterval,
+                stopCheckInsertAfter,
                 output);
 
             RunCorrectnessTestForTree(
@@ -595,6 +602,7 @@ namespace AUS2_S1.Tester
                 rangeData,
                 insertCheckInterval,
                 findCheckInterval,
+                stopCheckInsertAfter,
                 output);
 
             RunCorrectnessTestForTree(
@@ -604,6 +612,7 @@ namespace AUS2_S1.Tester
                 rangeData,
                 insertCheckInterval,
                 findCheckInterval,
+                stopCheckInsertAfter,
                 output);
 
             RunCorrectnessTestForTree(
@@ -613,6 +622,7 @@ namespace AUS2_S1.Tester
                 rangeData,
                 insertCheckInterval,
                 findCheckInterval,
+                stopCheckInsertAfter,
                 output);
 
             RunCorrectnessTestForTree(
@@ -622,6 +632,7 @@ namespace AUS2_S1.Tester
                 rangeData,
                 insertCheckInterval,
                 findCheckInterval,
+                stopCheckInsertAfter,
                 output);
 
             RunCorrectnessTestForTree(
@@ -631,37 +642,49 @@ namespace AUS2_S1.Tester
                 rangeData,
                 insertCheckInterval,
                 findCheckInterval,
+                stopCheckInsertAfter,
                 output);
 
         }
 
-        // Kapitola Y, Z: Spusta benchmark pre jeden konkretny strom bez validacnych dotazov.
+        // Kapitola 41, 52, 53, 54
         private static void RunBenchmarkForTree(
             string name,
             IBenchmarkTree tree,
             LinkedList<(long id, double x, double y)> points,
-            LinkedList<(double minX, double minY, double maxX, double maxY)> ranges)
+            LinkedList<(double minX, double minY, double maxX, double maxY)> ranges,
+            TextWriter output)
         {
+            // --- 1. MERANIE VKLADANIA ---
             var stopwatch = Stopwatch.StartNew();
             foreach (var point in points)
             {
                 tree.Insert(point.id, point.x, point.y);
             }
             stopwatch.Stop();
-            long insertMilliseconds = stopwatch.ElapsedMilliseconds;
+            double insertMs = stopwatch.Elapsed.TotalMilliseconds;
 
+            // --- 2. MERANIE VYHĽADÁVANIA ---
             stopwatch.Restart();
             foreach (var range in ranges)
             {
                 tree.FindRange(range.minX, range.minY, range.maxX, range.maxY);
             }
             stopwatch.Stop();
+            double findRangeMs = stopwatch.Elapsed.TotalMilliseconds;
 
-            Console.WriteLine(
-                $"{name}: Insert {insertMilliseconds} ms, FindRange {stopwatch.ElapsedMilliseconds} ms");
+            // --- 3. VÝPOČET PRIEMEROV ---
+            double avgInsertPerPoint = insertMs / points.Count;
+            double avgSearchPerRange = findRangeMs / ranges.Count;
+
+            // --- 4. ZÁPIS VÝSLEDKOV ---
+            WriteTestOutput(output,
+                $"{name}:\n" +
+                $"  Insert:    {insertMs:F2} ms (priemer: {avgInsertPerPoint:F4} ms/bod)\n" +
+                $"  FindRange: {findRangeMs:F2} ms (priemer: {avgSearchPerRange:F4} ms/oblasť)");
         }
 
-        // Kapitola Y, Z: Kontroluje vysledky kazdy n-ty dotaz a vzdy aj posledny dotaz.
+        // Kapitola 52, 53, 54
         private static void RunCorrectnessTestForTree(
             string name,
             ICorrectnessTree tree,
@@ -669,6 +692,7 @@ namespace AUS2_S1.Tester
             LinkedList<(double minX, double minY, double maxX, double maxY)> ranges,
             int insertCheckInterval,
             int findCheckInterval,
+            int stopCheckInsertAfter,
             TextWriter output)
         {
             WriteTestOutput(output, $"\n{name}: Spustenie testu spravnosti.");
@@ -685,15 +709,20 @@ namespace AUS2_S1.Tester
             // Vlozenie bodov a kontrola spravnosti po kazdom n-tom inserti a na konci. 
             for (int i = 0; i < pointCount; i++)
             {
-                if (i + 1 == mildstone)
+                if (i== mildstone)
                 {
-                    WriteTestOutput(output, $"{name}: Vkladanie bodu {i + 1}/{pointCount}.");
+                    Console.WriteLine($"{name}: Vkladanie bodu {i}/{pointCount-1}.");
                     mildstone += pointCount / 10;
                 }
 
                 var point = points.ElementAt(i);
                 tree.Insert(point.id, point.x, point.y);
                 reference.Add(point.id, (point.x, point.y));
+
+                if (i >= stopCheckInsertAfter)
+                {
+                    continue;
+                }
 
                 if (insertCheckInterval == 0)
                 {
@@ -709,9 +738,9 @@ namespace AUS2_S1.Tester
                 if (!actual.SetEquals(reference.Keys))
                 {
                     WriteTestOutput(output, $"/{name}: Chyba spravnosti pri Insert #{i}.");
-                    return;
+                    return; //nebudem testovat findrange ked insert nefunguje
                 }
-                Console.WriteLine($"{name}: Kontrola spravnosti pri Insert {i + 1}/{pointCount} (FindRange celej oblasti) - OK");                
+                Console.WriteLine($"{name}: Kontrola spravnosti pri poradi Insert {i}/{pointCount-1} - OK");                
             }
 
             // kontrola findrandge
@@ -724,7 +753,7 @@ namespace AUS2_S1.Tester
 
                 if (i + 1 == mildstone)
                 {
-                    WriteTestOutput(output, $"{name}: Hladanie obdlznika {i + 1}/{rangeCount}.");
+                    Console.WriteLine($"{name}: Hladanie obdlznika {i}/{rangeCount-1}.");
                     mildstone += rangeCount / 10;
                 }
 
@@ -750,20 +779,30 @@ namespace AUS2_S1.Tester
                 var actual = tree.FindRangeResults(
                     range.minX, range.minY, range.maxX, range.maxY).ToHashSet();
 
-                if (!expected.SetEquals(actual))
+                if (!expected.Count.Equals(actual.Count))
                 {
-                    // Vypis chyby spravnosti a ukonci test.
                     WriteTestOutput(
                         output,
                         $"{name}: Chyba spravnosti pri FindRange #{i}. " +
                         $"Ocakavane {expected.Count}, ziskane {actual.Count}.");
-                    return;
+                        continue;
+                }
+
+                if (!expected.SetEquals(actual))
+                {
+                    WriteTestOutput(
+                        output,
+                        $"{name}: Chyba spravnosti pri FindRange #{i}. " +
+                        $"Ocakavane {expected.Count}, ziskane {actual.Count}.");
+                        continue;
                 }
 
                 Console.WriteLine($"{name}: kontrola spravnosti po FindRange #{i}/{ranges.Count} OK.");
             }
+            WriteTestOutput(output, $"{name}: Test spravnosti uspesne ukonceny.");
         }
 
+        // Vygenerovane / upravene pomocou AI - Kapitola 54
         private static void WriteTestOutput(TextWriter output, string message)
         {
             Console.WriteLine(message);
@@ -771,7 +810,7 @@ namespace AUS2_S1.Tester
             output.Flush();
         }
 
-        // Vygenerovane / upravene pomocou AI - Kapitola X
+        // Vygenerovane / upravene pomocou AI - Kapitola 41
         private static LinkedList<(long id, double x, double y)> LoadPoints(CSVParser points, int maximum)
         {
             var result = new LinkedList<(long, double, double)>();
@@ -792,7 +831,7 @@ namespace AUS2_S1.Tester
             return result;
         }
 
-        // Vygenerovane / upravene pomocou AI - Kapitola X
+        // Vygenerovane / upravene pomocou AI - Kapitola 41
         private static LinkedList<(double minX, double minY, double maxX, double maxY)> LoadRanges(
             CSVParser ranges,
             int maximum)

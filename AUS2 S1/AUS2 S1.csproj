@@ -17,4 +17,8 @@
     <Compile Include="..\External Trees\Quad\QuadTree-master\QuadTree.cs" Link="External Trees\QuadTree-master\QuadTree.cs" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="System.Collections.NonGeneric" Version="4.3.0" />
+  </ItemGroup>
+
 </Project>

@@ -9,7 +9,7 @@
 // BKDTree: https://github.com/DevAM-Tools/BKDTree - 2 stars - 1 watchers - 0 forks
 
 using AUS2_S1.Tester;
-
+using System.Collections;
 
 var pointsParser = new CSVParser();
 pointsParser.LoadPoints("C:\\Users\\Admin\\source\\repos\\AUS2 S1\\AUS2 S1\\Data\\slovakia_nodes.csv");
@@ -21,7 +21,15 @@ rangesParser.LoadRanges("C:\\Users\\Admin\\source\\repos\\AUS2 S1\\AUS2 S1\\Data
 
 Console.WriteLine($"Obdlzniky nahrate\nPocet obdlznikov: {rangesParser.GetRowCount()}\n");
 
-ExternalDataTreeTester.RunCorrectnessTest(pointsParser, rangesParser, insertCheckInterval: 10, maxPoints: 100, maxRanges: 100, outputFilePath: "C:\\Users\\Admin\\source\\repos\\AUS2 S1\\AUS2 S1\\Data\\test_results.txt");
-// Rychlostny tester vlastnych aj externych stromov.
-//ExternalDataTreeTester.Run(pointsParser, rangesParser, maxPoints : 100, maxRanges : 100);
+ExternalDataTreeTester.RunCorrectnessTest(pointsParser, 
+                                            rangesParser, 
+                                            findCheckInterval : 1, 
+                                            insertCheckInterval: 1,
+                                            maxPoints: 1000,
+                                            maxRanges: 100,
+                                            outputFilePath: "C:\\Users\\Admin\\source\\repos\\AUS2 S1\\AUS2 S1\\Data\\test_correctness_results.txt");
 
+
+ExternalDataTreeTester.RunBenchmark(pointsParser,
+                                    rangesParser,
+                                    outputFilePath: "C:\\Users\\Admin\\source\\repos\\AUS2 S1\\AUS2 S1\\Data\\test_speed_results.txt");
