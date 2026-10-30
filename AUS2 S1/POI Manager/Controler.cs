@@ -76,6 +76,49 @@ namespace AUS2_S1.APP
             UniqueID++;
         }
 
+        // Vygenerovane / upravene pomocou AI - Kapitola 59
+        private void Delete(PointOfInterest poi)
+        {
+            if (poi == null)
+            {
+                return;
+            }
+
+            if (_qTree != null)
+            {
+                _qTree.DeleteNode(poi);
+            }
+            else if (_hybridQTree != null)
+            {
+                _hybridQTree.DeleteNode(poi);
+            }
+            else if (_kdTree != null)
+            {
+                var keys = new LinkedList<KDKey<double>>();
+                keys.AddLast(new KDKey<double>(poi.Longitude));
+                keys.AddLast(new KDKey<double>(poi.Latitude));
+                _kdTree.DeleteNode(keys);
+            }
+            else
+            {
+                throw new InvalidOperationException("Ziadny strom nie je inicializovany.");
+            }
+        }
+
+        // Vygenerovane / upravene pomocou AI - Kapitola 59
+        public void Delete(LinkedList<PointOfInterest> nodes)
+        {
+            if (nodes == null)
+            {
+                return;
+            }
+
+            foreach (var poi in nodes)
+            {
+                Delete(poi);
+            }
+        }
+
         public LinkedList<PointOfInterest> FindPointsAroundCentre(double lat, double lon, double halfDistance)
         {
             if (_qTree != null)
