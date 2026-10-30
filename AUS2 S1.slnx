@@ -28,5 +28,5 @@
     <Project Path="External Trees/Quad/QuadTree-master/QuadTree.csproj" Id="ee15f6da-9f5b-4554-baaf-4bfc8618ce76" />
   </Folder>
   <Project Path="AUS2 S1/AUS2 S1.csproj" />
-  <Project Path="GUI/GUI.csproj" Id="2f6f70c7-7ad3-4535-a991-9b6f7c27de65" />
+  <Project Path="GUI/ViewGUI.csproj" Id="2f6f70c7-7ad3-4535-a991-9b6f7c27de65" />
 </Solution>
