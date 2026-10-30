@@ -51,7 +51,15 @@ namespace AUS2_S1
         // overlow + children
         public LinkedList<TData> Data { get; set; } = new LinkedList<TData>();
 
+        public bool WasDeleted { get; set; } = false;
+
         public bool IsSplit => Children.Any(c => c != null);
+
+        // Vygenerovane / upravene pomocou AI - Kapitola 58
+        public void DeleteNode()
+        {
+            WasDeleted = true;
+        }
 
         // Vygenerovane / upravene pomocou AI - Kapitola 25 (predtym v QTree), 33
         public int GetQuadrantIndex(TPosition x, TPosition y)

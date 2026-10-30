@@ -14,13 +14,20 @@ namespace AUS2_S1.Hybrid_Quad_Tree
             public TPosition Y { get; }
             public Node? Left { get; set; }
             public Node? Right { get; set; }
+            public bool WasDeleted { get; set; }
 
-        // Vygenerovane / upravene pomocou AI - Kapitola 36, 39
+            // Vygenerovane / upravene pomocou AI - Kapitola 36, 39
             public Node(TData data, TPosition x, TPosition y)
             {
                 Data = data;
                 X = x;
                 Y = y;
+                WasDeleted = false;
+            }
+
+            public void DeleteNode()
+            {
+                WasDeleted = true;
             }
         }
 
@@ -72,6 +79,32 @@ namespace AUS2_S1.Hybrid_Quad_Tree
             Count++;
         }
 
+        // Vygenerovane / upravene pomocou AI - Kapitola 58
+        public bool DeleteNode(TPosition x, TPosition y)
+        {
+            Node? current = _root;
+            int depth = 0;
+            while (current != null)
+            {
+                if (current.X == x && current.Y == y)
+                {
+                    if (!current.WasDeleted)
+                    {
+                        current.DeleteNode();
+                        return true;
+                    }
+                    return false;
+                }
+
+                TPosition value = depth % 2 == 0 ? x : y;
+                TPosition nodeValue = depth % 2 == 0 ? current.X : current.Y;
+                current = value < nodeValue ? current.Left : current.Right;
+                depth++;
+            }
+
+            return false;
+        }
+
         // Vygenerovane / upravene pomocou AI - Kapitola 36, 39 
         public void FindRange(
             TPosition minX,
@@ -94,7 +127,8 @@ namespace AUS2_S1.Hybrid_Quad_Tree
                 Node node = current.node;
                 int depth = current.depth;
 
-                if (node.X >= minX && node.X <= maxX &&
+                if (!node.WasDeleted &&
+                    node.X >= minX && node.X <= maxX &&
                     node.Y >= minY && node.Y <= maxY)
                 {
                     result.AddLast(node.Data);
@@ -130,7 +164,10 @@ namespace AUS2_S1.Hybrid_Quad_Tree
             {
                 Node node = nodesToVisit.Last!.Value;
                 nodesToVisit.RemoveLast();
-                result.AddLast((node.Data, node.X, node.Y));
+                if (!node.WasDeleted)
+                {
+                    result.AddLast((node.Data, node.X, node.Y));
+                }
 
                 if (node.Right != null)
                 {

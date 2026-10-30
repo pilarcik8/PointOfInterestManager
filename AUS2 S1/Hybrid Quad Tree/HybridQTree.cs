@@ -44,6 +44,7 @@ namespace AUS2_S1.Hybrid_Quad_Tree
                     return false;
                 }
             }
+
             public void DeleteNode()
             {
                 WasDeleted = true;
@@ -107,6 +108,54 @@ namespace AUS2_S1.Hybrid_Quad_Tree
             }
         }
 
+        // Vygenerovane / upravene pomocou AI - Kapitola 58
+        public bool DeleteNode(TPosition x, TPosition y)
+        {
+            if (!IsInside(_root, x, y))
+            {
+                return false;
+            }
+
+            Node current = _root;
+            while (current != null)
+            {
+                if (current.Data.Count > 0)
+                {
+                    bool deleted = current.Data.DeleteNode(x, y);
+                    if (deleted)
+                    {
+                        return true;
+                    }
+                }
+
+                if (!current.HasChildren)
+                {
+                    if (!current.WasDeleted)
+                    {
+                        current.DeleteNode();
+                        return true;
+                    }
+                    return false;
+                }
+
+                int index = GetQuadrantIndex(current, x, y);
+                if (current.Children[index] == null)
+                {
+                    return false;
+                }
+                current = current.Children[index]!;
+            }
+
+            return false;
+        }
+
+        // Vygenerovane / upravene pomocou AI - Kapitola 58
+        public bool DeleteNode(TData item)
+        {
+            var (x, y) = _getPosition(item);
+            return DeleteNode(x, y);
+        }
+
         // Vygenerovane / upravene pomocou AI - Kapitola 36, 39
         private static void Split(Node node)
         {
@@ -139,7 +188,11 @@ namespace AUS2_S1.Hybrid_Quad_Tree
                     continue;
                 }
 
-                current.Data.FindRange(minX, minY, maxX, maxY, result);
+                if (!current.WasDeleted)
+                {
+                    current.Data.FindRange(minX, minY, maxX, maxY, result);
+                }
+
                 foreach (var child in current.Children)
                 {
                     if (child != null)

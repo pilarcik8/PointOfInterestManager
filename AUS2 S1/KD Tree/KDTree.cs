@@ -70,8 +70,8 @@ namespace AUS2_S1.KD_Tree
             }
         }
 
-        // Vygenerovane / upravene pomocou AI - Kapitola 22, 28, 57
-        public KDNode<TKey, TData>? Find(LinkedList<KDKey<TKey>> targetKeys)
+        // Vygenerovane / upravene pomocou AI - Kapitola 22, 28
+        public KDNode<TKey, TData>? Find(LinkedList<KDKey<TKey>> targetKeys, bool includeDeleted = false)
         {
             if (targetKeys.Count != K)
             {
@@ -85,6 +85,10 @@ namespace AUS2_S1.KD_Tree
             {
                 if (AllKeysMatch(targetKeys, current.Keys))
                 {
+                    if (!includeDeleted && current.WasDeleted)
+                    {
+                        return null;
+                    }
                     return current;
                 }
 
@@ -106,7 +110,25 @@ namespace AUS2_S1.KD_Tree
             return null;
         }
 
-        // Vygenerovane / upravene pomocou AI - Kapitola 22, 28, 29, 57
+        // Vygenerovane / upravene pomocou AI - Kapitola 58
+        public void DeleteNode(KDNode<TKey, TData> node)
+        {
+            node.DeleteNode();
+        }
+
+        // Vygenerovane / upravene pomocou AI - Kapitola 58
+        public bool DeleteNode(LinkedList<KDKey<TKey>> keys)
+        {
+            var node = Find(keys, includeDeleted: true);
+            if (node != null && !node.WasDeleted)
+            {
+                node.DeleteNode();
+                return true;
+            }
+            return false;
+        }
+
+        // Vygenerovane / upravene pomocou AI - Kapitola 22, 28, 29
         public LinkedList<KDNode<TKey, TData>> FindRange(LinkedList<KDKey<TKey>> minKeys, LinkedList<KDKey<TKey>> maxKeys)
         {
             var result = new LinkedList<KDNode<TKey, TData>>();
@@ -135,7 +157,7 @@ namespace AUS2_S1.KD_Tree
                     }
                 }
 
-                if (inside)
+                if (inside && !current.WasDeleted)
                 {
                     result.AddLast(current);
                 }

@@ -1,5 +1,4 @@
 using System;
-using System;
 using System.Collections.Generic;
 using System.Numerics;
 
@@ -118,7 +117,7 @@ namespace AUS2_S1
             }
         }
 
-        // Vygenerovane / upravene pomocou AI - Kapitola 14, 33 (TPosition)
+        // Vygenerovane / upravene pomocou AI - Kapitola 14, 33 (TPosition), 58
         public LinkedList<TData> FindRange(TPosition minX, TPosition minY, TPosition maxX, TPosition maxY)
         {
             var result = new LinkedList<TData>();
@@ -141,12 +140,15 @@ namespace AUS2_S1
                     continue;
                 }
 
-                foreach (var item in current.Data)
+                if (!current.WasDeleted)
                 {
-                    var (x, y) = GetPosition(item);
-                    if (x >= minX && x <= maxX && y >= minY && y <= maxY)
+                    foreach (var item in current.Data)
                     {
-                        result.AddLast(item);
+                        var (x, y) = GetPosition(item);
+                        if (x >= minX && x <= maxX && y >= minY && y <= maxY)
+                        {
+                            result.AddLast(item);
+                        }
                     }
                 }
 
@@ -160,6 +162,67 @@ namespace AUS2_S1
             }
 
             return result;
+        }
+
+        // Vygenerovane / upravene pomocou AI - Kapitola 58
+        public void DeleteNode(QNode<TData, TPosition> node)
+        {
+            node.DeleteNode();
+        }
+
+        // Vygenerovane / upravene pomocou AI - Kapitola 58
+        public bool DeleteNode(TPosition x, TPosition y)
+        {
+            var node = FindNode(x, y);
+            if (node != null && !node.WasDeleted)
+            {
+                node.DeleteNode();
+                return true;
+            }
+            return false;
+        }
+
+        // Vygenerovane / upravene pomocou AI - Kapitola 58
+        public bool DeleteNode(TData item)
+        {
+            var (x, y) = GetPosition(item);
+            return DeleteNode(x, y);
+        }
+
+        // Vygenerovane / upravene pomocou AI - Kapitola 58
+        public QNode<TData, TPosition>? FindNode(TPosition x, TPosition y)
+        {
+            if (Root == null || !Root.Bounds.IsInside(x, y))
+            {
+                return null;
+            }
+
+            QNode<TData, TPosition> current = Root;
+            while (current != null)
+            {
+                if (current.Data.Count > 0)
+                {
+                    var (dx, dy) = GetPosition(current.Data.First!.Value);
+                    if (dx == x && dy == y)
+                    {
+                        return current;
+                    }
+                }
+
+                if (!current.IsSplit)
+                {
+                    break;
+                }
+
+                int index = current.GetQuadrantIndex(x, y);
+                if (current.Children[index] == null)
+                {
+                    break;
+                }
+                current = current.Children[index];
+            }
+
+            return null;
         }
     }
 }
