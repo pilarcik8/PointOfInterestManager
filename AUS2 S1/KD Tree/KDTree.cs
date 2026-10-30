@@ -16,7 +16,7 @@ namespace AUS2_S1.KD_Tree
             K = k;
         }
 
-        // Vygenerovane / upravene pomocou AI - Kapitola 24, Kapitola 27
+        // Vygenerovane / upravene pomocou AI - Kapitola 24, Kapitola 27, Kapitola 57
         public void Insert(TData data, LinkedList<KDKey<TKey>> keys)
         {
             if (keys.Count != K)
@@ -70,7 +70,7 @@ namespace AUS2_S1.KD_Tree
             }
         }
 
-        // Vygenerovane / upravene pomocou AI - Kapitola 22, 28
+        // Vygenerovane / upravene pomocou AI - Kapitola 22, 28, 57
         public KDNode<TKey, TData>? Find(LinkedList<KDKey<TKey>> targetKeys)
         {
             if (targetKeys.Count != K)
@@ -106,7 +106,7 @@ namespace AUS2_S1.KD_Tree
             return null;
         }
 
-        // Vygenerovane / upravene pomocou AI - Kapitola 22, 28, 29
+        // Vygenerovane / upravene pomocou AI - Kapitola 22, 28, 29, 57
         public LinkedList<KDNode<TKey, TData>> FindRange(LinkedList<KDKey<TKey>> minKeys, LinkedList<KDKey<TKey>> maxKeys)
         {
             var result = new LinkedList<KDNode<TKey, TData>>();

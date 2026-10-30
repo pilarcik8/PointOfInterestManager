@@ -1,6 +1,6 @@
 namespace AUS2_S1.KD_Tree
 {
-    // Vygenerovane / upravene pomocou AI - Kapitola 17, 19, 24
+    // Vygenerovane / upravene pomocou AI - Kapitola 17, 19, 24, 57
     public class KDNode<TKey, TData> where TKey : IComparable<TKey>
     {
         public LinkedList<TData> Data { get; }

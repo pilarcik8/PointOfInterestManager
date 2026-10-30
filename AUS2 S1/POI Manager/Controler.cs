@@ -14,6 +14,7 @@ namespace AUS2_S1.APP
         private KDTree<double, PointOfInterest>? _kdTree;
         private int UniqueID = 0;
 
+        // Vygenerovane / upravene pomocou AI - Kapitola 55 
         public Controler(
             double minLat, double minLon, double maxLat, double maxLon,
             int maxDepth = int.MaxValue,
@@ -51,6 +52,7 @@ namespace AUS2_S1.APP
             throw new Exception("Not inplemeted yet");
         }
 
+        // Vygenerovane / upravene pomocou AI - Kapitola 55
         public void CreatePOI(string name, double lat, double lon, string desc, string? addr = null)
         {
             var poi = new PointOfInterest(id: UniqueID, latitude: lat, longitude: lon, name: name,
@@ -90,6 +92,7 @@ namespace AUS2_S1.APP
             {
                 var keyLon = new KDKey<double>(lon);
                 var keyLat = new KDKey<double>(lat);
+                var hd = new KDKey<double>(halfDistance);
 
                 var keys = new List<KDKey<double>>
                 {
@@ -97,7 +100,7 @@ namespace AUS2_S1.APP
                     keyLat
                 };
 
-                var nodes = _kdTree.FindRadius(center: keys, halfDistance);
+                var nodes = _kdTree.FindRadius(center: keys, radius: hd);
 
                 var result = new LinkedList<PointOfInterest>();
 
@@ -115,6 +118,7 @@ namespace AUS2_S1.APP
             throw new InvalidOperationException("Ziadny strom nie je inicializovany.");
         }
 
+        // Vygenerovane / upravene pomocou AI - Kapitola 55 
         public LinkedList<PointOfInterest> FindPointsRange(double minLat, double minLon, double maxLat, double maxLon)
         {
             if (_qTree != null)
@@ -153,6 +157,7 @@ namespace AUS2_S1.APP
             throw new InvalidOperationException("Ziadny strom nie je inicializovany.");
         }
 
+        // Vygenerovane / upravene pomocou AI - Kapitola 55 
         public enum TreeType
         {
             QTree,
