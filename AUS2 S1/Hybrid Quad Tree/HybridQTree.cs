@@ -15,6 +15,7 @@ namespace AUS2_S1.Hybrid_Quad_Tree
             public TPosition MaxY { get; }
             public Node?[] Children { get; } = new Node?[4];
             public HybridKDTree<TData, TPosition> Data { get; set; } = new();
+            public bool WasDeleted;
 
             // Vygenerovane / upravene pomocou AI - Kapitola 36, 39
             public Node(TPosition minX, TPosition minY, TPosition maxX,
@@ -24,6 +25,7 @@ namespace AUS2_S1.Hybrid_Quad_Tree
                 MinY = minY;
                 MaxX = maxX;
                 MaxY = maxY;
+                WasDeleted = false;
             }
 
             // Vygenerovane / upravene pomocou AI - Kapitola 36, 39
@@ -41,6 +43,10 @@ namespace AUS2_S1.Hybrid_Quad_Tree
 
                     return false;
                 }
+            }
+            public void DeleteNode()
+            {
+                WasDeleted = true;
             }
         }
 

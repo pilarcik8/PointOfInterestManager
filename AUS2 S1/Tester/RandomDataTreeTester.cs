@@ -8,12 +8,14 @@ namespace AUS2_S1.Tester
     public class RandomDataTreeTester
     {
         private readonly QTree<int, double>? _qTree;
-        private readonly KDTree<int>? _kdTree;
+        private readonly KDTree<int, int>? _kdTree;
 
         private readonly int _operationsCount;
         private readonly int _insertProbability;
         private readonly int _seed;
         private readonly int _checkInterval;
+
+        private readonly List<(int data, double x, double y)> _positions = new();
 
         // Konstruktor pre QTree
         // Vygenerovane / upravene pomocou AI - Kapitola 27 (vytvorenie konštruktora), Kapitola 33 (zmena na QTree<int, double>)
@@ -22,7 +24,8 @@ namespace AUS2_S1.Tester
             int operationsCount,
             int insertProbability,
             int seed,
-            int checkInterval = 10)
+            int checkInterval = 10
+            )
         {
             _qTree = qTree;
             _operationsCount = operationsCount;
@@ -31,11 +34,11 @@ namespace AUS2_S1.Tester
             _checkInterval = checkInterval;
             RunQTreeTest();
         }
-    
+
         // Konstruktor pre KDTree
         // Vygenerovane / upravene pomocou AI - Kapitola 27
         public RandomDataTreeTester(
-            KDTree<int> kdTree,
+            KDTree<int, int> kdTree,
             int operationsCount,
             int insertProbability,
             int seed,
@@ -50,6 +53,7 @@ namespace AUS2_S1.Tester
         }
 
         // Vygenerovane / upravene pomocou AI - Kapitola 34
+        //TODO ODJEVAT
         private void RunQTreeTest()
         {
             var random = new Random(_seed);
@@ -61,49 +65,62 @@ namespace AUS2_S1.Tester
                 bool doInsert = random.Next(100) < _insertProbability || referenceList.Count == 0;
                 int maxLength = random.Next(1, int.MaxValue);
 
+                //insert
                 if (doInsert)
                 {
                     int data = nextId++;
                     double x = random.Next(0, maxLength);
                     double y = random.Next(0, maxLength);
 
+                    _positions.Add((data, x, y));   // index = data - 1
                     _qTree!.Insert(data);
                     referenceList.Add((data, x, y));
-                }
-                else
-                {
-                    double minX = random.Next(0, maxLength);
-                    double maxX = random.Next((int)Math.Round(minX) + 1, maxLength);
-                    double minY = random.Next(0, maxLength);
-                    double maxY = random.Next((int)Math.Round(minY) + 1, maxLength);
 
-                    var found = _qTree!.FindRange(minX, minY, maxX, maxY);
-                    var expected = referenceList
-                        .Where(item => item.x >= minX && item.x <= maxX && item.y >= minY && item.y <= maxY)
-                        .Select(item => item.data)
-                        .ToHashSet();
-
-                    var actual = found.ToHashSet();
-                    if (!expected.SetEquals(actual))
+                    // kontrola
+                    if (operationNumber % _checkInterval == 0 || operationNumber == _operationsCount)
                     {
-                        throw new InvalidOperationException($"Chyba FindRange v operacii #{operationNumber} pre rozsah [{minX}, {minY}] - [{maxX}, {maxY}].");
+                        foreach (var item in referenceList)
+                        {
+                            var found = _qTree!.FindRange(item.x, item.y, item.x, item.y);
+                            if (!found.Contains(item.data))
+                            {
+                                throw new InvalidOperationException($"Chyba integrity po operacii #{operationNumber}: prvok {item.data} na [{item.x}, {item.y}] sa nenasiel.");
+                            }
+                        }
+
+                        Console.WriteLine($"[Op {operationNumber,4}/{_operationsCount}] Kontrola integrity OK");
                     }
+                    continue;
                 }
 
-                // Kontrola integrity iba kazdych checkInterval operacii alebo na konci
+                // range 
+                double minX = random.Next(0, maxLength);
+                double maxX = random.Next((int)Math.Round(minX) + 1, maxLength);
+                double minY = random.Next(0, maxLength);
+                double maxY = random.Next((int)Math.Round(minY) + 1, maxLength);
+
+                LinkedList<int> actual = _qTree!.FindRange(minX, minY, maxX, maxY);
+                List<int> expected = referenceList
+                    .Where(item => item.x >= minX && item.x <= maxX && item.y >= minY && item.y <= maxY)
+                    .Select(item => item.data).ToList();
+
                 if (operationNumber % _checkInterval == 0 || operationNumber == _operationsCount)
                 {
-                    foreach (var item in referenceList)
+                    foreach (var item in actual)
                     {
-                        var found = _qTree!.FindRange(item.x, item.y, item.x, item.y);
-                        if (!found.Contains(item.data))
+                        if (!expected.Contains(item))
                         {
-                            throw new InvalidOperationException($"Chyba integrity po operacii #{operationNumber}: prvok {item.data} na [{item.x}, {item.y}] sa nenasiel.");
+                            throw new InvalidOperationException($"Chyba FindRange v operacii #{operationNumber} pre QTree: ocakavany prvok {item} sa nenasiel.");
                         }
+                        expected.Remove(item); // vymaze iba prvy najdeny (duplicity mozu byt)
                     }
-
-                    Console.WriteLine($"[Op {operationNumber,4}/{_operationsCount}] Kontrola integrity OK (prvkov v strukture: {referenceList.Count})");
+                    if (expected.Count != 0)
+                    {
+                        throw new InvalidOperationException($"Chyba FindRange v operacii #{operationNumber} pre QTree: strom nevrátil {expected.Count} ocakavanych prvkov.");
+                    }
+                    Console.WriteLine($"[Op {operationNumber,4}/{_operationsCount}] Kontrola integrity OK");
                 }
+
             }
             Console.WriteLine("--------------------------------------------------");
         }

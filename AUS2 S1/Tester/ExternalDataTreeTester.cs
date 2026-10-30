@@ -564,7 +564,8 @@ namespace AUS2_S1.Tester
             const int maxDepth = 12;
 
             // MOJE
-            RunBenchmarkForTree("Vlastny KD strom", new OwnKdTreeAdapter(), pointData, rangeData, output);
+            //RunBenchmarkForTree("Vlastny KD strom", new OwnKdTreeAdapter(), pointData, rangeData, output);
+            
             RunBenchmarkForTree("Vlastny Quad strom", new OwnQuadTreeAdapter(minX: pointMinX,
                                                                         minY: pointMinY,
                                                                         maxX: pointMaxX,
@@ -576,7 +577,7 @@ namespace AUS2_S1.Tester
                                                                                         maxX: pointMaxX,
                                                                                         maxY: pointMaxY,
                                                                                         maxDepth: maxDepth),
-                                                                                        pointData, rangeData, output);
+                                                                                     pointData, rangeData, output); 
             // EXTERNE
             //QUAD
             RunBenchmarkForTree("QuadTree", new QuadTreeAdapter(minX: pointMinX,
@@ -596,10 +597,11 @@ namespace AUS2_S1.Tester
                                                                                           maxY: pointMaxY,
                                                                                      maxDepth: maxDepth), pointData, rangeData, output);
             //KD
-                
+             /*   
             RunBenchmarkForTree("Omni KD strom", new OmniKdTreeAdapter(), pointData, rangeData, output);
             RunBenchmarkForTree("BKDTree", new BkdTreeAdapter(), pointData, rangeData, output);
             RunBenchmarkForTree("NetTopologySuite KD strom", new NetTopologySuiteKdTreeAdapter(), pointData, rangeData, output);
+             */
         }
 
         // Kapitola 52
@@ -755,18 +757,24 @@ namespace AUS2_S1.Tester
         {
             // --- 1. MERANIE VKLADANIA ---
             var stopwatch = Stopwatch.StartNew();
+            int index = 0;
             foreach (var point in points)
             {
+                Console.WriteLine($"{name}: Vkladanie bodu {index}/{points.Count - 1}.");
                 tree.Insert(point.id, point.x, point.y);
+                index++;
             }
             stopwatch.Stop();
             double insertMs = stopwatch.Elapsed.TotalMilliseconds;
 
             // --- 2. MERANIE VYHĽADÁVANIA ---
             stopwatch.Restart();
+            index = 0;
             foreach (var range in ranges)
             {
+                Console.WriteLine($"{name}: Hladanie obdlznika {index}/{ranges.Count - 1}.");
                 tree.FindRange(range.minX, range.minY, range.maxX, range.maxY);
+                index++;
             }
             stopwatch.Stop();
             double findRangeMs = stopwatch.Elapsed.TotalMilliseconds;

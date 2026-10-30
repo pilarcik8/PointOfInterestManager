@@ -4,26 +4,20 @@ using AUS2_S1.KD_Tree;
 namespace AUS2_S1.KD_Tree
 {
     // Vygenerovane / upravene pomocou AI - Kapitola 17 (kostra), 24 (refaktor na KDKey)
-    public class KDTree<T> where T : IComparable<T>
+    public class KDTree<TKey, TData> where TKey : IComparable<TKey>
     {
-        public KDNode<T>? Root { get; set; }
+        public KDNode<TKey, TData>? Root { get; set; }
         public int K { get; set; }
-        public int MaxDepth { get; set; }
 
         // Vygenerovane / upravene pomocou AI - Kapitola 27 (pridanie maxDepth pre Tester)
-        public KDTree(int k, int maxDepth = int.MaxValue)
+        public KDTree(int k)
         {
-            if (maxDepth < 0)
-            {
-                throw new ArgumentException("Max depth is negative");
-            }
             Root = null;
             K = k;
-            MaxDepth = maxDepth;
         }
 
         // Vygenerovane / upravene pomocou AI - Kapitola 24, Kapitola 27
-        public void Insert(T data, LinkedList<KDKey<T>> keys)
+        public void Insert(TData data, LinkedList<KDKey<TKey>> keys)
         {
             if (keys.Count != K)
             {
@@ -32,23 +26,16 @@ namespace AUS2_S1.KD_Tree
 
             if (Root == null)
             {
-                Root = new KDNode<T>(data, keys);
+                Root = new KDNode<TKey, TData>(data, keys);
                 return;
             }
 
-            KDNode<T> current = Root;
+            KDNode<TKey, TData> current = Root;
             int depth = 0;
 
             while (true)
             {
                 int dimension = depth % K;
-
-                // dosiahnuta max hlbka -> dame do listu
-                if (depth == MaxDepth)
-                {
-                    current.Data.AddLast(data);
-                    return;
-                }
 
                 // Skontroluj ci sa vsetky kluce zhoduju (duplikat)
                 if (AllKeysMatch(keys, current.Keys))
@@ -63,7 +50,7 @@ namespace AUS2_S1.KD_Tree
                 {
                     if (current.Left == null)
                     {
-                        current.Left = new KDNode<T>(data, keys);
+                        current.Left = new KDNode<TKey, TData>(data, keys);
                         return;
                     }
                     current = current.Left;
@@ -73,7 +60,7 @@ namespace AUS2_S1.KD_Tree
                     // Hodnoty vacsie alebo rovne idu do praveho podstromu
                     if (current.Right == null)
                     {
-                        current.Right = new KDNode<T>(data, keys);
+                        current.Right = new KDNode<TKey, TData>(data, keys);
                         return;
                     }
                     current = current.Right;
@@ -84,14 +71,14 @@ namespace AUS2_S1.KD_Tree
         }
 
         // Vygenerovane / upravene pomocou AI - Kapitola 22, 28
-        public KDNode<T>? Find(LinkedList<KDKey<T>> targetKeys)
+        public KDNode<TKey, TData>? Find(LinkedList<KDKey<TKey>> targetKeys)
         {
             if (targetKeys.Count != K)
             {
                 throw new ArgumentException($"Pocet klucov ({targetKeys.Count}) sa nezhoduje s dimenziou stromu ({K}).");
             }
 
-            KDNode<T>? current = Root;
+            KDNode<TKey, TData>? current = Root;
             int depth = 0;
 
             while (current != null)
@@ -120,15 +107,15 @@ namespace AUS2_S1.KD_Tree
         }
 
         // Vygenerovane / upravene pomocou AI - Kapitola 22, 28, 29
-        public LinkedList<KDNode<T>> FindRange(LinkedList<KDKey<T>> minKeys, LinkedList<KDKey<T>> maxKeys)
+        public LinkedList<KDNode<TKey, TData>> FindRange(LinkedList<KDKey<TKey>> minKeys, LinkedList<KDKey<TKey>> maxKeys)
         {
-            var result = new LinkedList<KDNode<T>>();
+            var result = new LinkedList<KDNode<TKey, TData>>();
             if (Root == null)
             {
                 return result;
             }
 
-            var nodesToVisit = new LinkedList<(KDNode<T> node, int depth)>();
+            var nodesToVisit = new LinkedList<(KDNode<TKey, TData> node, int depth)>();
             nodesToVisit.AddLast((Root, 0));
 
             while (nodesToVisit.Count > 0)
@@ -171,8 +158,40 @@ namespace AUS2_S1.KD_Tree
             return result;
         }
 
+        public LinkedList<KDNode<TKey, TData>> FindRadius(List<KDKey<TKey>> center, KDKey<TKey> radius)
+        {
+            var maxKeys = new LinkedList<KDKey<TKey>>(center.Select((key, index) => new KDKey<TKey>((dynamic)key.Value - (dynamic)radius.Value)));
+            var minKeys = new LinkedList<KDKey<TKey>>(center.Select((key, index) => new KDKey<TKey>((dynamic)key.Value + (dynamic)radius.Value)));
+
+            var squereResult = this.FindRange(maxKeys, minKeys).ToList();
+
+            var filteredResult = new LinkedList<KDNode<TKey, TData>>();
+
+            foreach (var node in squereResult)
+            {
+                bool inside = true;
+                for (int d = 0; d < K; d++)
+                {
+                    var distance = Math.Abs((dynamic)node.Keys.ElementAt(d).Value - (dynamic)center[d].Value);
+                    if (distance > (dynamic)radius.Value)
+                    {
+                        filteredResult.AddLast(node);
+                        inside = false;
+                        break;
+                    }
+                }
+
+                if (!inside)
+                {
+                    squereResult.Remove(node);
+                }
+            }
+
+            return filteredResult;
+        }
+
         // Vygenerovane / upravene pomocou AI - Kapitola 24
-        private bool AllKeysMatch(LinkedList<KDKey<T>> keysA, LinkedList<KDKey<T>> keysB)
+        private bool AllKeysMatch(LinkedList<KDKey<TKey>> keysA, LinkedList<KDKey<TKey>> keysB)
         {
             for (int d = 0; d < K; d++)
             {

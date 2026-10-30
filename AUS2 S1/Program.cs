@@ -10,6 +10,7 @@
 
 using AUS2_S1.Tester;
 using System.Collections;
+using AUS2_S1.KD_Tree;
 
 var pointsParser = new CSVParser();
 pointsParser.LoadPoints("C:\\Users\\Admin\\source\\repos\\AUS2 S1\\AUS2 S1\\Data\\slovakia_nodes.csv");
@@ -21,20 +22,16 @@ rangesParser.LoadRanges("C:\\Users\\Admin\\source\\repos\\AUS2 S1\\AUS2 S1\\Data
 
 Console.WriteLine($"Obdlzniky nahrate\nPocet obdlznikov: {rangesParser.GetRowCount()}\n");
 
-ExternalDataTreeTester.RunCorrectnessTest(pointsParser,
-                                            rangesParser,
-                                            findCheckInterval: 1,
-                                            insertCheckInterval: 0,
-                                            outputFilePath: "C:\\Users\\Admin\\source\\repos\\AUS2 S1\\AUS2 S1\\Data\\test_correctness_results.txt");
-
+var randomDataTreeTester = new RandomDataTreeTester(
+    kdTree: new KDTree<int>(2),
+    operationsCount: 1000,
+    insertProbability: 70,
+    seed: 42
+);
 /*
-for (int i = 0; i < 3; i++)
-{
-    Console.WriteLine($"Spustam test {i + 1}...\n");
-    ExternalDataTreeTester.RunBenchmark(pointsParser,
-                                        rangesParser,
-                                        //maxPoints: 1000,
-                                        //maxRanges: 100,
-                                        outputFilePath: "C:\\Users\\Admin\\source\\repos\\AUS2 S1\\AUS2 S1\\Data\\test_speed_results.txt");
-}
-*/
+var randomDataQuadTreeTester = new RandomDataQuadTreeTester(
+    quadTree: new QTree<int>(),
+    operationsCount: 1000,
+    insertProbability: 70,
+    seed: 42
+);*/
