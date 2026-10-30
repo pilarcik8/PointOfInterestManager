@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using AUS2_S1;
 using AUS2_S1.Hybrid_Quad_Tree;
 using AUS2_S1.KD_Tree;
@@ -7,7 +8,7 @@ using NetTopologySuite.Geometries.Implementation;
 
 namespace AUS2_S1.APP
 {
-    internal class Controler
+    public class PoiModel
     {
         private QTree<PointOfInterest, double>? _qTree;
         private HybridQTree<PointOfInterest, double>? _hybridQTree;
@@ -15,7 +16,7 @@ namespace AUS2_S1.APP
         private int UniqueID = 0;
 
         // Vygenerovane / upravene pomocou AI - Kapitola 55 
-        public Controler(
+        public PoiModel(
             double minLat, double minLon, double maxLat, double maxLon,
             int maxDepth = int.MaxValue,
             TreeType treeType = TreeType.QTree)
@@ -76,6 +77,49 @@ namespace AUS2_S1.APP
             UniqueID++;
         }
 
+        // Vygenerovane / upravene pomocou AI - Kapitola 60
+        public void UpdatePOI(PointOfInterest poi, double lat, double lon, string name, string desc, string? addr = null)
+        {
+            if (poi == null)
+            {
+                return;
+            }
+
+            bool positionChanged = poi.Latitude != lat || poi.Longitude != lon;
+
+            if (positionChanged)
+            {
+                Delete(poi);
+                poi.UpdateValues(lat, lon, name, desc, addr);
+
+                if (_qTree != null)
+                {
+                    _qTree.Insert(poi);
+                }
+                else if (_hybridQTree != null)
+                {
+                    _hybridQTree.Insert(poi);
+                }
+                else if (_kdTree != null)
+                {
+                    var keys = new LinkedList<KDKey<double>>();
+                    keys.AddLast(new KDKey<double>(poi.Longitude));
+                    keys.AddLast(new KDKey<double>(poi.Latitude));
+                    _kdTree.Insert(poi, keys);
+                }
+            }
+            else
+            {
+                poi.UpdateValues(lat, lon, name, desc, addr);
+            }
+        }
+
+        // Vygenerovane / upravene pomocou AI - Kapitola 60
+        public void UpdatePOI(PointOfInterest poi, string name, double lat, double lon, string desc, string? addr = null)
+        {
+            UpdatePOI(poi, lat, lon, name, desc, addr);
+        }
+
         // Vygenerovane / upravene pomocou AI - Kapitola 59
         private void Delete(PointOfInterest poi)
         {
@@ -119,46 +163,54 @@ namespace AUS2_S1.APP
             }
         }
 
-        public LinkedList<PointOfInterest> FindPointsAroundCentre(double lat, double lon, double halfDistance)
+        // Vygenerovane / upravene pomocou AI - Kapitola 63
+        public LinkedList<PointOfInterest> FindPointsAroundCentre(double lat, double lon, double radius)
         {
-            if (_qTree != null)
-            {
-                //return _qTree.FindRange(minLon, minLat, maxLon, maxLat);
-            }
+            // 1. Získame kandidátov v ohraničujúcom štvorci cez už existujúci FindPointsRange
+            var candidates = FindPointsRange(lat - radius, lon - radius, lat + radius, lon + radius);
 
-            if (_hybridQTree != null)
-            {
-                //return _hybridQTree.FindRange(minLon, minLat, maxLon, maxLat);
-            }
+            var result = new LinkedList<PointOfInterest>();
+            double radiusSquared = radius * radius;
 
-            if (_kdTree != null)
+            // 2. Jemný filter – vyberieme len tie, ktoré reálne ležia v kruhu
+            foreach (var poi in candidates)
             {
-                var keyLon = new KDKey<double>(lon);
-                var keyLat = new KDKey<double>(lat);
-                var hd = new KDKey<double>(halfDistance);
+                double dLon = poi.Longitude - lon;
+                double dLat = poi.Latitude - lat;
 
-                var keys = new List<KDKey<double>>
+                if ((dLon * dLon) + (dLat * dLat) <= radiusSquared)
                 {
-                    keyLon,
-                    keyLat
-                };
-
-                var nodes = _kdTree.FindRadius(center: keys, radius: hd);
-
-                var result = new LinkedList<PointOfInterest>();
-
-                foreach (var node in nodes)
-                {
-                    foreach (var poi in node.Data)
-                    {
-                        result.AddLast(poi);
-                    }
+                    result.AddLast(poi);
                 }
+            }
 
+            return result;
+        }
+
+        // Vygenerovane / upravene pomocou AI - Kapitola 64
+        public LinkedList<PointOfInterest> FindRangeWithName(double minLat, double minLon, double maxLat, double maxLon, string name)
+        {
+            var candidates = FindPointsRange(minLat, minLon, maxLat, maxLon);
+            var result = new LinkedList<PointOfInterest>();
+
+            if (name == null)
+            {
                 return result;
             }
 
-            throw new InvalidOperationException("Ziadny strom nie je inicializovany.");
+            // Nastavenie porovnávania textu: ignoruje diakritiku (napr. 'ž' == 'z') a veľkosť písmen (napr. 'A' == 'a')
+            var compareInfo = CultureInfo.InvariantCulture.CompareInfo;
+            var compareOptions = CompareOptions.IgnoreNonSpace | CompareOptions.IgnoreCase;
+
+            foreach (var poi in candidates)
+            {
+                if (poi.Name != null && compareInfo.Compare(poi.Name, name, compareOptions) == 0)
+                {
+                    result.AddLast(poi);
+                }
+            }
+
+            return result;
         }
 
         // Vygenerovane / upravene pomocou AI - Kapitola 55 

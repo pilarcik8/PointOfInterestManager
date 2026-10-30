@@ -128,7 +128,7 @@ namespace AUS2_S1.KD_Tree
             return false;
         }
 
-        // Vygenerovane / upravene pomocou AI - Kapitola 22, 28, 29
+        // Vygenerovane / upravene pomocou AI - Kapitola 22, 28, 29, 58
         public LinkedList<KDNode<TKey, TData>> FindRange(LinkedList<KDKey<TKey>> minKeys, LinkedList<KDKey<TKey>> maxKeys)
         {
             var result = new LinkedList<KDNode<TKey, TData>>();
@@ -178,38 +178,6 @@ namespace AUS2_S1.KD_Tree
             }
 
             return result;
-        }
-
-        public LinkedList<KDNode<TKey, TData>> FindRadius(List<KDKey<TKey>> center, KDKey<TKey> radius)
-        {
-            var maxKeys = new LinkedList<KDKey<TKey>>(center.Select((key, index) => new KDKey<TKey>((dynamic)key.Value - (dynamic)radius.Value)));
-            var minKeys = new LinkedList<KDKey<TKey>>(center.Select((key, index) => new KDKey<TKey>((dynamic)key.Value + (dynamic)radius.Value)));
-
-            var squereResult = this.FindRange(maxKeys, minKeys).ToList();
-
-            var filteredResult = new LinkedList<KDNode<TKey, TData>>();
-
-            foreach (var node in squereResult)
-            {
-                bool inside = true;
-                for (int d = 0; d < K; d++)
-                {
-                    var distance = Math.Abs((dynamic)node.Keys.ElementAt(d).Value - (dynamic)center[d].Value);
-                    if (distance > (dynamic)radius.Value)
-                    {
-                        filteredResult.AddLast(node);
-                        inside = false;
-                        break;
-                    }
-                }
-
-                if (!inside)
-                {
-                    squereResult.Remove(node);
-                }
-            }
-
-            return filteredResult;
         }
 
         // Vygenerovane / upravene pomocou AI - Kapitola 24
