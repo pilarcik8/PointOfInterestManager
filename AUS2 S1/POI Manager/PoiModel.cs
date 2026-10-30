@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
+using System.Text;
 using AUS2_S1;
 using AUS2_S1.Hybrid_Quad_Tree;
 using AUS2_S1.KD_Tree;
@@ -43,22 +45,158 @@ namespace AUS2_S1.APP
             }
         }
 
+        private const string CsvHeader = "id,name,description,lat,lon,address,created_ad,updated_ad";
+
+        // Vygenerovane / upravene pomocou AI - Kapitola 66
         public void ImportPointsOfInterest(string pathToCSV)
         {
-            throw new Exception("Not inplemeted yet");
+            int lineNumber = 0;
+            foreach (var line in File.ReadLines(pathToCSV))
+            {
+                lineNumber++;
+                if (string.IsNullOrWhiteSpace(line))
+                {
+                    continue;
+                }
+
+                var fields = ParseCsvLine(line);
+
+                // Hlavicku preskocime
+                if (lineNumber == 1 && fields[0].Trim().Equals("id", StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                if (fields.Count != 8)
+                {
+                    throw new FormatException($"Riadok {lineNumber}: ocakavanych 8 stlpcov, najdenych {fields.Count}.");
+                }
+
+                var poi = new PointOfInterest(
+                    id: int.Parse(fields[0], CultureInfo.InvariantCulture),
+                    latitude: double.Parse(fields[3], CultureInfo.InvariantCulture),
+                    longitude: double.Parse(fields[4], CultureInfo.InvariantCulture),
+                    name: fields[1],
+                    description: fields[2],
+                    address: fields[5].Length == 0 ? null : fields[5],
+                    createdAt: DateTime.Parse(fields[6], CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind),
+                    lastUpdatedAt: DateTime.Parse(fields[7], CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind));
+
+                InsertIntoTree(poi);
+
+                // Nove POI musia dostat id vacsie ako vsetky importovane
+                if (poi.Id >= UniqueID)
+                {
+                    UniqueID = poi.Id + 1;
+                }
+            }
         }
 
+        // Vygenerovane / upravene pomocou AI - Kapitola 66
         public void ExportPointsOfInterest(string pathToCSV)
         {
-            throw new Exception("Not inplemeted yet");
+            var pois = FindPointsRange(double.MinValue, double.MinValue, double.MaxValue, double.MaxValue);
+            if (_qTree != null)
+            {
+                // QTree.FindRange nevracia body mimo hranic stromu
+                foreach (var poi in _qTree.OutOfBoundsData)
+                {
+                    pois.AddLast(poi);
+                }
+            }
+
+            using var writer = new StreamWriter(pathToCSV);
+            writer.WriteLine(CsvHeader);
+            foreach (var poi in pois)
+            {
+                writer.WriteLine(string.Join(",",
+                    poi.Id.ToString(CultureInfo.InvariantCulture),
+                    EscapeCsv(poi.Name),
+                    EscapeCsv(poi.Description),
+                    poi.Latitude.ToString("R", CultureInfo.InvariantCulture),
+                    poi.Longitude.ToString("R", CultureInfo.InvariantCulture),
+                    EscapeCsv(poi.Address ?? string.Empty),
+                    poi.CreatedAt.ToString("o", CultureInfo.InvariantCulture),
+                    poi.LastUpdatedAt.ToString("o", CultureInfo.InvariantCulture)));
+            }
+        }
+
+        // Vygenerovane / upravene pomocou AI - Kapitola 66
+        private static string EscapeCsv(string value)
+        {
+            if (value.IndexOfAny(new[] { ',', '"', '\n', '\r' }) < 0)
+            {
+                return value;
+            }
+            return "\"" + value.Replace("\"", "\"\"") + "\"";
+        }
+
+        // Vygenerovane / upravene pomocou AI - Kapitola 66
+        private static List<string> ParseCsvLine(string line)
+        {
+            var fields = new List<string>();
+            var current = new StringBuilder();
+            bool inQuotes = false;
+
+            for (int i = 0; i < line.Length; i++)
+            {
+                char c = line[i];
+                if (inQuotes)
+                {
+                    if (c == '"')
+                    {
+                        // Zdvojena uvodzovka vo vnutri pola znamena jednu uvodzovku
+                        if (i + 1 < line.Length && line[i + 1] == '"')
+                        {
+                            current.Append('"');
+                            i++;
+                        }
+                        else
+                        {
+                            inQuotes = false;
+                        }
+                    }
+                    else
+                    {
+                        current.Append(c);
+                    }
+                }
+                else if (c == '"')
+                {
+                    inQuotes = true;
+                }
+                else if (c == ',')
+                {
+                    fields.Add(current.ToString());
+                    current.Clear();
+                }
+                else
+                {
+                    current.Append(c);
+                }
+            }
+
+            fields.Add(current.ToString());
+            return fields;
         }
 
         // Vygenerovane / upravene pomocou AI - Kapitola 55
-        public void CreatePOI(string name, double lat, double lon, string desc, string? addr = null)
+        public void CreatePOI(string name, double lat, double lon, string desc, string? addr = null, int? id = null)
         {
-            var poi = new PointOfInterest(id: UniqueID, latitude: lat, longitude: lon, name: name,
+            if (id == null)
+            {
+                id = UniqueID;
+                UniqueID++;
+            }
+            var poi = new PointOfInterest(id: id.Value, latitude: lat, longitude: lon, name: name,
                                         description: desc, address: addr);
 
+            InsertIntoTree(poi);
+        }
+
+        // Vygenerovane / upravene pomocou AI - Kapitola 66
+        private void InsertIntoTree(PointOfInterest poi)
+        {
             if (_qTree != null)
             {
                 _qTree.Insert(poi);
@@ -74,7 +212,6 @@ namespace AUS2_S1.APP
                 keys.AddLast(new KDKey<double>(poi.Latitude));
                 _kdTree.Insert(poi, keys);
             }
-            UniqueID++;
         }
 
         // Vygenerovane / upravene pomocou AI - Kapitola 60

@@ -28,7 +28,16 @@ namespace AUS2_S1.APP
             LastUpdatedAt = DateTime.Now;
         }
 
-        // Since address can be empthy, I need all the values for update because I cannot be sure if address is set to null or not to be changed
+        // Vygenerovane / upravene pomocou AI - Kapitola 66 (import z CSV so zachovanim casov)
+        public PointOfInterest(int id, double latitude, double longitude, String name, String description, String? address,
+                               DateTime createdAt, DateTime lastUpdatedAt)
+            : this(id, latitude, longitude, name, description, address)
+        {
+            CreatedAt = createdAt;
+            LastUpdatedAt = lastUpdatedAt;
+        }
+
+        // Keďže adresa môže byť prázdna, pri aktualizácii potrebujem všetky hodnoty
         public void UpdateValues(double latitude, double longitude, String name, String description, String? address)
         {
             Latitude = latitude;

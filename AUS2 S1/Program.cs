@@ -23,7 +23,7 @@ rangesParser.LoadRanges("C:\\Users\\Admin\\source\\repos\\AUS2 S1\\AUS2 S1\\Data
 Console.WriteLine($"Obdlzniky nahrate\nPocet obdlznikov: {rangesParser.GetRowCount()}\n");
 
 var randomDataTreeTester = new RandomDataTreeTester(
-    kdTree: new KDTree<int>(2),
+    kdTree: new KDTree<int, int>(2),
     operationsCount: 1000,
     insertProbability: 70,
     seed: 42

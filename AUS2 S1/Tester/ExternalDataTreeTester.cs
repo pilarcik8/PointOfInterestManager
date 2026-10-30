@@ -80,16 +80,15 @@ namespace AUS2_S1.Tester
     // Vygenerovane / upravene pomocou AI - Kapitola 41, 42
     internal sealed class OwnKdTreeAdapter : IBenchmarkTree, ICorrectnessTree
     {
-        private readonly KDTree<CoordinateValue> _tree = new(2);
+        private readonly AUS2_S1.KD_Tree.KDTree<CoordinateValue, long> _tree = new(2);
 
         // Vygenerovane / upravene pomocou AI - Kapitola 41, 42
         public void Insert(long id, double x, double y)
         {
-            var data = new CoordinateValue(id, x);
             var keys = new LinkedList<KDKey<CoordinateValue>>();
             keys.AddLast(new KDKey<CoordinateValue>(new CoordinateValue(id, x)));
             keys.AddLast(new KDKey<CoordinateValue>(new CoordinateValue(id, y)));
-            _tree.Insert(data, keys);
+            _tree.Insert(id, keys);
         }
 
         // Vygenerovane / upravene pomocou AI - Kapitola 41, 42
@@ -121,7 +120,7 @@ namespace AUS2_S1.Tester
             {
                 foreach (var item in node.Data)
                 {
-                    result.Add(item.Id);
+                    result.Add(item);
                 }
             }
 
