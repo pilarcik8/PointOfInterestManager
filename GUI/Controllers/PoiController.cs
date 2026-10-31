@@ -22,33 +22,18 @@ namespace GUI.Controllers
             "Nitriansky hrad", "Dobšinská ľadová jaskyňa", "Slovenský raj", "Ružomberok", "Prešov námestie"
         };
 
-        private PoiModel _model;
+        private readonly PoiModel _model;
 
-        public PoiModel.TreeType TreeType { get; private set; }
+        // Typ stromu sa zvoli pri spusteni aplikacie a pocas behu sa nemeni
+        public PoiModel.TreeType TreeType { get; }
 
 
         // Vygenerovane / upravene pomocou AI - Kapitola 67
 
-        public PoiController(PoiModel.TreeType treeType = PoiModel.TreeType.QTree)
+        public PoiController(PoiModel.TreeType treeType)
         {
-            _model = CreateModel(treeType);
+            _model = new PoiModel(AreaMinLat, AreaMinLon, AreaMaxLat, AreaMaxLon, treeType: treeType);
             TreeType = treeType;
-        }
-
-
-        // Zahodi vsetky data a vytvori novu evidenciu nad zvolenym stromom
-        // Vygenerovane / upravene pomocou AI - Kapitola 67
-        public void Reset(PoiModel.TreeType treeType)
-        {
-            _model = CreateModel(treeType);
-            TreeType = treeType;
-        }
-
-        // Vygenerovane / upravene pomocou AI - Kapitola 67
-
-        private static PoiModel CreateModel(PoiModel.TreeType treeType)
-        {
-            return new PoiModel(AreaMinLat, AreaMinLon, AreaMaxLat, AreaMaxLon, treeType: treeType);
         }
 
         // 1. Vyhladanie bodov na presnej pozicii

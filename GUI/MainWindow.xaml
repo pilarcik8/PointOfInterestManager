@@ -1,4 +1,4 @@
-﻿<!-- Vygenerovane / upravene pomocou AI - Kapitola 67 -->
+﻿<!-- Vygenerovane / upravene pomocou AI - Kapitola 67, 69 -->
 <Window x:Class="GUI.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -31,9 +31,7 @@
     <DockPanel>
         <ToolBarTray DockPanel.Dock="Top">
             <ToolBar>
-                <TextBlock Text="Strom:" VerticalAlignment="Center" Margin="4,0" />
-                <ComboBox x:Name="TreeTypeCombo" Width="110" />
-                <Button Content="Nová evidencia" Click="NewRegistry_Click" Margin="4,0" />
+                <TextBlock x:Name="TreeTypeText" VerticalAlignment="Center" FontWeight="Bold" Margin="4,0" />
                 <Separator />
                 <Button Content="Import CSV" Click="Import_Click" Margin="4,0" />
                 <Button Content="Export CSV" Click="Export_Click" Margin="4,0" />

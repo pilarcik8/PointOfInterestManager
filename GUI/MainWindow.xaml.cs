@@ -7,24 +7,26 @@ using Microsoft.Win32;
 
 namespace GUI
 {
-    // Vygenerovane / upravene pomocou AI
+    // Vygenerovane / upravene pomocou AI - Kapitola 67
     // View - iba zbiera vstupy, vola controller a zobrazuje vysledky
     public partial class MainWindow : Window
     {
-        private readonly PoiController _controller = new();
+        private readonly PoiController _controller;
         private readonly ObservableCollection<PointOfInterest> _results = new();
         private PointOfInterest? _editTarget;
 
-        public MainWindow()
+        public MainWindow(PoiModel.TreeType treeType)
         {
             InitializeComponent();
 
-            TreeTypeCombo.ItemsSource = Enum.GetValues<PoiModel.TreeType>();
-            TreeTypeCombo.SelectedItem = _controller.TreeType;
+            _controller = new PoiController(treeType);
+            Title = $"POI Manager - {treeType}";
+            TreeTypeText.Text = $"Strom: {treeType}";
             ResultsGrid.ItemsSource = _results;
-            SetStatus($"Nová evidencia ({_controller.TreeType}).");
+            SetStatus($"Nová evidencia ({treeType}).");
         }
 
+        // Vygenerovane / upravene pomocou AI - Kapitola 67
         private void ShowResults(IEnumerable<PointOfInterest> pois, string header)
         {
             _results.Clear();
@@ -36,6 +38,7 @@ namespace GUI
             SetStatus($"{header}: nájdených {_results.Count} bodov.");
         }
 
+        // Vygenerovane / upravene pomocou AI - Kapitola 67
         private void ClearResults()
         {
             _results.Clear();
@@ -49,6 +52,7 @@ namespace GUI
         }
 
         // Chyby z controllera (zly vstup, chyba suboru) zobrazime pouzivatelovi
+        // Vygenerovane / upravene pomocou AI - Kapitola 67
         private void Run(Action action)
         {
             try
@@ -61,6 +65,7 @@ namespace GUI
             }
         }
 
+        // Vygenerovane / upravene pomocou AI - Kapitola 67
         private void OperationTabs_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             // Udalost bubla aj z vnorenych ovladacich prvkov
@@ -76,6 +81,7 @@ namespace GUI
             }
         }
 
+        // Vygenerovane / upravene pomocou AI - Kapitola 67
         private void ResultsGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (OperationTabs.SelectedIndex != 3)
@@ -99,6 +105,7 @@ namespace GUI
             EditForm.IsEnabled = true;
         }
 
+        // Vygenerovane / upravene pomocou AI - Kapitola 67
         private void ClearEditForm()
         {
             _editTarget = null;
@@ -108,26 +115,7 @@ namespace GUI
         }
 
         // ---- Panel nastroje ----
-
-        private void NewRegistry_Click(object sender, RoutedEventArgs e)
-        {
-            if (TreeTypeCombo.SelectedItem is not PoiModel.TreeType treeType)
-            {
-                return;
-            }
-
-            var answer = MessageBox.Show(this, "Všetky evidované body budú zahodené. Pokračovať?", "Nová evidencia",
-                MessageBoxButton.YesNo, MessageBoxImage.Question);
-            if (answer != MessageBoxResult.Yes)
-            {
-                return;
-            }
-
-            _controller.Reset(treeType);
-            ClearResults();
-            SetStatus($"Nová evidencia ({treeType}).");
-        }
-
+        // Vygenerovane / upravene pomocou AI - Kapitola 67
         private void Import_Click(object sender, RoutedEventArgs e)
         {
             var dialog = new OpenFileDialog { Filter = "CSV súbory (*.csv)|*.csv|Všetky súbory (*.*)|*.*" };
@@ -143,6 +131,7 @@ namespace GUI
             });
         }
 
+        // Vygenerovane / upravene pomocou AI - Kapitola 67
         private void Export_Click(object sender, RoutedEventArgs e)
         {
             var dialog = new SaveFileDialog { Filter = "CSV súbory (*.csv)|*.csv", FileName = "poi.csv" };
@@ -158,6 +147,7 @@ namespace GUI
             });
         }
 
+        // Vygenerovane / upravene pomocou AI - Kapitola 67
         private void GenerateDemo_Click(object sender, RoutedEventArgs e)
         {
             Run(() =>
@@ -167,12 +157,14 @@ namespace GUI
             });
         }
 
+        // Vygenerovane / upravene pomocou AI - Kapitola 67
         private void ShowAll_Click(object sender, RoutedEventArgs e)
         {
             Run(() => ShowResults(_controller.GetAll(), "Všetky body"));
         }
 
         // ---- 1. Vyhladanie na pozicii ----
+        // Vygenerovane / upravene pomocou AI - Kapitola 67
 
         private void FindAtPosition_Click(object sender, RoutedEventArgs e)
         {
@@ -180,6 +172,7 @@ namespace GUI
         }
 
         // ---- 2. Vyhladanie v okoli ----
+        // Vygenerovane / upravene pomocou AI - Kapitola 67
 
         private void FindAround_Click(object sender, RoutedEventArgs e)
         {
@@ -189,6 +182,7 @@ namespace GUI
         }
 
         // ---- 3. Novy bod ----
+        // Vygenerovane / upravene pomocou AI - Kapitola 67
 
         private void Create_Click(object sender, RoutedEventArgs e)
         {
@@ -204,7 +198,7 @@ namespace GUI
         }
 
         // ---- 4. Editacia ----
-
+        // Vygenerovane / upravene pomocou AI - Kapitola 67
         private void EditSearch_Click(object sender, RoutedEventArgs e)
         {
             Run(() =>
@@ -216,6 +210,7 @@ namespace GUI
             });
         }
 
+        // Vygenerovane / upravene pomocou AI - Kapitola 67
         private void EditSave_Click(object sender, RoutedEventArgs e)
         {
             if (_editTarget == null)
@@ -234,7 +229,7 @@ namespace GUI
         }
 
         // ---- 5. Vyhladanie podla nazvu ----
-
+        // Vygenerovane / upravene pomocou AI - Kapitola 67
         private void FindByName_Click(object sender, RoutedEventArgs e)
         {
             Run(() => ShowResults(
@@ -244,7 +239,7 @@ namespace GUI
         }
 
         // ---- 6. Vyradenie ----
-
+        // Vygenerovane / upravene pomocou AI - Kapitola 67
         private void DeleteSearch_Click(object sender, RoutedEventArgs e)
         {
             Run(() => ShowResults(
@@ -252,6 +247,7 @@ namespace GUI
                 "Body na vyradenie"));
         }
 
+        // Vygenerovane / upravene pomocou AI - Kapitola 67
         private void Delete_Click(object sender, RoutedEventArgs e)
         {
             if (ResultsGrid.SelectedItem is not PointOfInterest poi)
