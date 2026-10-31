@@ -148,16 +148,6 @@ namespace GUI
         }
 
         // Vygenerovane / upravene pomocou AI - Kapitola 67
-        private void GenerateDemo_Click(object sender, RoutedEventArgs e)
-        {
-            Run(() =>
-            {
-                _controller.GenerateDemoData(DemoCountBox.Text);
-                ShowResults(_controller.GetAll(), "Všetky body");
-            });
-        }
-
-        // Vygenerovane / upravene pomocou AI - Kapitola 67
         private void ShowAll_Click(object sender, RoutedEventArgs e)
         {
             Run(() => ShowResults(_controller.GetAll(), "Všetky body"));

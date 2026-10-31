@@ -14,17 +14,8 @@ namespace GUI.Controllers
         public const double AreaMaxLat = 50.0;
         public const double AreaMaxLon = 23.0;
 
-        private static readonly string[] DemoNames =
-        {
-            "Bratislavský hrad", "Devín", "Žilinské námestie", "Košický dóm", "Štrbské pleso",
-            "Lomnický štít", "Bojnický zámok", "Spišský hrad", "Banská Štiavnica", "Trenčiansky hrad",
-            "Oravský hrad", "Čičmany", "Vlkolínec", "Kremnica", "Piešťany kúpele",
-            "Nitriansky hrad", "Dobšinská ľadová jaskyňa", "Slovenský raj", "Ružomberok", "Prešov námestie"
-        };
-
         private readonly PoiModel _model;
 
-        // Typ stromu sa zvoli pri spusteni aplikacie a pocas behu sa nemeni
         public PoiModel.TreeType TreeType { get; }
 
 
@@ -138,26 +129,6 @@ namespace GUI.Controllers
         public void Export(string path)
         {
             _model.ExportPointsOfInterest(path);
-        }
-
-        // Nahodne body v ramci Slovenska na demonstraciu funkcnosti
-        // Vygenerovane / upravene pomocou AI - Kapitola 67
-        public void GenerateDemoData(string countText)
-        {
-            if (!int.TryParse(countText, NumberStyles.Integer, CultureInfo.InvariantCulture, out int count) || count <= 0)
-            {
-                throw new FormatException("Počet bodov musí byť kladné celé číslo.");
-            }
-
-            var random = new Random();
-            for (int i = 0; i < count; i++)
-            {
-                string name = DemoNames[random.Next(DemoNames.Length)];
-                double lat = Math.Round(47.75 + (random.NextDouble() * 1.8), 6);
-                double lon = Math.Round(17.0 + (random.NextDouble() * 5.5), 6);
-                string? address = random.Next(2) == 0 ? null : $"Ulica {random.Next(1, 200)}";
-                _model.CreatePOI(name, lat, lon, $"Demo bod č. {i + 1}", address);
-            }
         }
 
         // Vygenerovane / upravene pomocou AI - Kapitola 67

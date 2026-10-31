@@ -7,16 +7,13 @@
     <StackPanel Margin="16" Width="320">
         <TextBlock Text="Vyberte dátovú štruktúru pre evidenciu bodov POI:" FontWeight="Bold"
                    TextWrapping="Wrap" Margin="0,0,0,8" />
-        <TextBlock Text="Počas behu aplikácie ju už nebude možné zmeniť." Foreground="Gray"
-                   TextWrapping="Wrap" Margin="0,0,0,12" />
 
         <RadioButton x:Name="QTreeRadio" Content="Quad strom" IsChecked="True" Margin="0,3" />
         <RadioButton x:Name="KDTreeRadio" Content="K-d strom" Margin="0,3" />
         <RadioButton x:Name="HybridQTreeRadio" Content="Hybridný Quad strom" Margin="0,3" />
 
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,16,0,0">
-            <Button Content="Spustiť" IsDefault="True" Width="80" Padding="4" Click="Ok_Click" />
-            <Button Content="Ukončiť" IsCancel="True" Width="80" Padding="4" Margin="8,0,0,0" />
+            <Button Content="Vybrať" IsDefault="True" Width="80" Padding="4" Click="Ok_Click" />
         </StackPanel>
     </StackPanel>
 </Window>

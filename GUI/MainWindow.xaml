@@ -32,15 +32,8 @@
         <ToolBarTray DockPanel.Dock="Top">
             <ToolBar>
                 <TextBlock x:Name="TreeTypeText" VerticalAlignment="Center" FontWeight="Bold" Margin="4,0" />
-                <Separator />
                 <Button Content="Import CSV" Click="Import_Click" Margin="4,0" />
                 <Button Content="Export CSV" Click="Export_Click" Margin="4,0" />
-                <Separator />
-                <TextBlock Text="Počet:" VerticalAlignment="Center" Margin="4,0" />
-                <TextBox x:Name="DemoCountBox" Width="60" Text="50" Margin="0" VerticalAlignment="Center" />
-                <Button Content="Generovať demo body" Click="GenerateDemo_Click" Margin="4,0" />
-                <Separator />
-                <Button Content="Zobraziť všetky body" Click="ShowAll_Click" Margin="4,0" />
             </ToolBar>
         </ToolBarTray>
 
@@ -86,7 +79,7 @@
                         <TextBlock Style="{StaticResource SectionHeader}" Text="Vytvorenie nového bodu POI" />
                         <TextBlock Text="Názov *" />
                         <TextBox x:Name="CreateNameBox" />
-                        <TextBlock Text="Opis" />
+                        <TextBlock Text="Opis *" />
                         <TextBox x:Name="CreateDescBox" Height="60" TextWrapping="Wrap" AcceptsReturn="True"
                                  VerticalScrollBarVisibility="Auto" />
                         <TextBlock Text="Zemepisná šírka *" />
@@ -96,8 +89,6 @@
                         <TextBlock Text="Adresa (voliteľná)" />
                         <TextBox x:Name="CreateAddrBox" />
                         <Button Content="Vytvoriť" Click="Create_Click" />
-                        <TextBlock Style="{StaticResource Hint}"
-                                   Text="Identifikátor, dátum vytvorenia a dátum poslednej úpravy sa vygenerujú automaticky." />
                     </StackPanel>
                 </TabItem>
 
