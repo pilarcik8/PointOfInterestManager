@@ -95,15 +95,7 @@ namespace AUS2_S1.APP
         // Vygenerovane / upravene pomocou AI - Kapitola 66
         public void ExportPointsOfInterest(string pathToCSV)
         {
-            var pois = FindPointsRange(double.MinValue, double.MinValue, double.MaxValue, double.MaxValue);
-            if (_qTree != null)
-            {
-                // QTree.FindRange nevracia body mimo hranic stromu
-                foreach (var poi in _qTree.OutOfBoundsData)
-                {
-                    pois.AddLast(poi);
-                }
-            }
+            var pois = GetAllPointsOfInterest();
 
             using var writer = new StreamWriter(pathToCSV);
             writer.WriteLine(CsvHeader);
@@ -119,6 +111,21 @@ namespace AUS2_S1.APP
                     poi.CreatedAt.ToString("o", CultureInfo.InvariantCulture),
                     poi.LastUpdatedAt.ToString("o", CultureInfo.InvariantCulture)));
             }
+        }
+
+        // Vygenerovane / upravene pomocou AI - Kapitola 67
+        public LinkedList<PointOfInterest> GetAllPointsOfInterest()
+        {
+            var pois = FindPointsRange(double.MinValue, double.MinValue, double.MaxValue, double.MaxValue);
+            if (_qTree != null)
+            {
+                // QTree.FindRange nevracia body mimo hranic stromu
+                foreach (var poi in _qTree.OutOfBoundsData)
+                {
+                    pois.AddLast(poi);
+                }
+            }
+            return pois;
         }
 
         // Vygenerovane / upravene pomocou AI - Kapitola 66
@@ -341,7 +348,8 @@ namespace AUS2_S1.APP
 
             foreach (var poi in candidates)
             {
-                if (poi.Name != null && compareInfo.Compare(poi.Name, name, compareOptions) == 0)
+                // Nazov musi text obsahovat, nie sa mu rovnat
+                if (poi.Name != null && compareInfo.IndexOf(poi.Name, name, compareOptions) >= 0)
                 {
                     result.AddLast(poi);
                 }

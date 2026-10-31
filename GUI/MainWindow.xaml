@@ -1,12 +1,197 @@
-﻿<Window x:Class="GUI.MainWindow"
+﻿<!-- Vygenerovane / upravene pomocou AI - Kapitola 67 -->
+<Window x:Class="GUI.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:GUI"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
+        Title="POI Manager" Height="720" Width="1280" WindowStartupLocation="CenterScreen">
+    <Window.Resources>
+        <Style TargetType="TextBox">
+            <Setter Property="Margin" Value="0,2,0,6" />
+            <Setter Property="Padding" Value="2" />
+        </Style>
+        <Style TargetType="Button">
+            <Setter Property="Margin" Value="0,4,0,4" />
+            <Setter Property="Padding" Value="8,3" />
+        </Style>
+        <Style x:Key="SectionHeader" TargetType="TextBlock">
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="Margin" Value="0,0,0,8" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+        </Style>
+        <Style x:Key="Hint" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="Gray" />
+            <Setter Property="Margin" Value="0,4,0,4" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+        </Style>
+    </Window.Resources>
 
-    </Grid>
+    <DockPanel>
+        <ToolBarTray DockPanel.Dock="Top">
+            <ToolBar>
+                <TextBlock Text="Strom:" VerticalAlignment="Center" Margin="4,0" />
+                <ComboBox x:Name="TreeTypeCombo" Width="110" />
+                <Button Content="Nová evidencia" Click="NewRegistry_Click" Margin="4,0" />
+                <Separator />
+                <Button Content="Import CSV" Click="Import_Click" Margin="4,0" />
+                <Button Content="Export CSV" Click="Export_Click" Margin="4,0" />
+                <Separator />
+                <TextBlock Text="Počet:" VerticalAlignment="Center" Margin="4,0" />
+                <TextBox x:Name="DemoCountBox" Width="60" Text="50" Margin="0" VerticalAlignment="Center" />
+                <Button Content="Generovať demo body" Click="GenerateDemo_Click" Margin="4,0" />
+                <Separator />
+                <Button Content="Zobraziť všetky body" Click="ShowAll_Click" Margin="4,0" />
+            </ToolBar>
+        </ToolBarTray>
+
+        <StatusBar DockPanel.Dock="Bottom">
+            <TextBlock x:Name="StatusText" />
+        </StatusBar>
+
+        <Grid Margin="6">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="340" MinWidth="250" />
+                <ColumnDefinition Width="5" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <TabControl x:Name="OperationTabs" Grid.Column="0" SelectionChanged="OperationTabs_SelectionChanged">
+
+                <TabItem Header="1. Pozícia">
+                    <StackPanel Margin="8">
+                        <TextBlock Style="{StaticResource SectionHeader}" Text="Vyhľadanie bodov POI na zadanej pozícii" />
+                        <TextBlock Text="Zemepisná šírka" />
+                        <TextBox x:Name="PosLatBox" />
+                        <TextBlock Text="Zemepisná dĺžka" />
+                        <TextBox x:Name="PosLonBox" />
+                        <Button Content="Vyhľadať" Click="FindAtPosition_Click" />
+                    </StackPanel>
+                </TabItem>
+
+                <TabItem Header="2. Okolie">
+                    <StackPanel Margin="8">
+                        <TextBlock Style="{StaticResource SectionHeader}" Text="Vyhľadanie bodov POI v okolí GPS pozície" />
+                        <TextBlock Text="Zemepisná šírka" />
+                        <TextBox x:Name="AroundLatBox" />
+                        <TextBlock Text="Zemepisná dĺžka" />
+                        <TextBox x:Name="AroundLonBox" />
+                        <TextBlock Text="Polomer (m)" />
+                        <TextBox x:Name="AroundRadiusBox" />
+                        <Button Content="Vyhľadať" Click="FindAround_Click" />
+                    </StackPanel>
+                </TabItem>
+
+                <TabItem Header="3. Nový bod">
+                    <StackPanel Margin="8">
+                        <TextBlock Style="{StaticResource SectionHeader}" Text="Vytvorenie nového bodu POI" />
+                        <TextBlock Text="Názov *" />
+                        <TextBox x:Name="CreateNameBox" />
+                        <TextBlock Text="Opis" />
+                        <TextBox x:Name="CreateDescBox" Height="60" TextWrapping="Wrap" AcceptsReturn="True"
+                                 VerticalScrollBarVisibility="Auto" />
+                        <TextBlock Text="Zemepisná šírka *" />
+                        <TextBox x:Name="CreateLatBox" />
+                        <TextBlock Text="Zemepisná dĺžka *" />
+                        <TextBox x:Name="CreateLonBox" />
+                        <TextBlock Text="Adresa (voliteľná)" />
+                        <TextBox x:Name="CreateAddrBox" />
+                        <Button Content="Vytvoriť" Click="Create_Click" />
+                        <TextBlock Style="{StaticResource Hint}"
+                                   Text="Identifikátor, dátum vytvorenia a dátum poslednej úpravy sa vygenerujú automaticky." />
+                    </StackPanel>
+                </TabItem>
+
+                <TabItem Header="4. Editácia">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <StackPanel Margin="8">
+                            <TextBlock Style="{StaticResource SectionHeader}" Text="Editácia bodu POI" />
+                            <TextBlock Text="Zemepisná šírka" />
+                            <TextBox x:Name="EditSearchLatBox" />
+                            <TextBlock Text="Zemepisná dĺžka" />
+                            <TextBox x:Name="EditSearchLonBox" />
+                            <TextBlock Text="Polomer (m)" />
+                            <TextBox x:Name="EditSearchRadiusBox" />
+                            <Button Content="Vyhľadať" Click="EditSearch_Click" />
+
+                            <Separator Margin="0,8" />
+                            <TextBlock x:Name="EditSelectedText" Style="{StaticResource Hint}"
+                                       Text="Vyberte bod v tabuľke výsledkov." />
+                            <StackPanel x:Name="EditForm" IsEnabled="False">
+                                <TextBlock Text="Názov *" />
+                                <TextBox x:Name="EditNameBox" />
+                                <TextBlock Text="Opis" />
+                                <TextBox x:Name="EditDescBox" Height="60" TextWrapping="Wrap" AcceptsReturn="True"
+                                         VerticalScrollBarVisibility="Auto" />
+                                <TextBlock Text="Zemepisná šírka *" />
+                                <TextBox x:Name="EditLatBox" />
+                                <TextBlock Text="Zemepisná dĺžka *" />
+                                <TextBox x:Name="EditLonBox" />
+                                <TextBlock Text="Adresa (voliteľná)" />
+                                <TextBox x:Name="EditAddrBox" />
+                                <Button Content="Uložiť zmeny" Click="EditSave_Click" />
+                            </StackPanel>
+                        </StackPanel>
+                    </ScrollViewer>
+                </TabItem>
+
+                <TabItem Header="5. Názov">
+                    <StackPanel Margin="8">
+                        <TextBlock Style="{StaticResource SectionHeader}" Text="Vyhľadanie bodov POI podľa názvu v obdĺžnikovej oblasti" />
+                        <TextBlock Text="Roh 1 - zemepisná šírka" />
+                        <TextBox x:Name="NameLat1Box" />
+                        <TextBlock Text="Roh 1 - zemepisná dĺžka" />
+                        <TextBox x:Name="NameLon1Box" />
+                        <TextBlock Text="Roh 2 - zemepisná šírka" />
+                        <TextBox x:Name="NameLat2Box" />
+                        <TextBlock Text="Roh 2 - zemepisná dĺžka" />
+                        <TextBox x:Name="NameLon2Box" />
+                        <TextBlock Text="Názov obsahuje" />
+                        <TextBox x:Name="NameTextBox" />
+                        <Button Content="Vyhľadať" Click="FindByName_Click" />
+                        <TextBlock Style="{StaticResource Hint}" Text="Diakritika a veľkosť písmen sa ignorujú." />
+                    </StackPanel>
+                </TabItem>
+
+                <TabItem Header="6. Vyradenie">
+                    <StackPanel Margin="8">
+                        <TextBlock Style="{StaticResource SectionHeader}" Text="Vyradenie bodu POI" />
+                        <TextBlock Text="Zemepisná šírka" />
+                        <TextBox x:Name="DeleteLatBox" />
+                        <TextBlock Text="Zemepisná dĺžka" />
+                        <TextBox x:Name="DeleteLonBox" />
+                        <TextBlock Text="Polomer (m)" />
+                        <TextBox x:Name="DeleteRadiusBox" />
+                        <Button Content="Vyhľadať" Click="DeleteSearch_Click" />
+                        <Separator Margin="0,8" />
+                        <TextBlock Style="{StaticResource Hint}" Text="Vyberte bod v tabuľke výsledkov a potvrďte vymazanie." />
+                        <Button Content="Vymazať vybraný bod" Click="Delete_Click" />
+                    </StackPanel>
+                </TabItem>
+            </TabControl>
+
+            <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Stretch" />
+
+            <DockPanel Grid.Column="2">
+                <TextBlock x:Name="ResultsHeader" DockPanel.Dock="Top" FontWeight="Bold" Margin="0,0,0,4" Text="Výsledky" />
+                <DataGrid x:Name="ResultsGrid" AutoGenerateColumns="False" IsReadOnly="True"
+                          SelectionMode="Single" CanUserAddRows="False"
+                          SelectionChanged="ResultsGrid_SelectionChanged">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="ID" Binding="{Binding Id}" />
+                        <DataGridTextColumn Header="Názov" Binding="{Binding Name}" Width="160" />
+                        <DataGridTextColumn Header="Opis" Binding="{Binding Description}" Width="*" />
+                        <DataGridTextColumn Header="Zem. šírka" Binding="{Binding Latitude, StringFormat=F6}" />
+                        <DataGridTextColumn Header="Zem. dĺžka" Binding="{Binding Longitude, StringFormat=F6}" />
+                        <DataGridTextColumn Header="Adresa" Binding="{Binding Address}" Width="130" />
+                        <DataGridTextColumn Header="Vytvorené"
+                                            Binding="{Binding CreatedAt, StringFormat=dd.MM.yyyy HH:mm:ss}" />
+                        <DataGridTextColumn Header="Posledná úprava"
+                                            Binding="{Binding LastUpdatedAt, StringFormat=dd.MM.yyyy HH:mm:ss}" />
+                    </DataGrid.Columns>
+                </DataGrid>
+            </DockPanel>
+        </Grid>
+    </DockPanel>
 </Window>
