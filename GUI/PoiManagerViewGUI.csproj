@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\AUS2 S1\AUS2 S1.csproj" />
+    <ProjectReference Include="..\PoiManager\PoiManagerBackEnd.csproj" />
   </ItemGroup>
 
 </Project>

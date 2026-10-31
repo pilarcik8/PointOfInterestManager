@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Text;
 
-namespace AUS2_S1.APP
+namespace PoiManager.Model
 {
     public class PointOfInterest
     {

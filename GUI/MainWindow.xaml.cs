@@ -1,8 +1,8 @@
 ﻿using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
-using AUS2_S1.APP;
-using GUI.Controllers;
+using PoiManager.Model;
+using PoiManager.Controller;
 using Microsoft.Win32;
 
 namespace GUI

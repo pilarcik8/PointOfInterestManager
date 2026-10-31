@@ -6,9 +6,8 @@ using System.Text;
 using AUS2_S1;
 using AUS2_S1.Hybrid_Quad_Tree;
 using AUS2_S1.KD_Tree;
-using NetTopologySuite.Geometries.Implementation;
 
-namespace AUS2_S1.APP
+namespace PoiManager.Model
 {
     public class PoiModel
     {

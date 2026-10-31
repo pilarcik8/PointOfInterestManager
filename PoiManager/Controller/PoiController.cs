@@ -1,7 +1,7 @@
 using System.Globalization;
-using AUS2_S1.APP;
+using PoiManager.Model;
 
-namespace GUI.Controllers
+namespace PoiManager.Controller
 {
     // Controller - spracuje vstupy z view (texty z formularov), zvaliduje ich a zavola PoiModel
     public class PoiController

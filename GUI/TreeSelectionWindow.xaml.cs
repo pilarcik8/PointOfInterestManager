@@ -1,5 +1,5 @@
 using System.Windows;
-using AUS2_S1.APP;
+using PoiManager.Model;
 
 namespace GUI
 {
