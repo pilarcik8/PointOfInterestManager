@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 
-namespace AUS2_S1
+namespace DataStructures.QTree
 {
     internal struct Bounds<TPosition>(TPosition minX, TPosition minY, TPosition maxX, TPosition maxY)
         where TPosition : INumber<TPosition>

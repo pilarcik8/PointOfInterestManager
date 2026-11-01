@@ -1,9 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using AUS2_S1.KD_Tree;
+using DataStructures.QTree;
+using DataStructures.KD_Tree;
 
-namespace AUS2_S1.Tester
+namespace DataStructTester.Testers
 {
     public class RandomDataTreeTester
     {

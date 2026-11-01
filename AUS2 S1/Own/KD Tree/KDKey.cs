@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace AUS2_S1.KD_Tree
+namespace DataStructures.KD_Tree
 {
     // Vygenerovane / upravene pomocou AI - Kapitola 24
     public class KDKey<T>(T value) where T : IComparable<T>

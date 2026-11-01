@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 
-namespace AUS2_S1.Tester
+namespace DataStructTester
 {
     // Vygenerovane / upravene pomocou AI - Kapitola 35
     public class CSVParser

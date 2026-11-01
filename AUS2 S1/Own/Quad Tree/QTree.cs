@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Numerics;
 
-namespace AUS2_S1
+namespace DataStructures.QTree
 {
     // Vygenerovane / upravene pomocou AI (Model: Gemini 3.8 Flash) - Prompt 25 (zovšeobecnenie), Prompt 33 (TPosition)
     public class QTree<TData, TPosition> where TPosition : INumber<TPosition>

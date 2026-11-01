@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Numerics;
 
-namespace AUS2_S1.Hybrid_Quad_Tree
+namespace DataStructures.Hybrid_Quad_Tree
 {
     public sealed class HybridQTree<TData, TPosition>
         where TPosition : INumber<TPosition>

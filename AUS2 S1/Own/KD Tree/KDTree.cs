@@ -1,7 +1,6 @@
 using System.Collections.Generic;
-using AUS2_S1.KD_Tree;
 
-namespace AUS2_S1.KD_Tree
+namespace DataStructures.KD_Tree
 {
     // Vygenerovane / upravene pomocou AI - Kapitola 17 (kostra), 24 (refaktor na KDKey)
     public class KDTree<TKey, TData> where TKey : IComparable<TKey>

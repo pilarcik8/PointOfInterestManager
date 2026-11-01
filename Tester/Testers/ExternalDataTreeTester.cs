@@ -1,22 +1,23 @@
+using BKDTree;
+using DataStructures.Hybrid_Quad_Tree;
+using DataStructures.KD_Tree;
+using DataStructures.QTree;
+using FastG;
+using NetTopologySuite.Geometries;
+using NetTopologySuite.Index.KdTree;
+using QuadTree;
+using QuadTrees;
+using QuadTrees.QTreePointF;
+using SpatialTrees.Quadtrees;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Globalization;
 using System.IO;
-using BKDTree;
-using FastG;
-using NetTopologySuite.Geometries;
-using NetTopologySuite.Index.KdTree;
-using SpatialTrees.Quadtrees;
-using AUS2_S1.Hybrid_Quad_Tree;
-using AUS2_S1.KD_Tree;
-using QuadTree;
-using QuadTrees;
-using QuadTrees.QTreePointF;
 using System.Runtime.ConstrainedExecution;
 
-namespace AUS2_S1.Tester
+namespace DataStructTester.Testers
 {
     // Vygenerovane / upravene pomocou AI - Kapitola 41, 42
     internal interface IBenchmarkTree
@@ -80,7 +81,7 @@ namespace AUS2_S1.Tester
     // Vygenerovane / upravene pomocou AI - Kapitola 41, 42
     internal sealed class OwnKdTreeAdapter : IBenchmarkTree, ICorrectnessTree
     {
-        private readonly AUS2_S1.KD_Tree.KDTree<CoordinateValue, long> _tree = new(2);
+        private readonly DataStructures.KD_Tree.KDTree<CoordinateValue, long> _tree = new(2);
 
         // Vygenerovane / upravene pomocou AI - Kapitola 41, 42
         public void Insert(long id, double x, double y)

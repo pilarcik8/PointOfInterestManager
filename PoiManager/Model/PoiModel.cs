@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Text;
-using AUS2_S1;
-using AUS2_S1.Hybrid_Quad_Tree;
-using AUS2_S1.KD_Tree;
+using DataStructures.Hybrid_Quad_Tree;
+using DataStructures.QTree;
+using DataStructures.KD_Tree;
 
 namespace PoiManager.Model
 {

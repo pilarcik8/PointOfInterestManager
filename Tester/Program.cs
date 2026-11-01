@@ -8,9 +8,14 @@
 // omni-collections: https://github.com/Codeturion/omni-collections - 9 stars - 0 watchers - 0 forks
 // BKDTree: https://github.com/DevAM-Tools/BKDTree - 2 stars - 1 watchers - 0 forks
 
-using AUS2_S1.Tester;
+using DataStructTester.Testers;
 using System.Collections;
-using AUS2_S1.KD_Tree;
+using DataStructures;
+using DataStructTester;
+
+using DataStructures.Hybrid_Quad_Tree;
+using DataStructures.QTree;
+using DataStructures.KD_Tree;
 
 var pointsParser = new CSVParser();
 pointsParser.LoadPoints("C:\\Users\\Admin\\source\\repos\\AUS2 S1\\AUS2 S1\\Data\\slovakia_nodes.csv");
