@@ -69,7 +69,7 @@ namespace PoiManager.Controller
         }
 
         // 3. Vytvorenie noveho bodu - id a datumy generuje model
-        // Vygenerovane / upravene pomocou AI - Kapitola 67
+        // Vygenerovane / upravene pomocou AI - Kapitola 67, 70
         public void Create(string name, string description, string latText, string lonText, string address)
         {
             ValidateName(name);
@@ -80,8 +80,9 @@ namespace PoiManager.Controller
         }
 
         // 4. Editacia vybraneho bodu vratane GPS pozicie
-        // Vygenerovane / upravene pomocou AI - Kapitola 67
-        public void Update(PointOfInterest poi, string name, string description, string latText, string lonText, string address)
+        // Vygenerovane / upravene pomocou AI - Kapitola 67, 70
+        public void Update(PointOfInterest poi, string name, string description, string latText, string lonText, 
+                            string address)
         {
             ValidateName(name);
             ValidateDescription(description);
@@ -154,6 +155,7 @@ namespace PoiManager.Controller
             }
         }
 
+        // Vygenerovane / upravene pomocou AI - Kapitola 70
         private static void ValidateDescription(string description)
         {
             if (string.IsNullOrWhiteSpace(description))
