@@ -12,4 +12,8 @@
     <ProjectReference Include="..\AUS2 S1\DataStructures.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Data\" />
+  </ItemGroup>
+
 </Project>
