@@ -7,8 +7,4 @@
     <PackageReleaseNotes>Linear data structures: FastQueue, MinHeap, BoundedList, PooledList, PooledStack</PackageReleaseNotes>
   </PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="../Omni.Collections.Core/Omni.Collections.Core.csproj" />
-  </ItemGroup>
-
 </Project>

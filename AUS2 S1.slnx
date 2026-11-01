@@ -1,31 +1,15 @@
 <Solution>
-  <Folder Name="/External KD Trees/" />
-  <Folder Name="/External KD Trees/NetTopologySuite-develop/" />
-  <Folder Name="/External KD Trees/NetTopologySuite-develop/src/">
-    <Project Path="External Trees/KD/NetTopologySuite-develop/src/NetTopologySuite/NetTopologySuite.csproj" />
-  </Folder>
-  <Folder Name="/External Quad Trees/" />
-  <Folder Name="/External Quad Trees/SpatialTrees-master/">
-    <Project Path="External Trees/Quad/SpatialTrees-master/SpatialTrees/SpatialTrees.csproj" />
-  </Folder>
-  <Folder Name="/External Trees/" />
-  <Folder Name="/External Trees/bkdtree-main/">
+  <Folder Name="/External KD Trees/">
     <Project Path="External Trees/KD/BKDTree-main/BKDTree/BKDTree.csproj" />
-  </Folder>
-  <Folder Name="/External Trees/omni-collections-main/" />
-  <Folder Name="/External Trees/omni-collections-main/src/">
-    <Project Path="External Trees/KD/omni-collections-main/src/Omni.Collections.Core/Omni.Collections.Core.csproj" />
-    <Project Path="External Trees/KD/omni-collections-main/src/Omni.Collections.Hybrid/Omni.Collections.Hybrid.csproj" />
+    <Project Path="External Trees/KD/NetTopologySuite-develop/src/NetTopologySuite/NetTopologySuite.csproj" />
     <Project Path="External Trees/KD/omni-collections-main/src/Omni.Collections.Linear/Omni.Collections.Linear.csproj" />
     <Project Path="External Trees/KD/omni-collections-main/src/Omni.Collections.Probabilistic/Omni.Collections.Probabilistic.csproj" />
     <Project Path="External Trees/KD/omni-collections-main/src/Omni.Collections.Spatial/Omni.Collections.Spatial.csproj" />
   </Folder>
-  <Folder Name="/External Trees/Quad/" />
-  <Folder Name="/External Trees/Quad/QuadTrees-master/">
-    <Project Path="External Trees/Quad/QuadTrees-master/QuadTrees/QuadTrees.csproj" />
-  </Folder>
-  <Folder Name="/External Trees/QuadTree-master/">
+  <Folder Name="/External Quad Trees/">
     <Project Path="External Trees/Quad/QuadTree-master/QuadTree.csproj" Id="ee15f6da-9f5b-4554-baaf-4bfc8618ce76" />
+    <Project Path="External Trees/Quad/QuadTrees-master/QuadTrees/QuadTrees.csproj" />
+    <Project Path="External Trees/Quad/SpatialTrees-master/SpatialTrees/SpatialTrees.csproj" />
   </Folder>
   <Project Path="AUS2 S1/DataStructures.csproj" />
   <Project Path="CSVTestDataGenerator/CSVTestDataGenerator.csproj" Id="672051b3-0215-4130-8ae8-25b3c005ce87" />

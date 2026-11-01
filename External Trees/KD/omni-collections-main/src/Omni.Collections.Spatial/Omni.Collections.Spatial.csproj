@@ -8,10 +8,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../Omni.Collections.Core/Omni.Collections.Core.csproj" />
     <ProjectReference Include="../Omni.Collections.Linear/Omni.Collections.Linear.csproj" />
-    <ProjectReference Include="../Omni.Collections.Probabilistic/Omni.Collections.Probabilistic.csproj" />
-    <ProjectReference Include="../Omni.Collections.Hybrid/Omni.Collections.Hybrid.csproj" />
+    <ProjectReference Include="..\Omni.Collections.Probabilistic\Omni.Collections.Probabilistic.csproj" />
   </ItemGroup>
 
 </Project>

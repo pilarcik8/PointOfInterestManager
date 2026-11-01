@@ -18,12 +18,16 @@ using DataStructures.QTree;
 using DataStructures.KD_Tree;
 
 var pointsParser = new CSVParser();
-pointsParser.LoadPoints("C:\\Users\\Admin\\source\\repos\\AUS2 S1\\AUS2 S1\\Data\\slovakia_nodes.csv");
+var projectPath = Directory.GetCurrentDirectory();
+var pointsFilePath = Path.Combine(projectPath, "..\\..\\..\\Data\\slovakia_nodes.csv");
+var rangesFilePath = Path.Combine(projectPath, "..\\..\\..\\Data\\testovacie_oblasti.csv");
+
+pointsParser.LoadPoints(pointsFilePath);
 
 Console.WriteLine($"Body nahrate\nPocet bodov: {pointsParser.GetRowCount()}\n");
 
 var rangesParser = new CSVParser();
-rangesParser.LoadRanges("C:\\Users\\Admin\\source\\repos\\AUS2 S1\\AUS2 S1\\Data\\testovacie_oblasti.csv");
+rangesParser.LoadRanges(rangesFilePath);
 
 Console.WriteLine($"Obdlzniky nahrate\nPocet obdlznikov: {rangesParser.GetRowCount()}\n");
 

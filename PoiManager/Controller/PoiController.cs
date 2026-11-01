@@ -73,6 +73,7 @@ namespace PoiManager.Controller
         public void Create(string name, string description, string latText, string lonText, string address)
         {
             ValidateName(name);
+            ValidateDescription(description);
             double lat = ParseLatitude(latText);
             double lon = ParseLongitude(lonText);
             _model.CreatePOI(name.Trim(), lat, lon, description.Trim(), NullIfEmpty(address));
@@ -83,6 +84,7 @@ namespace PoiManager.Controller
         public void Update(PointOfInterest poi, string name, string description, string latText, string lonText, string address)
         {
             ValidateName(name);
+            ValidateDescription(description);
             double lat = ParseLatitude(latText);
             double lon = ParseLongitude(lonText);
             _model.UpdatePOI(poi, lat, lon, name.Trim(), description.Trim(), NullIfEmpty(address));
@@ -149,6 +151,14 @@ namespace PoiManager.Controller
             if (string.IsNullOrWhiteSpace(name))
             {
                 throw new FormatException("Názov bodu je povinný.");
+            }
+        }
+
+        private static void ValidateDescription(string description)
+        {
+            if (string.IsNullOrWhiteSpace(description))
+            {
+                throw new FormatException("Opis bodu je povinný.");
             }
         }
 

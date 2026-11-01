@@ -110,7 +110,7 @@
                             <StackPanel x:Name="EditForm" IsEnabled="False">
                                 <TextBlock Text="Názov *" />
                                 <TextBox x:Name="EditNameBox" />
-                                <TextBlock Text="Opis" />
+                                <TextBlock Text="Opis *" />
                                 <TextBox x:Name="EditDescBox" Height="60" TextWrapping="Wrap" AcceptsReturn="True"
                                          VerticalScrollBarVisibility="Auto" />
                                 <TextBlock Text="Zemepisná šírka *" />

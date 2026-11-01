@@ -10,27 +10,11 @@
 
   <ItemGroup>
 	<ProjectReference Include="..\External Trees\KD\NetTopologySuite-develop\src\NetTopologySuite\NetTopologySuite.csproj" />
-    <ProjectReference Include="..\External Trees\KD\omni-collections-main\src\Omni.Collections.Linear\Omni.Collections.Linear.csproj" />
+	<ProjectReference Include="..\External Trees\Quad\QuadTree-master\QuadTree.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="System.Collections.NonGeneric" Version="4.3.0" />
-    <PackageReference Include="FastG" Version="3.0.1" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="..\External Trees\KD\NetTopologySuite-develop\src\NetTopologySuite\Index\KdTree\*.cs" Link="External\KD\NetTopologySuite\%(Filename)%(Extension)" />
-    <Compile Include="..\External Trees\KD\BKDTree-main\BKDTree\*.cs" Link="External\KD\BKDTree\%(Filename)%(Extension)" />
-    <Compile Include="..\External Trees\KD\omni-collections-main\src\Omni.Collections.Spatial\KDTree\*.cs" Link="External\KD\Omni.Collections.Spatial\KDTree\%(Filename)%(Extension)" />
-    <Compile Include="..\External Trees\KD\omni-collections-main\src\Omni.Collections.Spatial\DistanceMetrics\*.cs" Link="External\KD\Omni.Collections.Spatial\DistanceMetrics\%(Filename)%(Extension)" />
-    <Compile Include="..\External Trees\Quad\SpatialTrees-master\SpatialTrees\Quadtree\*.cs" Link="External\Quad\SpatialTrees\%(Filename)%(Extension)" />
-    <Compile Include="..\External Trees\Quad\QuadTrees-master\QuadTrees\**\*.cs" Exclude="..\External Trees\Quad\QuadTrees-master\QuadTrees\obj\**\*.cs;..\External Trees\Quad\QuadTrees-master\QuadTrees\bin\**\*.cs" Link="External\Quad\QuadTrees\%(RecursiveDir)%(Filename)%(Extension)" />
-    <Compile Include="..\External Trees\Quad\QuadTree-master\QuadTree.cs" Link="External\Quad\QuadTree\QuadTree.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="External\KD\" />
-    <Folder Include="External\Quad\" />
   </ItemGroup>
 
 </Project>

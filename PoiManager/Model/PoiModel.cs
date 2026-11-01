@@ -71,6 +71,11 @@ namespace PoiManager.Model
                     throw new FormatException($"Riadok {lineNumber}: ocakavanych 8 stlpcov, najdenych {fields.Count}.");
                 }
 
+                if (string.IsNullOrWhiteSpace(fields[2]))
+                {
+                    throw new FormatException($"Riadok {lineNumber}: opis bodu je povinný.");
+                }
+
                 var poi = new PointOfInterest(
                     id: int.Parse(fields[0], CultureInfo.InvariantCulture),
                     latitude: double.Parse(fields[3], CultureInfo.InvariantCulture),
@@ -189,6 +194,8 @@ namespace PoiManager.Model
         // Vygenerovane / upravene pomocou AI - Kapitola 55
         public void CreatePOI(string name, double lat, double lon, string desc, string? addr = null, int? id = null)
         {
+            ValidateDescription(desc);
+
             if (id == null)
             {
                 id = UniqueID;
@@ -223,6 +230,8 @@ namespace PoiManager.Model
         // Vygenerovane / upravene pomocou AI - Kapitola 60
         public void UpdatePOI(PointOfInterest poi, double lat, double lon, string name, string desc, string? addr = null)
         {
+            ValidateDescription(desc);
+
             if (poi == null)
             {
                 return;
@@ -261,6 +270,14 @@ namespace PoiManager.Model
         public void UpdatePOI(PointOfInterest poi, string name, double lat, double lon, string desc, string? addr = null)
         {
             UpdatePOI(poi, lat, lon, name, desc, addr);
+        }
+
+        private static void ValidateDescription(string description)
+        {
+            if (string.IsNullOrWhiteSpace(description))
+            {
+                throw new FormatException("Opis bodu je povinný.");
+            }
         }
 
         // Vygenerovane / upravene pomocou AI - Kapitola 59
