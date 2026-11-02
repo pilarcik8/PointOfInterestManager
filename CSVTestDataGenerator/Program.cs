@@ -1,13 +1,15 @@
 ﻿using System.Globalization;
 using Bogus;
 
-var outputPath = args.Length > 0 ? args[0] : "C:\\Users\\Admin\\source\\repos\\AUS2 S1\\PoiManager\\Data\\poi-test-data.csv";
-var count = args.Length > 1 ? int.Parse(args[1], CultureInfo.InvariantCulture) : 100;
+var projectPath = Directory.GetCurrentDirectory();
+var outputPath = Path.Combine(projectPath, "..\\..\\..\\generated_data.csv");
 
-if (count < 0)
-{
-    throw new ArgumentOutOfRangeException(nameof(count), "Count cannot be negative.");
-}
+var count = 100;
+
+const double AreaMinLat = 47.0;
+const double AreaMinLon = 16.0;
+const double AreaMaxLat = 50.0;
+const double AreaMaxLon = 23.0;
 
 var faker = new Faker();
 using var writer = new StreamWriter(outputPath);
@@ -23,8 +25,8 @@ for (var id = 0; id < count; id++)
         id.ToString(CultureInfo.InvariantCulture),
         EscapeCsv(faker.Address.City()),
         EscapeCsv(faker.Lorem.Sentence()),
-        faker.Random.Double(-90, 90).ToString("R", CultureInfo.InvariantCulture),
-        faker.Random.Double(-180, 180).ToString("R", CultureInfo.InvariantCulture),
+        faker.Random.Double(AreaMinLat, AreaMaxLat).ToString("R", CultureInfo.InvariantCulture),
+        faker.Random.Double(AreaMinLon, AreaMaxLon).ToString("R", CultureInfo.InvariantCulture),
         EscapeCsv(address),
         createdAt.ToString("o", CultureInfo.InvariantCulture),
         updatedAt.ToString("o", CultureInfo.InvariantCulture)));

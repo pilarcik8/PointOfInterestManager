@@ -158,7 +158,9 @@ namespace GUI
 
         private void FindAtPosition_Click(object sender, RoutedEventArgs e)
         {
-            Run(() => ShowResults(_controller.FindAtPosition(PosLatBox.Text, PosLonBox.Text), "Body na pozícii"));
+            Run(() => ShowResults(
+                _controller.FindAtPosition(PosLat1Box.Text, PosLon1Box.Text, PosLat2Box.Text, PosLon2Box.Text),
+                "Body v obdĺžniku"));
         }
 
         // ---- 2. Vyhladanie v okoli ----

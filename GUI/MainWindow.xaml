@@ -32,6 +32,7 @@
         <ToolBarTray DockPanel.Dock="Top">
             <ToolBar>
                 <TextBlock x:Name="TreeTypeText" VerticalAlignment="Center" FontWeight="Bold" Margin="4,0" />
+                <Button Content="Zobraziť všetky" Click="ShowAll_Click" Margin="4,0" />
                 <Button Content="Import CSV" Click="Import_Click" Margin="4,0" />
                 <Button Content="Export CSV" Click="Export_Click" Margin="4,0" />
             </ToolBar>
@@ -52,11 +53,15 @@
 
                 <TabItem Header="1. Pozícia">
                     <StackPanel Margin="8">
-                        <TextBlock Style="{StaticResource SectionHeader}" Text="Vyhľadanie bodov POI na zadanej pozícii" />
-                        <TextBlock Text="Zemepisná šírka" />
-                        <TextBox x:Name="PosLatBox" />
-                        <TextBlock Text="Zemepisná dĺžka" />
-                        <TextBox x:Name="PosLonBox" />
+                        <TextBlock Style="{StaticResource SectionHeader}" Text="Vyhľadanie bodov POI v obdĺžniku" />
+                        <TextBlock Text="Roh 1 - zemepisná šírka" />
+                        <TextBox x:Name="PosLat1Box" />
+                        <TextBlock Text="Roh 1 - zemepisná dĺžka" />
+                        <TextBox x:Name="PosLon1Box" />
+                        <TextBlock Text="Roh 2 - zemepisná šírka" />
+                        <TextBox x:Name="PosLat2Box" />
+                        <TextBlock Text="Roh 2 - zemepisná dĺžka" />
+                        <TextBox x:Name="PosLon2Box" />
                         <Button Content="Vyhľadať" Click="FindAtPosition_Click" />
                     </StackPanel>
                 </TabItem>
@@ -68,7 +73,7 @@
                         <TextBox x:Name="AroundLatBox" />
                         <TextBlock Text="Zemepisná dĺžka" />
                         <TextBox x:Name="AroundLonBox" />
-                        <TextBlock Text="Polomer (m)" />
+                        <TextBlock Text="Polomer (°)" />
                         <TextBox x:Name="AroundRadiusBox" />
                         <Button Content="Vyhľadať" Click="FindAround_Click" />
                     </StackPanel>
@@ -100,7 +105,7 @@
                             <TextBox x:Name="EditSearchLatBox" />
                             <TextBlock Text="Zemepisná dĺžka" />
                             <TextBox x:Name="EditSearchLonBox" />
-                            <TextBlock Text="Polomer (m)" />
+                            <TextBlock Text="Polomer (°)" />
                             <TextBox x:Name="EditSearchRadiusBox" />
                             <Button Content="Vyhľadať" Click="EditSearch_Click" />
 
@@ -150,7 +155,7 @@
                         <TextBox x:Name="DeleteLatBox" />
                         <TextBlock Text="Zemepisná dĺžka" />
                         <TextBox x:Name="DeleteLonBox" />
-                        <TextBlock Text="Polomer (m)" />
+                        <TextBlock Text="Polomer (°)" />
                         <TextBox x:Name="DeleteRadiusBox" />
                         <Button Content="Vyhľadať" Click="DeleteSearch_Click" />
                         <Separator Margin="0,8" />

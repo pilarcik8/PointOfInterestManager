@@ -27,40 +27,60 @@ namespace PoiManager.Controller
             TreeType = treeType;
         }
 
-        // 1. Vyhladanie bodov na presnej pozicii
+        // 1. Vyhladanie bodov v obdlznikovej oblasti
         // Vygenerovane / upravene pomocou AI - Kapitola 67
-        public List<PointOfInterest> FindAtPosition(string latText, string lonText)
+        public List<PointOfInterest> FindAtPosition(string lat1Text, string lon1Text, string lat2Text, string lon2Text)
         {
-            double lat = ParseLatitude(latText);
-            double lon = ParseLongitude(lonText);
-            return _model.FindPointsRange(lat, lon, lat, lon).ToList();
+            double lat1 = ParseLatitude(lat1Text);
+            double lon1 = ParseLongitude(lon1Text);
+            double lat2 = ParseLatitude(lat2Text);
+            double lon2 = ParseLongitude(lon2Text);
+
+            return _model.FindPointsRange(
+                Math.Min(lat1, lat2), Math.Min(lon1, lon2),
+                Math.Max(lat1, lat2), Math.Max(lon1, lon2)).ToList();
         }
 
-        // 2., 4., 6. Vyhladanie bodov v okoli - polomer v metroch
+        // 2., 4., 6. Vyhladanie bodov v okoli - polomer v stupnoch
         // Vygenerovane / upravene pomocou AI - Kapitola 67
         public List<PointOfInterest> FindAround(string latText, string lonText, string radiusText)
         {
             double lat = ParseLatitude(latText);
             double lon = ParseLongitude(lonText);
             double radius = ParseDouble(radiusText, "Polomer");
-            if (radius < 0)
+            if (radius < 0 || radius > 180)
             {
-                throw new FormatException("Polomer nemôže byť záporný.");
+                throw new FormatException("Polomer musí byť v rozsahu 0 až 180 stupňov.");
             }
 
-            // Ohranicujuci obdlznik kruhu na guli (v stupnoch), potom presny filter vzdialenostou
-            double angular = radius / EarthRadiusMeters;
-            double dLat = angular * 180.0 / Math.PI;
+            // Polomer je uhlová vzdialenosť v stupňoch; kandidátov obmedzí ohraničujúci obdĺžnik.
+            double angular = radius * Math.PI / 180.0;
+            double dLat = radius;
+            double dLon = 180.0;
 
-            double sinRatio = Math.Sin(Math.Min(angular, Math.PI / 2)) / Math.Cos(lat * Math.PI / 180.0);
-            double dLon = sinRatio >= 1.0 ? 360.0 : Math.Asin(sinRatio) * 180.0 / Math.PI;
+            if (radius < 90.0 && lat - radius > -90.0 && lat + radius < 90.0)
+            {
+                double sinRatio = Math.Sin(angular) / Math.Cos(lat * Math.PI / 180.0);
+                dLon = sinRatio >= 1.0 ? 180.0 : Math.Asin(sinRatio) * 180.0 / Math.PI;
+            }
 
-            var candidates = _model.FindPointsRange(lat - dLat, lon - dLon, lat + dLat, lon + dLon);
+            double minLon = lon - dLon;
+            double maxLon = lon + dLon;
+            if (minLon < -180.0 || maxLon > 180.0)
+            {
+                minLon = -180.0;
+                maxLon = 180.0;
+            }
+
+            var candidates = _model.FindPointsRange(
+                Math.Max(-90.0, lat - dLat), minLon,
+                Math.Min(90.0, lat + dLat), maxLon);
+            double radiusMeters = angular * EarthRadiusMeters;
 
             var result = new List<PointOfInterest>();
             foreach (var poi in candidates)
             {
-                if (DistanceMeters(lat, lon, poi.Latitude, poi.Longitude) <= radius)
+                if (DistanceMeters(lat, lon, poi.Latitude, poi.Longitude) <= radiusMeters)
                 {
                     result.Add(poi);
                 }
