@@ -35,6 +35,12 @@
                 <Button Content="Zobraziť všetky" Click="ShowAll_Click" Margin="4,0" />
                 <Button Content="Import CSV" Click="Import_Click" Margin="4,0" />
                 <Button Content="Export CSV" Click="Export_Click" Margin="4,0" />
+                <TextBlock Text="Generovať do:" VerticalAlignment="Center" Margin="8,0,2,0" />
+                <TextBox x:Name="GeneratorPathBox" Width="180" Text="generated_data.csv" />
+                <Button Content="Vybrať priečinok" Click="ChooseGeneratorFolder_Click" Margin="4,0" />
+                <TextBlock Text="Počet:" VerticalAlignment="Center" Margin="4,0,2,0" />
+                <TextBox x:Name="GeneratorCountBox" Width="60" Text="100" />
+                <Button Content="Generovať CSV" Click="Generate_Click" Margin="4,0" />
             </ToolBar>
         </ToolBarTray>
 

@@ -12,7 +12,6 @@
     <Project Path="External Trees/Quad/SpatialTrees-master/SpatialTrees/SpatialTrees.csproj" />
   </Folder>
   <Project Path="AUS2 S1/DataStructures.csproj" />
-  <Project Path="CSVTestDataGenerator/CSVTestDataGenerator.csproj" />
   <Project Path="GUI/PoiManagerViewGUI.csproj" Id="2f6f70c7-7ad3-4535-a991-9b6f7c27de65" />
   <Project Path="PoiManager/PoiManagerBackEnd.csproj" Id="2c8bf4a0-33e1-44f8-8e82-4c7ae1b85324" />
   <Project Path="Tester/DataStructTester.csproj" Id="f8bc3a5a-7cf8-4c0b-91d6-eec63d8130f5" />

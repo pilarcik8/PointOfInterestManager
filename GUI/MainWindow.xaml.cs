@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using PoiManager.Model;
@@ -144,6 +145,43 @@ namespace GUI
             {
                 _controller.Export(dialog.FileName);
                 SetStatus($"Exportované do {dialog.FileName}.");
+            });
+        }
+
+        private void ChooseGeneratorFolder_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new OpenFolderDialog
+            {
+                Title = "Vyberte priečinok pre vygenerovaný CSV súbor"
+            };
+
+            if (dialog.ShowDialog(this) != true)
+            {
+                return;
+            }
+
+            var fileName = Path.GetFileName(GeneratorPathBox.Text);
+            if (string.IsNullOrWhiteSpace(fileName))
+            {
+                fileName = "generated_data.csv";
+            }
+
+            GeneratorPathBox.Text = Path.Combine(dialog.FolderName, fileName);
+            SetStatus($"Vybraný priečinok: {dialog.FolderName}.");
+        }
+
+        // Vygenerovane / upravene pomocou AI - Kapitola 71
+        private void Generate_Click(object sender, RoutedEventArgs e)
+        {
+            Run(() =>
+            {
+                if (!int.TryParse(GeneratorCountBox.Text, out var count))
+                {
+                    throw new FormatException("Počet záznamov musí byť celé číslo.");
+                }
+
+                PoiController.GenerateTestData(GeneratorPathBox.Text, count);
+                SetStatus($"Vygenerovaných {count} záznamov do {Path.GetFullPath(GeneratorPathBox.Text)}.");
             });
         }
 

@@ -1,4 +1,5 @@
 using System.Globalization;
+using Bogus;
 using PoiManager.Model;
 
 namespace PoiManager.Controller
@@ -154,6 +155,41 @@ namespace PoiManager.Controller
             _model.ExportPointsOfInterest(path);
         }
 
+        // Vygenerovane / upravene pomocou AI - Kapitola 71
+        public static void GenerateTestData(string path, int count)
+        {
+            if (string.IsNullOrWhiteSpace(path))
+            {
+                throw new ArgumentException("Cesta k súboru je povinná.", nameof(path));
+            }
+
+            if (count < 1)
+            {
+                throw new ArgumentOutOfRangeException(nameof(count), "Počet záznamov musí byť väčší ako 0.");
+            }
+
+            var faker = new Faker();
+            using var writer = new StreamWriter(path);
+            writer.WriteLine("id,name,description,lat,lon,address,created_ad,updated_ad");
+
+            for (var id = 0; id < count; id++)
+            {
+                var createdAt = faker.Date.Between(DateTime.UtcNow.AddYears(-5), DateTime.UtcNow);
+                var updatedAt = faker.Date.Between(createdAt, DateTime.UtcNow);
+                var address = id % 5 == 0 ? string.Empty : faker.Address.FullAddress();
+
+                writer.WriteLine(string.Join(",",
+                    id.ToString(CultureInfo.InvariantCulture),
+                    EscapeCsv(faker.Address.City()),
+                    EscapeCsv(faker.Lorem.Sentence()),
+                    faker.Random.Double(AreaMinLat, AreaMaxLat).ToString("R", CultureInfo.InvariantCulture),
+                    faker.Random.Double(AreaMinLon, AreaMaxLon).ToString("R", CultureInfo.InvariantCulture),
+                    EscapeCsv(address),
+                    createdAt.ToString("o", CultureInfo.InvariantCulture),
+                    updatedAt.ToString("o", CultureInfo.InvariantCulture)));
+            }
+        }
+
         // Vygenerovane / upravene pomocou AI - Kapitola 67
         public static double DistanceMeters(double lat1, double lon1, double lat2, double lon2)
         {
@@ -164,6 +200,17 @@ namespace PoiManager.Controller
             double a = (Math.Sin(dLat / 2) * Math.Sin(dLat / 2)) +
                        (Math.Cos(lat1 * toRad) * Math.Cos(lat2 * toRad) * Math.Sin(dLon / 2) * Math.Sin(dLon / 2));
             return 2 * EarthRadiusMeters * Math.Asin(Math.Min(1.0, Math.Sqrt(a)));
+        }
+
+        // Vygenerovane / upravene pomocou AI - Kapitola 71
+        private static string EscapeCsv(string value)
+        {
+            if (value.IndexOfAny([',', '"', '\n', '\r']) < 0)
+            {
+                return value;
+            }
+
+            return $"\"{value.Replace("\"", "\"\"")}\"";
         }
 
         // Vygenerovane / upravene pomocou AI - Kapitola 67
