@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using DataStructures.QTree;
 using DataStructures.KD_Tree;
+using DataStructures.Hybrid_Quad_Tree;
 
 namespace DataStructTester.Testers
 {
@@ -10,6 +11,7 @@ namespace DataStructTester.Testers
     {
         private readonly QTree<int, double>? _qTree;
         private readonly KDTree<int, int>? _kdTree;
+        private readonly HybridQTree<int, double>? _hybridQTree;
 
         private readonly int _operationsCount;
         private readonly int _insertProbability;
@@ -49,6 +51,22 @@ namespace DataStructTester.Testers
             _seed = seed;
             _checkInterval = checkInterval;
             RunKDTreeTest();
+        }
+
+        // Konstruktor pre HybridQTree
+        public RandomDataTreeTester(
+            HybridQTree<int, double> hybridQTree,
+            int operationsCount,
+            int insertProbability,
+            int seed,
+            int checkInterval = 10)
+        {
+            _hybridQTree = hybridQTree;
+            _operationsCount = operationsCount;
+            _insertProbability = insertProbability;
+            _seed = seed;
+            _checkInterval = checkInterval;
+            RunHybridTreeTest();
         }
 
         // Vygenerovane / upravene pomocou AI - Kapitola 34
@@ -101,20 +119,21 @@ namespace DataStructTester.Testers
                     .Where(item => item.X >= minX && item.X <= maxX && item.Y >= minY && item.Y <= maxY)
                     .Select(item => item.Data).ToList();
 
+                foreach (var item in actual)
+                {
+                    if (!expected.Contains(item))
+                    {
+                        throw new InvalidOperationException($"Chyba FindRange v operacii #{operationNumber} pre QTree: ocakavany prvok {item} sa nenasiel.");
+                    }
+                    expected.Remove(item); // vymaze iba prvy najdeny (duplicity mozu byt)
+                }
+                if (expected.Count != 0)
+                {
+                    throw new InvalidOperationException($"Chyba FindRange v operacii #{operationNumber} pre QTree: strom nevrátil {expected.Count} ocakavanych prvkov.");
+                }
+
                 if (operationNumber % _checkInterval == 0 || operationNumber == _operationsCount)
                 {
-                    foreach (var item in actual)
-                    {
-                        if (!expected.Contains(item))
-                        {
-                            throw new InvalidOperationException($"Chyba FindRange v operacii #{operationNumber} pre QTree: ocakavany prvok {item} sa nenasiel.");
-                        }
-                        expected.Remove(item); // vymaze iba prvy najdeny (duplicity mozu byt)
-                    }
-                    if (expected.Count != 0)
-                    {
-                        throw new InvalidOperationException($"Chyba FindRange v operacii #{operationNumber} pre QTree: strom nevrátil {expected.Count} ocakavanych prvkov.");
-                    }
                     Console.WriteLine($"[Op {operationNumber,4}/{_operationsCount}] Kontrola integrity OK");
                 }
 
@@ -182,7 +201,7 @@ namespace DataStructTester.Testers
                     }
 
                     var foundNodes = _kdTree.FindRange(minKeyList, maxKeyList);
-                    var actual = foundNodes.SelectMany(node => node.Data).ToHashSet();
+                    var actual = foundNodes.SelectMany(node => node.Data).ToList();
 
                     var expected = referenceList
                         .Where(item =>
@@ -197,11 +216,20 @@ namespace DataStructTester.Testers
                             return true;
                         })
                         .Select(item => item.data)
-                        .ToHashSet();
+                        .ToList();
 
-                    if (!expected.SetEquals(actual))
+                    foreach (var item in actual)
                     {
-                        throw new InvalidOperationException($"Chyba FindRange v operacii #{operationNumber} pre KDTree.");
+                        if (!expected.Contains(item))
+                        {
+                            throw new InvalidOperationException($"Chyba FindRange v operacii #{operationNumber} pre KDTree: neočakávaný prvok {item}.");
+                        }
+                        expected.Remove(item); // vymaze iba prvy najdeny vyskyt (podpora duplicit)
+                    }
+
+                    if (expected.Count != 0)
+                    {
+                        throw new InvalidOperationException($"Chyba FindRange v operacii #{operationNumber} pre KDTree: strom nevrátil {expected.Count} očakávaných prvkov.");
                     }
                 }
 
@@ -223,6 +251,78 @@ namespace DataStructTester.Testers
                         }
                     }
                     Console.WriteLine($"[Op {operationNumber,4}/{_operationsCount}] Kontrola integrity OK (prvkov v strukture: {referenceList.Count})");
+                }
+            }
+            Console.WriteLine("--------------------------------------------------");
+        }
+
+        // Vygenerovane / upravene pomocou AI - Kapitola 72
+        private void RunHybridTreeTest()
+        {
+            var random = new Random(_seed);
+            var referenceList = new List<QTreeInfo>();
+            int nextId = 1;
+
+            for (int operationNumber = 1; operationNumber <= _operationsCount; operationNumber++)
+            {
+                bool doInsert = random.Next(100) < _insertProbability || referenceList.Count == 0;
+                int maxLength = random.Next(1, int.MaxValue);
+
+                // insert
+                if (doInsert)
+                {
+                    int data = nextId++;
+                    double x = random.Next(0, maxLength);
+                    double y = random.Next(0, maxLength);
+
+                    _hybridQTree!.Insert(data);
+                    referenceList.Add(new QTreeInfo(data, x, y));
+
+                    // kontrola integrity
+                    if (operationNumber % _checkInterval == 0 || operationNumber == _operationsCount)
+                    {
+                        foreach (var item in referenceList)
+                        {
+                            var found = _hybridQTree!.FindRange(item.X, item.Y, item.X, item.Y);
+                            if (!found.Contains(item.Data))
+                            {
+                                throw new InvalidOperationException($"Chyba integrity po operacii #{operationNumber}: prvok {item.Data} na [{item.X}, {item.Y}] sa v HybridQTree nenasiel.");
+                            }
+                        }
+
+                        Console.WriteLine($"[Op {operationNumber,4}/{_operationsCount}] Kontrola integrity OK (prvkov v strukture: {referenceList.Count})");
+                    }
+                    continue;
+                }
+
+                // range query
+                double minX = random.Next(0, maxLength);
+                double maxX = random.Next((int)Math.Round(minX) + 1, maxLength);
+                double minY = random.Next(0, maxLength);
+                double maxY = random.Next((int)Math.Round(minY) + 1, maxLength);
+
+                LinkedList<int> actual = _hybridQTree!.FindRange(minX, minY, maxX, maxY);
+                List<int> expected = referenceList
+                    .Where(item => item.X >= minX && item.X <= maxX && item.Y >= minY && item.Y <= maxY)
+                    .Select(item => item.Data).ToList();
+
+                foreach (var item in actual)
+                {
+                    if (!expected.Contains(item))
+                    {
+                        throw new InvalidOperationException($"Chyba FindRange v operacii #{operationNumber} pre HybridQTree: neočakávaný prvok {item}.");
+                    }
+                    expected.Remove(item); // vymaze iba prvy najdeny vyskyt (podpora duplicit)
+                }
+
+                if (expected.Count != 0)
+                {
+                    throw new InvalidOperationException($"Chyba FindRange v operacii #{operationNumber} pre HybridQTree: strom nevrátil {expected.Count} očakávaných prvkov.");
+                }
+
+                if (operationNumber % _checkInterval == 0 || operationNumber == _operationsCount)
+                {
+                    Console.WriteLine($"[Op {operationNumber,4}/{_operationsCount}] Kontrola integrity OK");
                 }
             }
             Console.WriteLine("--------------------------------------------------");
