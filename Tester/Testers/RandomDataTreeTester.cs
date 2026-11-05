@@ -16,8 +16,6 @@ namespace DataStructTester.Testers
         private readonly int _seed;
         private readonly int _checkInterval;
 
-        private readonly List<(int data, double x, double y)> _positions = new();
-
         // Konstruktor pre QTree
         // Vygenerovane / upravene pomocou AI - Kapitola 27 (vytvorenie konštruktora), Kapitola 33 (zmena na QTree<int, double>)
         public RandomDataTreeTester(
@@ -54,11 +52,10 @@ namespace DataStructTester.Testers
         }
 
         // Vygenerovane / upravene pomocou AI - Kapitola 34
-        //TODO ODJEVAT
         private void RunQTreeTest()
         {
             var random = new Random(_seed);
-            var referenceList = new List<(int data, double x, double y)>();
+            var referenceList = new List<QTreeInfo>();
             int nextId = 1;
 
             for (int operationNumber = 1; operationNumber <= _operationsCount; operationNumber++)
@@ -73,19 +70,18 @@ namespace DataStructTester.Testers
                     double x = random.Next(0, maxLength);
                     double y = random.Next(0, maxLength);
 
-                    _positions.Add((data, x, y));   // index = data - 1
                     _qTree!.Insert(data);
-                    referenceList.Add((data, x, y));
+                    referenceList.Add(new QTreeInfo(data, x, y));
 
                     // kontrola
                     if (operationNumber % _checkInterval == 0 || operationNumber == _operationsCount)
                     {
                         foreach (var item in referenceList)
                         {
-                            var found = _qTree!.FindRange(item.x, item.y, item.x, item.y);
-                            if (!found.Contains(item.data))
+                            var found = _qTree!.FindRange(item.X, item.Y, item.X, item.Y);
+                            if (!found.Contains(item.Data))
                             {
-                                throw new InvalidOperationException($"Chyba integrity po operacii #{operationNumber}: prvok {item.data} na [{item.x}, {item.y}] sa nenasiel.");
+                                throw new InvalidOperationException($"Chyba integrity po operacii #{operationNumber}: prvok {item.Data} na [{item.X}, {item.Y}] sa nenasiel.");
                             }
                         }
 
@@ -102,8 +98,8 @@ namespace DataStructTester.Testers
 
                 LinkedList<int> actual = _qTree!.FindRange(minX, minY, maxX, maxY);
                 List<int> expected = referenceList
-                    .Where(item => item.x >= minX && item.x <= maxX && item.y >= minY && item.y <= maxY)
-                    .Select(item => item.data).ToList();
+                    .Where(item => item.X >= minX && item.X <= maxX && item.Y >= minY && item.Y <= maxY)
+                    .Select(item => item.Data).ToList();
 
                 if (operationNumber % _checkInterval == 0 || operationNumber == _operationsCount)
                 {
@@ -124,6 +120,20 @@ namespace DataStructTester.Testers
 
             }
             Console.WriteLine("--------------------------------------------------");
+        }
+
+        private readonly struct QTreeInfo
+        {
+            public QTreeInfo(int data, double x, double y)
+            {
+                Data = data;
+                X = x;
+                Y = y;
+            }
+
+            public int Data { get; }
+            public double X { get; }
+            public double Y { get; }
         }
 
         // Vygenerovane / upravene pomocou AI - Kapitola 34

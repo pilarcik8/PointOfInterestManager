@@ -147,6 +147,7 @@ namespace GUI
                 SetStatus($"Exportované do {dialog.FileName}.");
             });
         }
+        // Vygenerovane / upravene pomocou AI - Kapitola 72
 
         private void ChooseGeneratorFolder_Click(object sender, RoutedEventArgs e)
         {
