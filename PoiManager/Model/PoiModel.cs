@@ -120,16 +120,7 @@ namespace PoiManager.Model
         // Vygenerovane / upravene pomocou AI - Kapitola 67
         public LinkedList<PointOfInterest> GetAllPointsOfInterest()
         {
-            var pois = FindPointsRange(double.MinValue, double.MinValue, double.MaxValue, double.MaxValue);
-            if (_qTree != null)
-            {
-                // QTree.FindRange nevracia body mimo hranic stromu
-                foreach (var poi in _qTree.OutOfBoundsData)
-                {
-                    pois.AddLast(poi);
-                }
-            }
-            return pois;
+            return FindPointsRange(double.MinValue, double.MinValue, double.MaxValue, double.MaxValue);
         }
 
         // Vygenerovane / upravene pomocou AI - Kapitola 66
@@ -241,7 +232,7 @@ namespace PoiManager.Model
 
             if (positionChanged)
             {
-                Delete(poi);
+                RemoveFromIndex(poi);
                 poi.UpdateValues(lat, lon, name, desc, addr);
 
                 if (_qTree != null)
@@ -281,7 +272,7 @@ namespace PoiManager.Model
         }
 
         // Vygenerovane / upravene pomocou AI - Kapitola 59
-        private void Delete(PointOfInterest poi)
+        private void RemoveFromIndex(PointOfInterest poi)
         {
             if (poi == null)
             {
@@ -319,7 +310,7 @@ namespace PoiManager.Model
 
             foreach (var poi in nodes)
             {
-                Delete(poi);
+                poi?.MarkDeleted();
             }
         }
 
@@ -379,12 +370,12 @@ namespace PoiManager.Model
         {
             if (_qTree != null)
             {
-                return _qTree.FindRange(minLon, minLat, maxLon, maxLat);
+                return ExcludeDeleted(_qTree.FindRange(minLon, minLat, maxLon, maxLat));
             }
 
             if (_hybridQTree != null)
             {
-                return _hybridQTree.FindRange(minLon, minLat, maxLon, maxLat);
+                return ExcludeDeleted(_hybridQTree.FindRange(minLon, minLat, maxLon, maxLat));
             }
 
             if (_kdTree != null)
@@ -404,13 +395,30 @@ namespace PoiManager.Model
                 {
                     foreach (var poi in node.Data)
                     {
-                        result.AddLast(poi);
+                        if (!poi.WasDeleted)
+                        {
+                            result.AddLast(poi);
+                        }
                     }
                 }
                 return result;
             }
 
             throw new InvalidOperationException("Ziadny strom nie je inicializovany.");
+        }
+
+        private static LinkedList<PointOfInterest> ExcludeDeleted(IEnumerable<PointOfInterest> pois)
+        {
+            var result = new LinkedList<PointOfInterest>();
+            foreach (var poi in pois)
+            {
+                if (!poi.WasDeleted)
+                {
+                    result.AddLast(poi);
+                }
+            }
+
+            return result;
         }
 
         // Vygenerovane / upravene pomocou AI - Kapitola 55 

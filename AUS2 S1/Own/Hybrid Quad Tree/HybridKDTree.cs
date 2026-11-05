@@ -9,25 +9,18 @@ namespace DataStructures.Hybrid_Quad_Tree
     {
         private sealed class Node
         {
-            public TData Data { get; }
+            public LinkedList<TData> Data { get; } = new();
             public TPosition X { get; }
             public TPosition Y { get; }
             public Node? Left { get; set; }
             public Node? Right { get; set; }
-            public bool WasDeleted { get; set; }
 
             // Vygenerovane / upravene pomocou AI - Kapitola 36, 39
             public Node(TData data, TPosition x, TPosition y)
             {
-                Data = data;
+                Data.AddLast(data);
                 X = x;
                 Y = y;
-                WasDeleted = false;
-            }
-
-            public void DeleteNode()
-            {
-                WasDeleted = true;
             }
         }
 
@@ -48,6 +41,13 @@ namespace DataStructures.Hybrid_Quad_Tree
             int depth = 0;
             while (true)
             {
+                if (current.X == x && current.Y == y)
+                {
+                    current.Data.AddLast(data);
+                    Count++;
+                    return;
+                }
+
                 TPosition value = depth % 2 == 0 ? x : y;
                 TPosition nodeValue = depth % 2 == 0 ? current.X : current.Y;
                 bool goLeft = value < nodeValue;
@@ -88,12 +88,44 @@ namespace DataStructures.Hybrid_Quad_Tree
             {
                 if (current.X == x && current.Y == y)
                 {
-                    if (!current.WasDeleted)
+                    if (current.Data.Count > 0)
                     {
-                        current.DeleteNode();
+                        current.Data.RemoveFirst();
+                        Count--;
                         return true;
                     }
                     return false;
+                }
+
+                TPosition value = depth % 2 == 0 ? x : y;
+                TPosition nodeValue = depth % 2 == 0 ? current.X : current.Y;
+                current = value < nodeValue ? current.Left : current.Right;
+                depth++;
+            }
+
+            return false;
+        }
+
+        public bool DeleteNode(TData data, TPosition x, TPosition y)
+        {
+            Node? current = _root;
+            int depth = 0;
+            while (current != null)
+            {
+                if (current.X == x && current.Y == y)
+                {
+                    var dataNode = current.Data.First;
+                    while (dataNode != null)
+                    {
+                        if (EqualityComparer<TData>.Default.Equals(dataNode.Value, data))
+                        {
+                            current.Data.Remove(dataNode);
+                            Count--;
+                            return true;
+                        }
+
+                        dataNode = dataNode.Next;
+                    }
                 }
 
                 TPosition value = depth % 2 == 0 ? x : y;
@@ -127,11 +159,13 @@ namespace DataStructures.Hybrid_Quad_Tree
                 Node node = current.node;
                 int depth = current.depth;
 
-                if (!node.WasDeleted &&
-                    node.X >= minX && node.X <= maxX &&
+                if (node.X >= minX && node.X <= maxX &&
                     node.Y >= minY && node.Y <= maxY)
                 {
-                    result.AddLast(node.Data);
+                    foreach (var data in node.Data)
+                    {
+                        result.AddLast(data);
+                    }
                 }
 
                 TPosition value = depth % 2 == 0 ? node.X : node.Y;
@@ -164,9 +198,9 @@ namespace DataStructures.Hybrid_Quad_Tree
             {
                 Node node = nodesToVisit.Last!.Value;
                 nodesToVisit.RemoveLast();
-                if (!node.WasDeleted)
+                foreach (var data in node.Data)
                 {
-                    result.AddLast((node.Data, node.X, node.Y));
+                    result.AddLast((data, node.X, node.Y));
                 }
 
                 if (node.Right != null)

@@ -15,6 +15,7 @@ namespace PoiManager.Model
         public String? Address { get; private set; }
         public DateTime CreatedAt { get; }
         public DateTime LastUpdatedAt { get; private set; }
+        public bool WasDeleted { get; private set; }
 
         public PointOfInterest(int id, double latitude, double longitude, String name, String description, String? address)
         {
@@ -46,6 +47,11 @@ namespace PoiManager.Model
             Description = description;
             Address = address;
             LastUpdatedAt = DateTime.Now;
+        }
+
+        internal void MarkDeleted()
+        {
+            WasDeleted = true;
         }
     }
 }

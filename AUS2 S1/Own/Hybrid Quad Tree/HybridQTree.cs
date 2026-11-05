@@ -15,7 +15,6 @@ namespace DataStructures.Hybrid_Quad_Tree
             public TPosition MaxY { get; }
             public Node?[] Children { get; } = new Node?[4];
             public HybridKDTree<TData, TPosition> Data { get; set; } = new();
-            public bool WasDeleted;
 
             // Vygenerovane / upravene pomocou AI - Kapitola 36, 39
             public Node(TPosition minX, TPosition minY, TPosition maxX,
@@ -25,7 +24,6 @@ namespace DataStructures.Hybrid_Quad_Tree
                 MinY = minY;
                 MaxX = maxX;
                 MaxY = maxY;
-                WasDeleted = false;
             }
 
             // Vygenerovane / upravene pomocou AI - Kapitola 36, 39
@@ -45,10 +43,6 @@ namespace DataStructures.Hybrid_Quad_Tree
                 }
             }
 
-            public void DeleteNode()
-            {
-                WasDeleted = true;
-            }
         }
 
         private readonly Func<TData, (TPosition x, TPosition y)> _getPosition;
@@ -113,6 +107,20 @@ namespace DataStructures.Hybrid_Quad_Tree
         {
             if (!IsInside(_root, x, y))
             {
+                var outOfBoundsNode = _outOfBoundsData.First;
+                while (outOfBoundsNode != null)
+                {
+                    var next = outOfBoundsNode.Next;
+                    var (itemX, itemY) = _getPosition(outOfBoundsNode.Value);
+                    if (itemX == x && itemY == y)
+                    {
+                        _outOfBoundsData.Remove(outOfBoundsNode);
+                        return true;
+                    }
+
+                    outOfBoundsNode = next;
+                }
+
                 return false;
             }
 
@@ -130,11 +138,6 @@ namespace DataStructures.Hybrid_Quad_Tree
 
                 if (!current.HasChildren)
                 {
-                    if (!current.WasDeleted)
-                    {
-                        current.DeleteNode();
-                        return true;
-                    }
                     return false;
                 }
 
@@ -153,7 +156,48 @@ namespace DataStructures.Hybrid_Quad_Tree
         public bool DeleteNode(TData item)
         {
             var (x, y) = _getPosition(item);
-            return DeleteNode(x, y);
+
+            if (!IsInside(_root, x, y))
+            {
+                var outOfBoundsNode = _outOfBoundsData.First;
+                while (outOfBoundsNode != null)
+                {
+                    var next = outOfBoundsNode.Next;
+                    if (EqualityComparer<TData>.Default.Equals(outOfBoundsNode.Value, item))
+                    {
+                        _outOfBoundsData.Remove(outOfBoundsNode);
+                        return true;
+                    }
+
+                    outOfBoundsNode = next;
+                }
+
+                return false;
+            }
+
+            Node current = _root;
+            while (current != null)
+            {
+                if (current.Data.DeleteNode(item, x, y))
+                {
+                    return true;
+                }
+
+                if (!current.HasChildren)
+                {
+                    return false;
+                }
+
+                int index = GetQuadrantIndex(current, x, y);
+                if (current.Children[index] == null)
+                {
+                    return false;
+                }
+
+                current = current.Children[index]!;
+            }
+
+            return false;
         }
 
         // Vygenerovane / upravene pomocou AI - Kapitola 36, 39
@@ -188,10 +232,7 @@ namespace DataStructures.Hybrid_Quad_Tree
                     continue;
                 }
 
-                if (!current.WasDeleted)
-                {
-                    current.Data.FindRange(minX, minY, maxX, maxY, result);
-                }
+                current.Data.FindRange(minX, minY, maxX, maxY, result);
 
                 foreach (var child in current.Children)
                 {

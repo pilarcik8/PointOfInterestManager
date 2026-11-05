@@ -7,7 +7,6 @@ namespace DataStructures.KD_Tree
         public KDNode<TKey, TData>? Left { get; set; }
         public KDNode<TKey, TData>? Right { get; set; }
         public LinkedList<KDKey<TKey>> Keys;
-        public bool WasDeleted;
 
         public KDNode(TData data, LinkedList<KDKey<TKey>> keys)
         {
@@ -16,12 +15,6 @@ namespace DataStructures.KD_Tree
             Left = null;
             Right = null;
             Keys = keys;
-            WasDeleted = false;
-        }
-
-        public void DeleteNode()
-        {
-            WasDeleted = true;
         }
     }
 }

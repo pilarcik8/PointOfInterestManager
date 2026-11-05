@@ -140,15 +140,12 @@ namespace DataStructures.QTree
                     continue;
                 }
 
-                if (!current.WasDeleted)
+                foreach (var item in current.Data)
                 {
-                    foreach (var item in current.Data)
+                    var (x, y) = GetPosition(item);
+                    if (x >= minX && x <= maxX && y >= minY && y <= maxY)
                     {
-                        var (x, y) = GetPosition(item);
-                        if (x >= minX && x <= maxX && y >= minY && y <= maxY)
-                        {
-                            result.AddLast(item);
-                        }
+                        result.AddLast(item);
                     }
                 }
 
@@ -177,26 +174,77 @@ namespace DataStructures.QTree
         // Vygenerovane / upravene pomocou AI - Kapitola 58
         public void DeleteNode(QNode<TData, TPosition> node)
         {
-            node.DeleteNode();
+            node.Data.Clear();
         }
 
         // Vygenerovane / upravene pomocou AI - Kapitola 58
         public bool DeleteNode(TPosition x, TPosition y)
         {
-            var node = FindNode(x, y);
-            if (node != null && !node.WasDeleted)
-            {
-                node.DeleteNode();
-                return true;
-            }
-            return false;
+            return DeleteNodeAtPosition(x, y, default!, matchItem: false);
         }
 
         // Vygenerovane / upravene pomocou AI - Kapitola 58
         public bool DeleteNode(TData item)
         {
             var (x, y) = GetPosition(item);
-            return DeleteNode(x, y);
+            return DeleteNodeAtPosition(x, y, item, matchItem: true);
+        }
+
+        private bool DeleteNodeAtPosition(TPosition x, TPosition y, TData item, bool matchItem)
+        {
+            if (!Root.Bounds.IsInside(x, y))
+            {
+                var outOfBoundsNode = OutOfBoundsData.First;
+                while (outOfBoundsNode != null)
+                {
+                    var next = outOfBoundsNode.Next;
+                    var (itemX, itemY) = GetPosition(outOfBoundsNode.Value);
+                    if (itemX == x && itemY == y &&
+                        (!matchItem || EqualityComparer<TData>.Default.Equals(outOfBoundsNode.Value, item)))
+                    {
+                        OutOfBoundsData.Remove(outOfBoundsNode);
+                        return true;
+                    }
+
+                    outOfBoundsNode = next;
+                }
+
+                return false;
+            }
+
+            QNode<TData, TPosition> current = Root;
+            while (current != null)
+            {
+                var dataNode = current.Data.First;
+                while (dataNode != null)
+                {
+                    var next = dataNode.Next;
+                    var (itemX, itemY) = GetPosition(dataNode.Value);
+                    if (itemX == x && itemY == y &&
+                        (!matchItem || EqualityComparer<TData>.Default.Equals(dataNode.Value, item)))
+                    {
+                        current.Data.Remove(dataNode);
+                        return true;
+                    }
+
+                    dataNode = next;
+                }
+
+                if (!current.IsSplit)
+                {
+                    return false;
+                }
+
+                int index = current.GetQuadrantIndex(x, y);
+                if (current.Children[index] == null)
+                {
+                    return false;
+                }
+
+                current = current.Children[index];
+            }
+
+            return false;
         }
 
         // Vygenerovane / upravene pomocou AI - Kapitola 58

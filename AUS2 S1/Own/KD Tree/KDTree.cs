@@ -70,7 +70,7 @@ namespace DataStructures.KD_Tree
         }
 
         // Vygenerovane / upravene pomocou AI - Kapitola 22, 28
-        public KDNode<TKey, TData>? Find(LinkedList<KDKey<TKey>> targetKeys, bool includeDeleted = false)
+        public KDNode<TKey, TData>? Find(LinkedList<KDKey<TKey>> targetKeys)
         {
             if (targetKeys.Count != K)
             {
@@ -84,10 +84,6 @@ namespace DataStructures.KD_Tree
             {
                 if (AllKeysMatch(targetKeys, current.Keys))
                 {
-                    if (!includeDeleted && current.WasDeleted)
-                    {
-                        return null;
-                    }
                     return current;
                 }
 
@@ -112,18 +108,41 @@ namespace DataStructures.KD_Tree
         // Vygenerovane / upravene pomocou AI - Kapitola 58
         public void DeleteNode(KDNode<TKey, TData> node)
         {
-            node.DeleteNode();
+            node.Data.Clear();
         }
 
         // Vygenerovane / upravene pomocou AI - Kapitola 58
         public bool DeleteNode(LinkedList<KDKey<TKey>> keys)
         {
-            var node = Find(keys, includeDeleted: true);
-            if (node != null && !node.WasDeleted)
+            var node = Find(keys);
+            if (node != null && node.Data.Count > 0)
             {
-                node.DeleteNode();
+                node.Data.RemoveFirst();
                 return true;
             }
+            return false;
+        }
+
+        public bool DeleteNode(LinkedList<KDKey<TKey>> keys, TData data)
+        {
+            var node = Find(keys);
+            if (node == null)
+            {
+                return false;
+            }
+
+            var dataNode = node.Data.First;
+            while (dataNode != null)
+            {
+                if (EqualityComparer<TData>.Default.Equals(dataNode.Value, data))
+                {
+                    node.Data.Remove(dataNode);
+                    return true;
+                }
+
+                dataNode = dataNode.Next;
+            }
+
             return false;
         }
 
@@ -156,7 +175,7 @@ namespace DataStructures.KD_Tree
                     }
                 }
 
-                if (inside && !current.WasDeleted)
+                if (inside && current.Data.Count > 0)
                 {
                     result.AddLast(current);
                 }
