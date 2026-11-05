@@ -841,8 +841,8 @@ namespace DataStructTester.Testers
                 var actual = tree.FindRangeResults(pointMinX, pointMinY, pointMaxX, pointMaxY).ToHashSet();
                 if (!actual.SetEquals(reference.Keys))
                 {
-                    WriteTestOutput(output, $"/{name}: Chyba spravnosti pri Insert #{i}.");
-                    //return; //nebudem testovat findrange ked insert nefunguje
+                    WriteTestOutput(output, $"{name}: Test spravnosti zlyhal pri Insert #{i}.");
+                    return;
                 }
                 Console.WriteLine($"{name}: Kontrola spravnosti pri poradi Insert {i}/{pointCount - 1} - OK");
             }
@@ -889,7 +889,8 @@ namespace DataStructTester.Testers
                         output,
                         $"{name}: Chyba spravnosti pri FindRange #{i}. " +
                         $"Ocakavane {expected.Count}, ziskane {actual.Count}.");
-                    continue;
+                    WriteTestOutput(output, $"{name}: Test spravnosti zlyhal.");
+                    return;
                 }
 
                 if (!expected.SetEquals(actual))
@@ -898,7 +899,8 @@ namespace DataStructTester.Testers
                         output,
                         $"{name}: Chyba spravnosti pri FindRange #{i}. " +
                         $"Ocakavane {expected.Count}, ziskane {actual.Count}.");
-                    continue;
+                    WriteTestOutput(output, $"{name}: Test spravnosti zlyhal.");
+                    return;
                 }
 
                 Console.WriteLine($"{name}: kontrola spravnosti po FindRange #{i}/{ranges.Count} OK.");

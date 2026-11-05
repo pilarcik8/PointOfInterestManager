@@ -1,5 +1,4 @@
 ﻿using System.Collections.ObjectModel;
-using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using PoiManager.Model;
@@ -147,42 +146,24 @@ namespace GUI
                 SetStatus($"Exportované do {dialog.FileName}.");
             });
         }
-        // Vygenerovane / upravene pomocou AI - Kapitola 72
-
-        private void ChooseGeneratorFolder_Click(object sender, RoutedEventArgs e)
+        private void Generate_Click(object sender, RoutedEventArgs e)
         {
-            var dialog = new OpenFolderDialog
-            {
-                Title = "Vyberte priečinok pre vygenerovaný CSV súbor"
-            };
-
-            if (dialog.ShowDialog(this) != true)
+            var dialog = new GenerateDataWindow { Owner = this };
+            if (dialog.ShowDialog() != true)
             {
                 return;
             }
 
-            var fileName = Path.GetFileName(GeneratorPathBox.Text);
-            if (string.IsNullOrWhiteSpace(fileName))
-            {
-                fileName = "generated_data.csv";
-            }
-
-            GeneratorPathBox.Text = Path.Combine(dialog.FolderName, fileName);
-            SetStatus($"Vybraný priečinok: {dialog.FolderName}.");
-        }
-
-        // Vygenerovane / upravene pomocou AI - Kapitola 71
-        private void Generate_Click(object sender, RoutedEventArgs e)
-        {
             Run(() =>
             {
-                if (!int.TryParse(GeneratorCountBox.Text, out var count))
-                {
-                    throw new FormatException("Počet záznamov musí byť celé číslo.");
-                }
-
-                PoiController.GenerateTestData(GeneratorPathBox.Text, count);
-                SetStatus($"Vygenerovaných {count} záznamov do {Path.GetFullPath(GeneratorPathBox.Text)}.");
+                PoiController.GenerateTestData(
+                    dialog.OutputPath,
+                    dialog.RecordCount,
+                    dialog.MinLatitude,
+                    dialog.MinLongitude,
+                    dialog.MaxLatitude,
+                    dialog.MaxLongitude);
+                SetStatus($"Vygenerovaných {dialog.RecordCount} záznamov do {dialog.OutputPath}.");
             });
         }
 
@@ -192,7 +173,7 @@ namespace GUI
             Run(() => ShowResults(_controller.GetAll(), "Všetky body"));
         }
 
-        // ---- 1. Vyhladanie na pozicii ----
+        // ---- 1. Vyhladanie v hraniciach ----
         // Vygenerovane / upravene pomocou AI - Kapitola 67
 
         private void FindAtPosition_Click(object sender, RoutedEventArgs e)

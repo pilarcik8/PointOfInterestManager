@@ -44,7 +44,7 @@ namespace PoiManager.Model
             }
         }
 
-        private const string CsvHeader = "id,name,description,lat,lon,address,created_ad,updated_ad";
+        private const string CsvHeader = "id;name;description;lat;lon;address;created_at;updated_at";
 
         // Vygenerovane / upravene pomocou AI - Kapitola 66
         public void ImportPointsOfInterest(string pathToCSV)
@@ -105,7 +105,7 @@ namespace PoiManager.Model
             writer.WriteLine(CsvHeader);
             foreach (var poi in pois)
             {
-                writer.WriteLine(string.Join(",",
+                writer.WriteLine(string.Join(";",
                     poi.Id.ToString(CultureInfo.InvariantCulture),
                     EscapeCsv(poi.Name),
                     EscapeCsv(poi.Description),
@@ -135,7 +135,7 @@ namespace PoiManager.Model
         // Vygenerovane / upravene pomocou AI - Kapitola 66
         private static string EscapeCsv(string value)
         {
-            if (value.IndexOfAny(new[] { ',', '"', '\n', '\r' }) < 0)
+            if (value.IndexOfAny(new[] { ';', '"', '\n', '\r' }) < 0)
             {
                 return value;
             }
@@ -176,7 +176,7 @@ namespace PoiManager.Model
                 {
                     inQuotes = true;
                 }
-                else if (c == ',')
+                else if (c == ';')
                 {
                     fields.Add(current.ToString());
                     current.Clear();

@@ -8,6 +8,7 @@ namespace PoiManager.Controller
     public class PoiController
     {
         private const double EarthRadiusMeters = 6_371_000.0;
+        private const double MetersPerDegree = 110_000.0;
 
         // Hranice Slovenska s rezervou - body mimo nich model stale eviduje
         public const double AreaMinLat = 47.0;
@@ -42,28 +43,25 @@ namespace PoiManager.Controller
                 Math.Max(lat1, lat2), Math.Max(lon1, lon2)).ToList();
         }
 
-        // 2., 4., 6. Vyhladanie bodov v okoli - polomer v stupnoch
+        // 2., 4., 6. Vyhladanie bodov v okoli - polomer v metroch
         // Vygenerovane / upravene pomocou AI - Kapitola 67
         public List<PointOfInterest> FindAround(string latText, string lonText, string radiusText)
         {
             double lat = ParseLatitude(latText);
             double lon = ParseLongitude(lonText);
-            double radius = ParseDouble(radiusText, "Polomer");
-            if (radius < 0 || radius > 180)
+            double radiusMeters = ParseDouble(radiusText, "Polomer");
+            double maxRadiusMeters = Math.PI * EarthRadiusMeters;
+            if (!double.IsFinite(radiusMeters) || radiusMeters < 0 || radiusMeters > maxRadiusMeters)
             {
-                throw new FormatException("Polomer musí byť v rozsahu 0 až 180 stupňov.");
+                throw new FormatException($"Polomer musí byť v rozsahu 0 až {maxRadiusMeters:F0} metrov.");
             }
 
-            // Polomer je uhlová vzdialenosť v stupňoch; kandidátov obmedzí ohraničujúci obdĺžnik.
-            double angular = radius * Math.PI / 180.0;
-            double dLat = radius;
-            double dLon = 180.0;
+            // Prevod na stupne sa pouziva na vyhladanie kandidatov v ohranicujucom obdlzniku.
+            double radiusDegrees = radiusMeters / MetersPerDegree;
+            double minLat = Math.Max(-90.0, lat - radiusDegrees);
+            double maxLat = Math.Min(90.0, lat + radiusDegrees);
 
-            if (radius < 90.0 && lat - radius > -90.0 && lat + radius < 90.0)
-            {
-                double sinRatio = Math.Sin(angular) / Math.Cos(lat * Math.PI / 180.0);
-                dLon = sinRatio >= 1.0 ? 180.0 : Math.Asin(sinRatio) * 180.0 / Math.PI;
-            }
+            double dLon = radiusDegrees;
 
             double minLon = lon - dLon;
             double maxLon = lon + dLon;
@@ -74,9 +72,8 @@ namespace PoiManager.Controller
             }
 
             var candidates = _model.FindPointsRange(
-                Math.Max(-90.0, lat - dLat), minLon,
-                Math.Min(90.0, lat + dLat), maxLon);
-            double radiusMeters = angular * EarthRadiusMeters;
+                minLat, minLon,
+                maxLat, maxLon);
 
             var result = new List<PointOfInterest>();
             foreach (var poi in candidates)
@@ -156,7 +153,13 @@ namespace PoiManager.Controller
         }
 
         // Vygenerovane / upravene pomocou AI - Kapitola 71
-        public static void GenerateTestData(string path, int count)
+        public static void GenerateTestData(
+            string path,
+            int count,
+            double minLat,
+            double minLon,
+            double maxLat,
+            double maxLon)
         {
             if (string.IsNullOrWhiteSpace(path))
             {
@@ -168,9 +171,19 @@ namespace PoiManager.Controller
                 throw new ArgumentOutOfRangeException(nameof(count), "Počet záznamov musí byť väčší ako 0.");
             }
 
+            if (!double.IsFinite(minLat) || !double.IsFinite(maxLat) || minLat < -90 || maxLat > 90 || minLat > maxLat)
+            {
+                throw new ArgumentOutOfRangeException(nameof(minLat), "Hranice zemepisnej šírky musia byť v rozsahu -90 až 90 a minimum nesmie byť väčšie ako maximum.");
+            }
+
+            if (!double.IsFinite(minLon) || !double.IsFinite(maxLon) || minLon < -180 || maxLon > 180 || minLon > maxLon)
+            {
+                throw new ArgumentOutOfRangeException(nameof(minLon), "Hranice zemepisnej dĺžky musia byť v rozsahu -180 až 180 a minimum nesmie byť väčšie ako maximum.");
+            }
+
             var faker = new Faker();
             using var writer = new StreamWriter(path);
-            writer.WriteLine("id,name,description,lat,lon,address,created_ad,updated_ad");
+            writer.WriteLine("id;name;description;lat;lon;address;created_at;updated_at");
 
             for (var id = 0; id < count; id++)
             {
@@ -178,12 +191,12 @@ namespace PoiManager.Controller
                 var updatedAt = faker.Date.Between(createdAt, DateTime.UtcNow);
                 var address = id % 5 == 0 ? string.Empty : faker.Address.FullAddress();
 
-                writer.WriteLine(string.Join(",",
+                writer.WriteLine(string.Join(";",
                     id.ToString(CultureInfo.InvariantCulture),
                     EscapeCsv(faker.Address.City()),
                     EscapeCsv(faker.Lorem.Sentence()),
-                    faker.Random.Double(AreaMinLat, AreaMaxLat).ToString("R", CultureInfo.InvariantCulture),
-                    faker.Random.Double(AreaMinLon, AreaMaxLon).ToString("R", CultureInfo.InvariantCulture),
+                    faker.Random.Double(minLat, maxLat).ToString("R", CultureInfo.InvariantCulture),
+                    faker.Random.Double(minLon, maxLon).ToString("R", CultureInfo.InvariantCulture),
                     EscapeCsv(address),
                     createdAt.ToString("o", CultureInfo.InvariantCulture),
                     updatedAt.ToString("o", CultureInfo.InvariantCulture)));
@@ -205,7 +218,7 @@ namespace PoiManager.Controller
         // Vygenerovane / upravene pomocou AI - Kapitola 71
         private static string EscapeCsv(string value)
         {
-            if (value.IndexOfAny([',', '"', '\n', '\r']) < 0)
+            if (value.IndexOfAny([';', '"', '\n', '\r']) < 0)
             {
                 return value;
             }
