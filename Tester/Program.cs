@@ -33,17 +33,22 @@ rangesParser.LoadRanges(rangesFilePath);
 Console.WriteLine($"Obdlzniky nahrate\nPocet obdlznikov: {rangesParser.GetRowCount()}\n");
 
 // Random data
-var randomDataTreeTester = new RandomDataTreeTester();
-randomDataTreeTester.TestQTreeTester(operationsCount: 1000, insertProbability: 70, seed: 42, maxDepht: 10);
-randomDataTreeTester.TestKDTreeTester(operationsCount: 1000, insertProbability: 70, seed: 42);
-randomDataTreeTester.TestHybridTreeTester(operationsCount: 1000, insertProbability: 70, seed: 42, maxDepht: 10);
-
+/*
+for (int seed = 1; seed < 50; seed++)
+{
+    var randomDataTreeTester = new RandomDataTreeTester();
+    randomDataTreeTester.TestQTreeTester(operationsCount: 1000, insertProbability: 70, seed: seed, maxDepht: 10);
+    randomDataTreeTester.TestKDTreeTester(operationsCount: 1000, insertProbability: 70, seed: seed);
+    randomDataTreeTester.TestHybridTreeTester(operationsCount: 1000, insertProbability: 70, seed: seed, maxDepht: 10);
+}
+*/
 // External data
 ExternalDataTreeTester.RunBenchmark(
     points: pointsParser,
     ranges: rangesParser,
     maxPoints: 1000,
-    maxRanges: 100
+    maxRanges: 100,
+    outputFilePath: Path.Combine(projectPath, "..\\..\\..\\Data\\test_speed_results.txt")
 );
 
 ExternalDataTreeTester.RunCorrectnessTest(
@@ -52,7 +57,6 @@ ExternalDataTreeTester.RunCorrectnessTest(
     maxPoints: 1000,
     maxRanges: 100,
     insertCheckInterval: 10,
-    findCheckInterval: 10
+    findCheckInterval: 10,
+    outputFilePath: Path.Combine(projectPath, "..\\..\\..\\Data\\test_funkcnosti.txt")
 );
-
-

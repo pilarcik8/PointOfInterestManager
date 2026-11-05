@@ -70,10 +70,10 @@ namespace DataStructTester.Testers
             int nextId = 1;
 
             // rezerva 1 aby max != min
-            var randMaxX = random.Next(1, int.MaxValue);
-            var randMaxY = random.Next(1, int.MaxValue);
-            var randMinX = randMaxX - random.Next(0, randMaxX);
-            var randMinY = randMaxY - random.Next(0, randMaxY);
+            int randMaxX = random.Next(1, int.MaxValue);
+            int randMaxY = random.Next(1, int.MaxValue);
+            int randMinX = randMaxX - random.Next(0, randMaxX);
+            int randMinY = randMaxY - random.Next(0, randMaxY);
 
             var _qTree = new QTree<QTreeInfo, double>(minX: randMinX, minY: randMinY, maxX: randMaxX, maxY: randMaxY, 
                                                     getPosition: item => (item.X, item.Y), maxDepth: _maxDepth);
@@ -89,8 +89,13 @@ namespace DataStructTester.Testers
                     int data = nextId++;
 
                     // ocakavame ze niektore hodnoty budu mimo
-                    double x = random.Next(0, maxLength);
-                    double y = random.Next(0, maxLength);
+                    int boundaryOffsetX = random.Next(0, randMaxX / 1);
+                    int boundaryOffsetY = random.Next(0, randMaxY / 1);
+
+                    int xUpperBound = (int)Math.Min((long)int.MaxValue, (long)randMaxX + boundaryOffsetX);
+                    int yUpperBound = (int)Math.Min((long)int.MaxValue, (long)randMaxY + boundaryOffsetY);
+                    double x = random.Next(0, xUpperBound);
+                    double y = random.Next(0, yUpperBound);
 
                     var item = new QTreeInfo(data, x, y);
 
@@ -139,7 +144,7 @@ namespace DataStructTester.Testers
                 }
                 if (expected.Count != 0)
                 {
-                    throw new InvalidOperationException($"Chyba FindRange v operacii #{operationNumber} pre QTree: strom nevrátil {expected.Count} ocakavanych prvkov.");
+                    throw new InvalidOperationException($"Chyba FindRange v operacii #{operationNumber} pre QTree: strom nevrátil {expected.Count} ocakavanych prvkov. Pocet prvkov {actualData.Count}");
                 }
 
                 if (operationNumber % _checkInterval == 0 || operationNumber == _operationsCount)
@@ -294,8 +299,15 @@ namespace DataStructTester.Testers
                 if (doInsert)
                 {
                     int data = nextId++;
-                    double x = random.Next(0, maxLength);
-                    double y = random.Next(0, maxLength);
+
+                    // ocakavame ze niektore hodnoty budu mimo
+                    int boundaryOffsetX = random.Next(0, randMaxX / 1);
+                    int boundaryOffsetY = random.Next(0, randMaxY / 1);
+
+                    int xUpperBound = (int)Math.Min((long)int.MaxValue, (long)randMaxX + boundaryOffsetX);
+                    int yUpperBound = (int)Math.Min((long)int.MaxValue, (long)randMaxY + boundaryOffsetY);
+                    double x = random.Next(0, xUpperBound);
+                    double y = random.Next(0, yUpperBound);
 
                     var item = new QTreeInfo(data, x, y);
 

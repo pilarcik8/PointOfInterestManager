@@ -161,6 +161,16 @@ namespace DataStructures.QTree
                 }
             }
 
+            // Out of bounds data
+            foreach (var item in OutOfBoundsData)
+            {
+                var (x, y) = GetPosition(item);
+                if (x >= minX && x <= maxX && y >= minY && y <= maxY)
+                {
+                    result.AddLast(item);
+                }
+            }
+
             return result;
         }
 

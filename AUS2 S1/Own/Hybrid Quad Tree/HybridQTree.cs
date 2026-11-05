@@ -202,6 +202,7 @@ namespace DataStructures.Hybrid_Quad_Tree
                 }
             }
 
+            // Out of bounds data
             foreach (var item in _outOfBoundsData)
             {
                 var (x, y) = _getPosition(item);

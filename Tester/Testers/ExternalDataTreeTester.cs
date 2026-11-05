@@ -546,7 +546,7 @@ namespace DataStructTester.Testers
         public static void RunBenchmark(
             CSVParser points,
             CSVParser ranges,
-            string outputFilePath = "test_speed_results.txt",
+            string outputFilePath,
             int maxPoints = int.MaxValue,
             int maxRanges = int.MaxValue)
         {
@@ -606,12 +606,12 @@ namespace DataStructTester.Testers
         public static void RunCorrectnessTest(
             CSVParser points,
             CSVParser ranges,
+            string outputFilePath,
             int maxPoints = int.MaxValue,
             int maxRanges = int.MaxValue,
             int insertCheckInterval = 0,
             int findCheckInterval = 0,
-            int stopCheckInsertAfter = int.MaxValue,
-            string outputFilePath = "test_funkcnosti.txt")
+            int stopCheckInsertAfter = int.MaxValue)
         {
             if (insertCheckInterval < 0 || findCheckInterval < 0)
             {
