@@ -79,64 +79,6 @@ namespace DataStructures.Hybrid_Quad_Tree
             Count++;
         }
 
-        // Vygenerovane / upravene pomocou AI - Kapitola 58
-        public bool DeleteNode(TPosition x, TPosition y)
-        {
-            Node? current = _root;
-            int depth = 0;
-            while (current != null)
-            {
-                if (current.X == x && current.Y == y)
-                {
-                    if (current.Data.Count > 0)
-                    {
-                        current.Data.RemoveFirst();
-                        Count--;
-                        return true;
-                    }
-                    return false;
-                }
-
-                TPosition value = depth % 2 == 0 ? x : y;
-                TPosition nodeValue = depth % 2 == 0 ? current.X : current.Y;
-                current = value < nodeValue ? current.Left : current.Right;
-                depth++;
-            }
-
-            return false;
-        }
-
-        public bool DeleteNode(TData data, TPosition x, TPosition y)
-        {
-            Node? current = _root;
-            int depth = 0;
-            while (current != null)
-            {
-                if (current.X == x && current.Y == y)
-                {
-                    var dataNode = current.Data.First;
-                    while (dataNode != null)
-                    {
-                        if (EqualityComparer<TData>.Default.Equals(dataNode.Value, data))
-                        {
-                            current.Data.Remove(dataNode);
-                            Count--;
-                            return true;
-                        }
-
-                        dataNode = dataNode.Next;
-                    }
-                }
-
-                TPosition value = depth % 2 == 0 ? x : y;
-                TPosition nodeValue = depth % 2 == 0 ? current.X : current.Y;
-                current = value < nodeValue ? current.Left : current.Right;
-                depth++;
-            }
-
-            return false;
-        }
-
         // Vygenerovane / upravene pomocou AI - Kapitola 36, 39 
         public void FindRange(
             TPosition minX,

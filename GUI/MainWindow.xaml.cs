@@ -232,11 +232,18 @@ namespace GUI
 
             Run(() =>
             {
-                _controller.Update(_editTarget, EditNameBox.Text, EditDescBox.Text, EditLatBox.Text, EditLonBox.Text,
+                var updatedPoi = _controller.Update(_editTarget, EditNameBox.Text, EditDescBox.Text, EditLatBox.Text, EditLonBox.Text,
                     EditAddrBox.Text);
-                // PointOfInterest nema notifikacie zmien, tabulku treba prekreslit
-                ResultsGrid.Items.Refresh();
-                SetStatus($"Bod ID {_editTarget.Id} bol upravený.");
+                ShowResults(_controller.GetAll(), "Všetky body");
+                foreach (var poi in _results)
+                {
+                    if (poi.Id == updatedPoi.Id)
+                    {
+                        ResultsGrid.SelectedItem = poi;
+                        break;
+                    }
+                }
+                SetStatus($"Bod ID {updatedPoi.Id} bol upravený.");
             });
         }
 

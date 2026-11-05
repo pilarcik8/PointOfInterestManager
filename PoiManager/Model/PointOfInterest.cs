@@ -7,7 +7,7 @@ namespace PoiManager.Model
 {
     public class PointOfInterest
     {
-        public int Id { get; }
+        public long Id { get; }
         public double Latitude { get; private set; }
         public double Longitude { get; private set; }
         public String Name { get; private set; }
@@ -17,7 +17,7 @@ namespace PoiManager.Model
         public DateTime LastUpdatedAt { get; private set; }
         public bool WasDeleted { get; private set; }
 
-        public PointOfInterest(int id, double latitude, double longitude, String name, String description, String? address)
+        public PointOfInterest(long id, double latitude, double longitude, String name, String description, String? address)
         {
             Id = id;
             Latitude = latitude;
@@ -30,7 +30,7 @@ namespace PoiManager.Model
         }
 
         // Vygenerovane / upravene pomocou AI - Kapitola 66 (import z CSV so zachovanim casov)
-        public PointOfInterest(int id, double latitude, double longitude, String name, String description, String? address,
+        public PointOfInterest(long id, double latitude, double longitude, String name, String description, String? address,
                                DateTime createdAt, DateTime lastUpdatedAt)
             : this(id, latitude, longitude, name, description, address)
         {

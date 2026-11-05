@@ -105,47 +105,6 @@ namespace DataStructures.KD_Tree
             return null;
         }
 
-        // Vygenerovane / upravene pomocou AI - Kapitola 58
-        public void DeleteNode(KDNode<TKey, TData> node)
-        {
-            node.Data.Clear();
-        }
-
-        // Vygenerovane / upravene pomocou AI - Kapitola 58
-        public bool DeleteNode(LinkedList<KDKey<TKey>> keys)
-        {
-            var node = Find(keys);
-            if (node != null && node.Data.Count > 0)
-            {
-                node.Data.RemoveFirst();
-                return true;
-            }
-            return false;
-        }
-
-        public bool DeleteNode(LinkedList<KDKey<TKey>> keys, TData data)
-        {
-            var node = Find(keys);
-            if (node == null)
-            {
-                return false;
-            }
-
-            var dataNode = node.Data.First;
-            while (dataNode != null)
-            {
-                if (EqualityComparer<TData>.Default.Equals(dataNode.Value, data))
-                {
-                    node.Data.Remove(dataNode);
-                    return true;
-                }
-
-                dataNode = dataNode.Next;
-            }
-
-            return false;
-        }
-
         // Vygenerovane / upravene pomocou AI - Kapitola 22, 28, 29, 58
         public LinkedList<KDNode<TKey, TData>> FindRange(LinkedList<KDKey<TKey>> minKeys, LinkedList<KDKey<TKey>> maxKeys)
         {

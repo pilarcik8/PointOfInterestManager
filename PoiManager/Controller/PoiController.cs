@@ -99,14 +99,14 @@ namespace PoiManager.Controller
 
         // 4. Editacia vybraneho bodu vratane GPS pozicie
         // Vygenerovane / upravene pomocou AI - Kapitola 67, 70
-        public void Update(PointOfInterest poi, string name, string description, string latText, string lonText, 
+        public PointOfInterest Update(PointOfInterest poi, string name, string description, string latText, string lonText,
                             string address)
         {
             ValidateName(name);
             ValidateDescription(description);
             double lat = ParseLatitude(latText);
             double lon = ParseLongitude(lonText);
-            _model.UpdatePOI(poi, lat, lon, name.Trim(), description.Trim(), NullIfEmpty(address));
+            return _model.UpdatePOI(poi, lat, lon, name.Trim(), description.Trim(), NullIfEmpty(address));
         }
 
         // 5. Vyhladanie podla nazvu v obdlzniku (diakritika sa ignoruje v modeli)

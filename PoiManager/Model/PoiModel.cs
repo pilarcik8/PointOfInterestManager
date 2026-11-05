@@ -14,7 +14,7 @@ namespace PoiManager.Model
         private QTree<PointOfInterest, double>? _qTree;
         private HybridQTree<PointOfInterest, double>? _hybridQTree;
         private KDTree<double, PointOfInterest>? _kdTree;
-        private int UniqueID = 0;
+        private long UniqueID = 0;
 
         // Vygenerovane / upravene pomocou AI - Kapitola 55 
         public PoiModel(
@@ -183,7 +183,7 @@ namespace PoiManager.Model
         }
 
         // Vygenerovane / upravene pomocou AI - Kapitola 55
-        public void CreatePOI(string name, double lat, double lon, string desc, string? addr = null, int? id = null)
+        public void CreatePOI(string name, double lat, double lon, string desc, string? addr = null, long? id = null)
         {
             ValidateDescription(desc);
 
@@ -219,48 +219,41 @@ namespace PoiManager.Model
         }
 
         // Vygenerovane / upravene pomocou AI - Kapitola 60
-        public void UpdatePOI(PointOfInterest poi, double lat, double lon, string name, string desc, string? addr = null)
+        public PointOfInterest UpdatePOI(PointOfInterest poi, double lat, double lon, string name, string desc, string? addr = null)
         {
             ValidateDescription(desc);
 
             if (poi == null)
             {
-                return;
+                throw new ArgumentNullException(nameof(poi));
             }
 
             bool positionChanged = poi.Latitude != lat || poi.Longitude != lon;
 
             if (positionChanged)
             {
-                RemoveFromIndex(poi);
-                poi.UpdateValues(lat, lon, name, desc, addr);
+                poi.MarkDeleted();
+                var updatedPoi = new PointOfInterest(
+                    id: poi.Id,
+                    latitude: lat,
+                    longitude: lon,
+                    name: name,
+                    description: desc,
+                    address: addr,
+                    createdAt: poi.CreatedAt,
+                    lastUpdatedAt: DateTime.Now);
+                InsertIntoTree(updatedPoi);
+                return updatedPoi;
+            }
 
-                if (_qTree != null)
-                {
-                    _qTree.Insert(poi);
-                }
-                else if (_hybridQTree != null)
-                {
-                    _hybridQTree.Insert(poi);
-                }
-                else if (_kdTree != null)
-                {
-                    var keys = new LinkedList<KDKey<double>>();
-                    keys.AddLast(new KDKey<double>(poi.Longitude));
-                    keys.AddLast(new KDKey<double>(poi.Latitude));
-                    _kdTree.Insert(poi, keys);
-                }
-            }
-            else
-            {
-                poi.UpdateValues(lat, lon, name, desc, addr);
-            }
+            poi.UpdateValues(lat, lon, name, desc, addr);
+            return poi;
         }
 
         // Vygenerovane / upravene pomocou AI - Kapitola 60
-        public void UpdatePOI(PointOfInterest poi, string name, double lat, double lon, string desc, string? addr = null)
+        public PointOfInterest UpdatePOI(PointOfInterest poi, string name, double lat, double lon, string desc, string? addr = null)
         {
-            UpdatePOI(poi, lat, lon, name, desc, addr);
+            return UpdatePOI(poi, lat, lon, name, desc, addr);
         }
 
         private static void ValidateDescription(string description)
@@ -268,35 +261,6 @@ namespace PoiManager.Model
             if (string.IsNullOrWhiteSpace(description))
             {
                 throw new FormatException("Opis bodu je povinný.");
-            }
-        }
-
-        // Vygenerovane / upravene pomocou AI - Kapitola 59
-        private void RemoveFromIndex(PointOfInterest poi)
-        {
-            if (poi == null)
-            {
-                return;
-            }
-
-            if (_qTree != null)
-            {
-                _qTree.DeleteNode(poi);
-            }
-            else if (_hybridQTree != null)
-            {
-                _hybridQTree.DeleteNode(poi);
-            }
-            else if (_kdTree != null)
-            {
-                var keys = new LinkedList<KDKey<double>>();
-                keys.AddLast(new KDKey<double>(poi.Longitude));
-                keys.AddLast(new KDKey<double>(poi.Latitude));
-                _kdTree.DeleteNode(keys);
-            }
-            else
-            {
-                throw new InvalidOperationException("Ziadny strom nie je inicializovany.");
             }
         }
 
