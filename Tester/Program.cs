@@ -8,7 +8,6 @@
 // omni-collections: https://github.com/Codeturion/omni-collections - 9 stars - 0 watchers - 0 forks
 // BKDTree: https://github.com/DevAM-Tools/BKDTree - 2 stars - 1 watchers - 0 forks
 
-using DataStructTester.Testers;
 using System.Collections;
 using DataStructures;
 using DataStructTester;
@@ -16,6 +15,8 @@ using DataStructTester;
 using DataStructures.Hybrid_Quad_Tree;
 using DataStructures.QTree;
 using DataStructures.KD_Tree;
+
+using DataStructTester.Testers;
 
 var pointsParser = new CSVParser();
 var projectPath = Directory.GetCurrentDirectory();
@@ -31,16 +32,27 @@ rangesParser.LoadRanges(rangesFilePath);
 
 Console.WriteLine($"Obdlzniky nahrate\nPocet obdlznikov: {rangesParser.GetRowCount()}\n");
 
-var randomDataTreeTester = new RandomDataTreeTester(
-    kdTree: new KDTree<int, int>(2),
-    operationsCount: 1000,
-    insertProbability: 70,
-    seed: 42
+// Random data
+var randomDataTreeTester = new RandomDataTreeTester();
+randomDataTreeTester.TestQTreeTester(operationsCount: 1000, insertProbability: 70, seed: 42, maxDepht: 10);
+randomDataTreeTester.TestKDTreeTester(operationsCount: 1000, insertProbability: 70, seed: 42);
+randomDataTreeTester.TestHybridTreeTester(operationsCount: 1000, insertProbability: 70, seed: 42, maxDepht: 10);
+
+// External data
+ExternalDataTreeTester.RunBenchmark(
+    points: pointsParser,
+    ranges: rangesParser,
+    maxPoints: 1000,
+    maxRanges: 100
 );
-/*
-var randomDataQuadTreeTester = new RandomDataQuadTreeTester(
-    quadTree: new QTree<int>(),
-    operationsCount: 1000,
-    insertProbability: 70,
-    seed: 42
-);*/
+
+ExternalDataTreeTester.RunCorrectnessTest(
+    points: pointsParser,
+    ranges: rangesParser,
+    maxPoints: 1000,
+    maxRanges: 100,
+    insertCheckInterval: 10,
+    findCheckInterval: 10
+);
+
+

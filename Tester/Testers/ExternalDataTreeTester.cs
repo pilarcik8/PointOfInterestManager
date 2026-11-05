@@ -409,8 +409,6 @@ namespace DataStructTester.Testers
         private readonly BKDTree<Point, PointComparer> _tree =
             new(2, new PointComparer());
 
-
-
         // Vygenerovane / upravene pomocou AI - Kapitola 50
         public void Insert(long id, double x, double y)
         {
@@ -564,7 +562,7 @@ namespace DataStructTester.Testers
             const int maxDepth = 12;
 
             // MOJE
-            //RunBenchmarkForTree("Vlastny KD strom", new OwnKdTreeAdapter(), pointData, rangeData, output);
+            RunBenchmarkForTree("Vlastny KD strom", new OwnKdTreeAdapter(), pointData, rangeData, output);
             
             RunBenchmarkForTree("Vlastny Quad strom", new OwnQuadTreeAdapter(minX: pointMinX,
                                                                         minY: pointMinY,
@@ -577,14 +575,15 @@ namespace DataStructTester.Testers
                                                                                         maxX: pointMaxX,
                                                                                         maxY: pointMaxY,
                                                                                         maxDepth: maxDepth),
-                                                                                     pointData, rangeData, output); 
+                                                                                        pointData, rangeData, output); 
             // EXTERNE
             //QUAD
             RunBenchmarkForTree("QuadTree", new QuadTreeAdapter(minX: pointMinX,
                                                                 minY: pointMinY,
                                                                 maxX: pointMaxX,
                                                                 maxY: pointMaxY,
-                                                                maxDepth: maxDepth), pointData, rangeData, output);
+                                                                maxDepth: maxDepth), 
+                                                                pointData, rangeData, output);
             // max depth nema takze v parametri neni
             RunBenchmarkForTree("QuadTrees", new QuadTreesPointQuadTreeAdapter(minX: pointMinX,
                                                                                minY: pointMinY,
@@ -595,13 +594,12 @@ namespace DataStructTester.Testers
                                                                                           minY: pointMinY,
                                                                                           maxX: pointMaxX,
                                                                                           maxY: pointMaxY,
-                                                                                     maxDepth: maxDepth), pointData, rangeData, output);
-            //KD
-             /*   
+                                                                                          maxDepth: maxDepth), 
+                                                                                          pointData, rangeData, output);
+            //KD              
             RunBenchmarkForTree("Omni KD strom", new OmniKdTreeAdapter(), pointData, rangeData, output);
             RunBenchmarkForTree("BKDTree", new BkdTreeAdapter(), pointData, rangeData, output);
-            RunBenchmarkForTree("NetTopologySuite KD strom", new NetTopologySuiteKdTreeAdapter(), pointData, rangeData, output);
-             */
+            RunBenchmarkForTree("NetTopologySuite KD strom", new NetTopologySuiteKdTreeAdapter(), pointData, rangeData, output);             
         }
 
         // Kapitola 52

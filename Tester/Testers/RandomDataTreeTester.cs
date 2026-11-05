@@ -9,43 +9,36 @@ namespace DataStructTester.Testers
 {
     public class RandomDataTreeTester
     {
-        private readonly QTree<int, double>? _qTree;
-        private readonly KDTree<int, int>? _kdTree;
-        private readonly HybridQTree<int, double>? _hybridQTree;
+        private  int _operationsCount;
+        private  int _insertProbability;
+        private  int _seed;
+        private  int _checkInterval;
+        private  int _maxDepth;
 
-        private readonly int _operationsCount;
-        private readonly int _insertProbability;
-        private readonly int _seed;
-        private readonly int _checkInterval;
-
-        // Konstruktor pre QTree
         // Vygenerovane / upravene pomocou AI - Kapitola 27 (vytvorenie konštruktora), Kapitola 33 (zmena na QTree<int, double>)
-        public RandomDataTreeTester(
-            QTree<int, double> qTree,
+        public void TestQTreeTester(
             int operationsCount,
             int insertProbability,
             int seed,
+            int maxDepht,
             int checkInterval = 10
             )
         {
-            _qTree = qTree;
             _operationsCount = operationsCount;
             _insertProbability = insertProbability;
             _seed = seed;
+            _maxDepth = maxDepht;
             _checkInterval = checkInterval;
             RunQTreeTest();
         }
 
-        // Konstruktor pre KDTree
         // Vygenerovane / upravene pomocou AI - Kapitola 27
-        public RandomDataTreeTester(
-            KDTree<int, int> kdTree,
+        public void TestKDTreeTester(
             int operationsCount,
             int insertProbability,
             int seed,
             int checkInterval = 10)
         {
-            _kdTree = kdTree;
             _operationsCount = operationsCount;
             _insertProbability = insertProbability;
             _seed = seed;
@@ -53,18 +46,18 @@ namespace DataStructTester.Testers
             RunKDTreeTest();
         }
 
-        // Konstruktor pre HybridQTree
-        public RandomDataTreeTester(
-            HybridQTree<int, double> hybridQTree,
+        // Vygenerovane / upravene pomocou AI - Kapitola 73, 74
+        public void TestHybridTreeTester(
             int operationsCount,
             int insertProbability,
             int seed,
+            int maxDepht,
             int checkInterval = 10)
         {
-            _hybridQTree = hybridQTree;
             _operationsCount = operationsCount;
             _insertProbability = insertProbability;
             _seed = seed;
+            _maxDepth = maxDepht;
             _checkInterval = checkInterval;
             RunHybridTreeTest();
         }
@@ -76,6 +69,15 @@ namespace DataStructTester.Testers
             var referenceList = new List<QTreeInfo>();
             int nextId = 1;
 
+            // rezerva 1 aby max != min
+            var randMaxX = random.Next(1, int.MaxValue);
+            var randMaxY = random.Next(1, int.MaxValue);
+            var randMinX = randMaxX - random.Next(0, randMaxX);
+            var randMinY = randMaxY - random.Next(0, randMaxY);
+
+            var _qTree = new QTree<QTreeInfo, double>(minX: randMinX, minY: randMinY, maxX: randMaxX, maxY: randMaxY, 
+                                                    getPosition: item => (item.X, item.Y), maxDepth: _maxDepth);
+
             for (int operationNumber = 1; operationNumber <= _operationsCount; operationNumber++)
             {
                 bool doInsert = random.Next(100) < _insertProbability || referenceList.Count == 0;
@@ -85,21 +87,27 @@ namespace DataStructTester.Testers
                 if (doInsert)
                 {
                     int data = nextId++;
+
+                    // ocakavame ze niektore hodnoty budu mimo
                     double x = random.Next(0, maxLength);
                     double y = random.Next(0, maxLength);
 
-                    _qTree!.Insert(data);
-                    referenceList.Add(new QTreeInfo(data, x, y));
+                    var item = new QTreeInfo(data, x, y);
+
+                    _qTree!.Insert(item);
+                    referenceList.Add(item);
 
                     // kontrola
                     if (operationNumber % _checkInterval == 0 || operationNumber == _operationsCount)
                     {
-                        foreach (var item in referenceList)
+                        foreach (var refItem in referenceList)
                         {
-                            var found = _qTree!.FindRange(item.X, item.Y, item.X, item.Y);
-                            if (!found.Contains(item.Data))
+                            var found = _qTree!.FindRange(refItem.X, refItem.Y, refItem.X, refItem.Y);
+                            var foundData = found.Select(f => f.Data).ToList();
+
+                            if (!foundData.Contains(refItem.Data))
                             {
-                                throw new InvalidOperationException($"Chyba integrity po operacii #{operationNumber}: prvok {item.Data} na [{item.X}, {item.Y}] sa nenasiel.");
+                                throw new InvalidOperationException($"Chyba integrity po operacii #{operationNumber}: prvok {refItem.Data} na [{refItem.X}, {refItem.Y}] sa nenasiel.");
                             }
                         }
 
@@ -114,12 +122,14 @@ namespace DataStructTester.Testers
                 double minY = random.Next(0, maxLength);
                 double maxY = random.Next((int)Math.Round(minY) + 1, maxLength);
 
-                LinkedList<int> actual = _qTree!.FindRange(minX, minY, maxX, maxY);
+                var actual = _qTree!.FindRange(minX, minY, maxX, maxY);
+                var actualData = actual.Select(a => a.Data).ToList();
+
                 List<int> expected = referenceList
                     .Where(item => item.X >= minX && item.X <= maxX && item.Y >= minY && item.Y <= maxY)
                     .Select(item => item.Data).ToList();
 
-                foreach (var item in actual)
+                foreach (var item in actualData)
                 {
                     if (!expected.Contains(item))
                     {
@@ -161,6 +171,8 @@ namespace DataStructTester.Testers
             var random = new Random(_seed);
             var referenceList = new List<(int data, int[] keys)>();
             int nextId = 1;
+
+            var _kdTree = new KDTree<int, int>(2);
 
             for (int operationNumber = 1; operationNumber <= _operationsCount; operationNumber++)
             {
@@ -256,12 +268,22 @@ namespace DataStructTester.Testers
             Console.WriteLine("--------------------------------------------------");
         }
 
-        // Vygenerovane / upravene pomocou AI - Kapitola 72
+        // Vygenerovane / upravene pomocou AI - Kapitola 72, 73
         private void RunHybridTreeTest()
         {
             var random = new Random(_seed);
             var referenceList = new List<QTreeInfo>();
             int nextId = 1;
+
+            // rezerva 1 aby max != min
+            var randMaxX = random.Next(1, int.MaxValue);
+            var randMaxY = random.Next(1, int.MaxValue);
+            var randMinX = randMaxX - random.Next(0, randMaxX);
+            var randMinY = randMaxY - random.Next(0, randMaxY);
+
+            var _hybridQTree = new HybridQTree<QTreeInfo, double>(
+                minX: randMinX, minY: randMinY, maxX: randMaxX, maxY: randMaxY,
+                getPosition: item => (item.X, item.Y), maxDepth: _maxDepth);
 
             for (int operationNumber = 1; operationNumber <= _operationsCount; operationNumber++)
             {
@@ -275,18 +297,22 @@ namespace DataStructTester.Testers
                     double x = random.Next(0, maxLength);
                     double y = random.Next(0, maxLength);
 
-                    _hybridQTree!.Insert(data);
-                    referenceList.Add(new QTreeInfo(data, x, y));
+                    var item = new QTreeInfo(data, x, y);
+
+                    _hybridQTree.Insert(item);
+                    referenceList.Add(item);
 
                     // kontrola integrity
                     if (operationNumber % _checkInterval == 0 || operationNumber == _operationsCount)
                     {
-                        foreach (var item in referenceList)
+                        foreach (var refItem in referenceList)
                         {
-                            var found = _hybridQTree!.FindRange(item.X, item.Y, item.X, item.Y);
-                            if (!found.Contains(item.Data))
+                            var found = _hybridQTree.FindRange(refItem.X, refItem.Y, refItem.X, refItem.Y);
+                            var foundData = found.Select(f => f.Data).ToList();
+
+                            if (!foundData.Contains(refItem.Data))
                             {
-                                throw new InvalidOperationException($"Chyba integrity po operacii #{operationNumber}: prvok {item.Data} na [{item.X}, {item.Y}] sa v HybridQTree nenasiel.");
+                                throw new InvalidOperationException($"Chyba integrity po operacii #{operationNumber}: prvok {refItem.Data} na [{refItem.X}, {refItem.Y}] sa v HybridQTree nenasiel.");
                             }
                         }
 
@@ -301,12 +327,14 @@ namespace DataStructTester.Testers
                 double minY = random.Next(0, maxLength);
                 double maxY = random.Next((int)Math.Round(minY) + 1, maxLength);
 
-                LinkedList<int> actual = _hybridQTree!.FindRange(minX, minY, maxX, maxY);
+                var actual = _hybridQTree.FindRange(minX, minY, maxX, maxY);
+                var actualData = actual.Select(a => a.Data).ToList();
+
                 List<int> expected = referenceList
                     .Where(item => item.X >= minX && item.X <= maxX && item.Y >= minY && item.Y <= maxY)
                     .Select(item => item.Data).ToList();
 
-                foreach (var item in actual)
+                foreach (var item in actualData)
                 {
                     if (!expected.Contains(item))
                     {
