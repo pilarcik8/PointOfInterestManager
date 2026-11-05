@@ -127,7 +127,7 @@ namespace GUI
             Run(() =>
             {
                 _controller.Import(dialog.FileName);
-                ShowResults(_controller.GetAll(), "Všetky body po importe");
+                SetStatus($"Body boli importované z {dialog.FileName}.");
             });
         }
 
@@ -204,7 +204,6 @@ namespace GUI
                     CreateAddrBox.Text);
                 CreateNameBox.Text = CreateDescBox.Text = CreateLatBox.Text = CreateLonBox.Text = CreateAddrBox.Text =
                     string.Empty;
-                ShowResults(_controller.GetAll(), "Všetky body");
                 SetStatus("Bod bol vytvorený.");
             });
         }
@@ -234,12 +233,12 @@ namespace GUI
             {
                 var updatedPoi = _controller.Update(_editTarget, EditNameBox.Text, EditDescBox.Text, EditLatBox.Text, EditLonBox.Text,
                     EditAddrBox.Text);
-                ShowResults(_controller.GetAll(), "Všetky body");
-                foreach (var poi in _results)
+                for (var index = 0; index < _results.Count; index++)
                 {
-                    if (poi.Id == updatedPoi.Id)
+                    if (_results[index].Id == updatedPoi.Id)
                     {
-                        ResultsGrid.SelectedItem = poi;
+                        _results[index] = updatedPoi;
+                        ResultsGrid.SelectedItem = updatedPoi;
                         break;
                     }
                 }
